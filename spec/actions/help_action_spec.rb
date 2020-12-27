@@ -1,11 +1,11 @@
 RSpec.describe HelpAction do
-  let(:session) { Session.new }
+  let(:session) { Natural20::Session.new }
   before do
     EventManager.standard_cli
     String.disable_colorization true
     @battle = Battle.new(session, nil)
-    @fighter = PlayerCharacter.load(File.join("fixtures", "high_elf_fighter.yml"))
-    @rogue = PlayerCharacter.load(File.join("fixtures", "halfling_rogue.yml"))
+    @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+    @rogue = PlayerCharacter.load(session, File.join("fixtures", "halfling_rogue.yml"))
     @npc = Npc.new(:goblin, name: "Gruk")
     @battle.add(@fighter, :a)
     @battle.add(@rogue, :a)

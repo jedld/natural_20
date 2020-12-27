@@ -1,11 +1,11 @@
 RSpec.describe AiController::PathCompute do
-  let(:session) { Session.new }
+  let(:session) { Natural20::Session.new }
 
   context "medium size" do
     before do
       String.disable_colorization true
       @map = BattleMap.new(session, 'fixtures/path_finding_test')
-      @fighter = PlayerCharacter.load(File.join('fixtures', 'high_elf_fighter.yml'))
+      @fighter = PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
       @path_compute = AiController::PathCompute.new(nil, @map, @fighter)
     end
 
@@ -57,7 +57,7 @@ RSpec.describe AiController::PathCompute do
         expect(@path_compute.compute_path(3, 4, 4, 5)).to eq([[3, 4], [4, 5]])
         path_back = @path_compute.compute_path(0, 4, 0, 1)
         expect(path_back).to eq([[0, 4], [1, 4], [2, 4], [3, 4], [4, 3], [4, 2], [3, 1], [2, 1], [1, 1], [0, 1]])
-        
+
     end
 
     context "no path" do

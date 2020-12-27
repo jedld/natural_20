@@ -1,5 +1,5 @@
 module Entity
-  attr_accessor :entity_uid, :statuses, :color
+  attr_accessor :entity_uid, :statuses, :color, :session
 
   def heal!(amt)
     prev_hp = @hp
@@ -58,7 +58,7 @@ module Entity
         cur_x, cur_y = entity_1_pos
         pos_x, pos_y = entity_2_pos
 
-        distance = Math.sqrt((cur_x - pos_x)**2 + (cur_y - pos_y)**2).floor * 5 # one square - 5 ft
+        distance = Math.sqrt((cur_x - pos_x) ** 2 + (cur_y - pos_y) ** 2).floor * 5 # one square - 5 ft
 
         # determine melee options
         return true if distance <= melee_distance
@@ -144,7 +144,7 @@ module Entity
                           bonus_action: 1,
                           reaction: 1,
                           movement: speed,
-                          free_object_interaction: 1
+                          free_object_interaction: 1,
                         })
     entity_state[:statuses].delete(:dodge)
     entity_state[:statuses].delete(:disengage)
@@ -194,10 +194,10 @@ module Entity
     target_state = battle.entity_state_for(target)
     entity_state = battle.entity_state_for(self)
     target_state[:target_effect][self] = if target_state[:group] != entity_state[:group]
-                                           :help
-                                         else
-                                           :help_ability_check
-                                         end
+        :help
+      else
+        :help_ability_check
+      end
   end
 
   # Checks if an entity still has an action available
@@ -312,7 +312,7 @@ module Entity
 
   def usable_items
     @inventory.map do |k, v|
-      item_details = Session.load_equipment(v.type)
+      item_details = session.load_equipment(v.type)
       next unless item_details
       next unless item_details[:usable]
       next if item_details[:consumable] && v.qty.zero?
@@ -334,7 +334,7 @@ module Entity
       OpenStruct.new(
         name: k.to_sym,
         label: -> { v[:label].presence || k.to_s.humanize },
-        qty: v[:qty]
+        qty: v[:qty],
       )
     end
   end

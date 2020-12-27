@@ -9,7 +9,7 @@ class BattleMap
     @interactable_objects = {}
     @unaware_npcs = []
 
-    @properties = YAML.load_file(File.join(File.dirname(__FILE__), '..', "#{map_file}.yml")).deep_symbolize_keys!
+    @properties = YAML.load_file(File.join(session.root_path, "#{map_file}.yml")).deep_symbolize_keys!
 
     # terrain layer
     @base_map = @properties.dig(:map, :base).map do |lines|
@@ -42,7 +42,7 @@ class BattleMap
           object_meta = @legend[token.to_sym]
           raise "unknown object token #{token}" if object_meta.nil?
 
-          object_info = Session.load_object(object_meta[:type])
+          object_info = @session.load_object(object_meta[:type])
           obj = if object_info[:item_class]
                   object_info[:item_class].constantize.new(self, object_meta.merge(object_info))
                 else

@@ -3,7 +3,7 @@ class Battle
   attr_reader :map, :entities, :session, :battle_log, :started
 
   # Create an instance of a battle
-  # @param session [Session]
+  # @param session [Natural20::Session]
   # @param map [BattleMap]
   def initialize(session, map)
     @session = session
@@ -31,7 +31,7 @@ class Battle
   def add(entity, group, position: nil, token: nil)
     return if @entities[entity]
 
-    raise 'entity cannot be nil' if entity.nil?
+    raise "entity cannot be nil" if entity.nil?
 
     @entities[entity] = {
       group: group,
@@ -41,7 +41,7 @@ class Battle
       movement: 0,
       statuses: Set.new,
       free_object_interaction: 0,
-      target_effect: {}
+      target_effect: {},
     }
 
     @groups[group] ||= Set.new
@@ -103,7 +103,7 @@ class Battle
 
   def action!(action)
     opts = {
-      battle: self
+      battle: self,
     }
     action.resolve(@session, @map, opts)
   end
@@ -113,24 +113,24 @@ class Battle
   # @param action [Action]
   # @return [Entity]
   def valid_targets_for(entity, action, target_types: [:enemies], range: nil, include_objects: false)
-    raise 'not an action' unless action.is_a?(Action)
+    raise "not an action" unless action.is_a?(Action)
 
     target_types = target_types&.map(&:to_sym) || [:enemies]
     entity_group = @entities[entity][:group]
     attack_range = if action.action_type == :help
-                     5
-                   elsif action.action_type == :attack
-                     if action.npc_action
-                       action.npc_action[:range_max].presence || action.npc_action[:range]
-                     elsif action.using
-                       weapon = Session.load_weapon(action.using)
-                       weapon[:range_max].presence || weapon[:range]
-                     end
-                   else
-                     range
-                   end
+        5
+      elsif action.action_type == :attack
+        if action.npc_action
+          action.npc_action[:range_max].presence || action.npc_action[:range]
+        elsif action.using
+          weapon = session.load_weapon(action.using)
+          weapon[:range_max].presence || weapon[:range]
+        end
+      else
+        range
+      end
 
-    raise 'attack range cannot be nil' if attack_range.nil?
+    raise "attack range cannot be nil" if attack_range.nil?
 
     targets = @entities.map do |k, prop|
       next if !target_types.include?(:self) && k == entity
@@ -162,7 +162,7 @@ class Battle
 
     opponents = []
     @entities.each do |k, state|
-      opponents << k  if !k.dead? && state[:group] != source_group
+      opponents << k if !k.dead? && state[:group] != source_group
     end
     opponents
   end
@@ -247,7 +247,7 @@ class Battle
   def trigger_opportunity_attack(entity, target, cur_x, cur_y)
     event = {
       target: target,
-      position: [cur_x, cur_y]
+      position: [cur_x, cur_y],
     }
     action = entity.trigger_event(:opportunity_attack, self, @session, @map, event)
     if action

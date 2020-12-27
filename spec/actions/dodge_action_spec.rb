@@ -1,10 +1,10 @@
 RSpec.describe DodgeAction do
-  let(:session) { Session.new }
+  let(:session) { Natural20::Session.new }
   before do
     EventManager.standard_cli
     String.disable_colorization true
     @battle = Battle.new(session, nil)
-    @fighter = PlayerCharacter.load(File.join("fixtures", "high_elf_fighter.yml"))
+    @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
     @npc = Npc.new(:goblin)
     @battle.add(@fighter, :a)
     @battle.add(@npc, :b)

@@ -1,6 +1,6 @@
 RSpec.describe InteractAction do
-  let(:session) { Session.new }
-  let(:entity) { PlayerCharacter.load(File.join('fixtures', 'high_elf_fighter.yml')) }
+  let(:session) { Natural20::Session.new }
+  let(:entity) { PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml")) }
 
   before do
     @battle_map = BattleMap.new(session, "fixtures/battle_sim_objects")
@@ -11,8 +11,8 @@ RSpec.describe InteractAction do
                               interact: :open)
   end
 
-  context 'opening doors' do
-    specify 'resolve and apply' do
+  context "opening doors" do
+    specify "resolve and apply" do
       expect(@door.opened?).to_not be
       @action.resolve(session)
       @action.apply!(nil)

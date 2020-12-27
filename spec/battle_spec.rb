@@ -1,16 +1,16 @@
 RSpec.describe Battle do
-  let(:session) { Session.new }
-  context 'Simple Battle' do
+  let(:session) { Natural20::Session.new }
+  context "Simple Battle" do
     before do
-      @map = BattleMap.new(session, 'fixtures/battle_sim')
+      @map = BattleMap.new(session, "fixtures/battle_sim")
       @battle = Battle.new(session, @map)
-      @fighter = PlayerCharacter.load(File.join('fixtures', 'high_elf_fighter.yml'))
-      @npc = Npc.new(:goblin, name: 'a')
-      @npc2 = Npc.new(:goblin, name: 'b')
-      @npc3 = Npc.new(:ogre, name: 'c')
-      @battle.add(@fighter, :a, position: :spawn_point_1, token: 'G')
-      @battle.add(@npc, :b, position: :spawn_point_2, token: 'g')
-      @battle.add(@npc2, :b, position: :spawn_point_3, token: 'O')
+      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @npc = Npc.new(:goblin, name: "a")
+      @npc2 = Npc.new(:goblin, name: "b")
+      @npc3 = Npc.new(:ogre, name: "c")
+      @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
+      @battle.add(@npc, :b, position: :spawn_point_2, token: "g")
+      @battle.add(@npc2, :b, position: :spawn_point_3, token: "O")
       @fighter.reset_turn!(@battle)
       @npc.reset_turn!(@battle)
       @npc2.reset_turn!(@battle)
@@ -21,40 +21,40 @@ RSpec.describe Battle do
       srand(7000)
     end
 
-    specify 'attack' do
+    specify "attack" do
       @battle.start
       srand(7000)
-      action = @battle.action(@fighter, :attack, target: @npc, using: 'vicious_rapier')
+      action = @battle.action(@fighter, :attack, target: @npc, using: "vicious_rapier")
       expect(action.result).to eq([{
-                                    ammo: nil,
-                                    battle: @battle,
-                                    attack_name: 'Vicious Rapier',
-                                    source: @fighter,
-                                    type: :miss,
-                                    attack_roll: DieRoll.new([2], 8, 20),
-                                    target: @npc,
-                                    npc_action: nil
-                                  }])
-      action = @battle.action(@fighter, :attack, target: @npc, using: 'vicious_rapier')
+                                 ammo: nil,
+                                 battle: @battle,
+                                 attack_name: "Vicious Rapier",
+                                 source: @fighter,
+                                 type: :miss,
+                                 attack_roll: DieRoll.new([2], 8, 20),
+                                 target: @npc,
+                                 npc_action: nil,
+                               }])
+      action = @battle.action(@fighter, :attack, target: @npc, using: "vicious_rapier")
       expect(action.result).to eq([{
-                                    ammo: nil,
-                                    attack_name: 'Vicious Rapier',
-                                    type: :damage,
-                                    source: @fighter,
-                                    battle: @battle,
-                                    attack_roll: DieRoll.new([10], 8, 20),
-                                    hit?: true,
-                                    damage: DieRoll.new([2], 7, 8),
-                                    damage_type: 'piercing',
-                                    target_ac: 15,
-                                    target: @npc,
-                                    sneak_attack: nil,
-                                    npc_action: nil
-                                  }])
+                                 ammo: nil,
+                                 attack_name: "Vicious Rapier",
+                                 type: :damage,
+                                 source: @fighter,
+                                 battle: @battle,
+                                 attack_roll: DieRoll.new([10], 8, 20),
+                                 hit?: true,
+                                 damage: DieRoll.new([2], 7, 8),
+                                 damage_type: "piercing",
+                                 target_ac: 15,
+                                 target: @npc,
+                                 sneak_attack: nil,
+                                 npc_action: nil,
+                               }])
 
-      expect(@fighter.item_count('arrows')).to eq(20)
+      expect(@fighter.item_count("arrows")).to eq(20)
       @battle.commit(action)
-      expect(@fighter.item_count('arrows')).to eq(20)
+      expect(@fighter.item_count("arrows")).to eq(20)
 
       expect(@npc.hp).to eq(0)
       expect(@npc.dead?).to be
@@ -67,20 +67,20 @@ RSpec.describe Battle do
     end
   end
 
-  context '#valid_targets_for' do
+  context "#valid_targets_for" do
     before do
-      @battle_map = BattleMap.new(session, 'fixtures/battle_sim_objects')
+      @battle_map = BattleMap.new(session, "fixtures/battle_sim_objects")
       @battle = Battle.new(session, @battle_map)
-      @fighter = PlayerCharacter.load(File.join('fixtures', 'high_elf_fighter.yml'))
-      @npc = Npc.new(:goblin, name: 'a')
-      @battle_map.place(0, 5, @fighter, 'G')
+      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @npc = Npc.new(:goblin, name: "a")
+      @battle_map.place(0, 5, @fighter, "G")
       @battle.add(@fighter, :a)
       @door = @battle_map.object_at(1, 4)
     end
 
-    it 'shows all valid targets for attack action' do
+    it "shows all valid targets for attack action" do
       action = AttackAction.new(session, @fighter, :attack)
-      action.using = 'vicious_rapier'
+      action.using = "vicious_rapier"
       puts @battle_map.render
       expect(@battle.valid_targets_for(@fighter, action)).to eq([])
       @battle.add(@npc, :b, position: [1, 5])

@@ -18,7 +18,7 @@ class UseItemAction < Action
         }
       ],
       next: ->(item) {
-        item_details = Session.load_equipment(item)
+        item_details = session.load_equipment(item)
         raise "item #{item_details[:name]} not usable!" unless item_details[:usable]
 
         @target_item = item_details[:item_class].constantize.new(item, item_details)

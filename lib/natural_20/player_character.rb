@@ -6,11 +6,13 @@ class PlayerCharacter
 
   attr_accessor :hp, :other_counters, :resistances
 
-  def initialize(properties)
+  # @param session [Natural20::Session]
+  def initialize(session, properties)
+    @session = session
     @properties = properties.deep_symbolize_keys!
     @ability_scores = @properties[:ability]
     @equipped = @properties[:equipped]
-    @race_properties = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'races', "#{@properties[:race]}.yml")).deep_symbolize_keys!
+    @race_properties = YAML.load_file(File.join(session.root_path, "races", "#{@properties[:race]}.yml")).deep_symbolize_keys!
     @inventory = {}
     @color = @properties[:color]
     @properties[:inventory]&.each do |inventory|
@@ -24,7 +26,7 @@ class PlayerCharacter
     @class_properties = @properties[:classes].map do |klass, level|
       send(:"#{klass}_level=", level)
       send(:"initialize_#{klass}")
-      [klass.to_sym, YAML.load_file(File.join(File.dirname(__FILE__), '..', 'char_classes', "#{klass}.yml")).deep_symbolize_keys!]
+      [klass.to_sym, YAML.load_file(File.join(session.root_path, "char_classes", "#{klass}.yml")).deep_symbolize_keys!]
     end.to_h
   end
 
@@ -89,15 +91,15 @@ class PlayerCharacter
   end
 
   def perception_proficient?
-    @properties[:skills].include?('perception')
+    @properties[:skills].include?("perception")
   end
 
   def investigation_proficient?
-    @properties[:skills].include?('investigation')
+    @properties[:skills].include?("investigation")
   end
 
   def insight_proficient?
-    @properties[:skills].include?('insight')
+    @properties[:skills].include?("insight")
   end
 
   def to_h
@@ -111,21 +113,21 @@ class PlayerCharacter
         con: @ability_scores.fetch(:con),
         int: @ability_scores.fetch(:int),
         wis: @ability_scores.fetch(:wis),
-        cha: @ability_scores.fetch(:cha)
+        cha: @ability_scores.fetch(:cha),
       },
       passive: {
         perception: passive_perception,
         investigation: passive_investigation,
-        insight: passive_insight
-      }
+        insight: passive_insight,
+      },
     }
   end
 
   def melee_distance
     @properties[:equipped].map do |item|
-      weapon_detail = Session.load_weapon(item)
+      weapon_detail = session.load_weapon(item)
       next if weapon_detail.nil?
-      next unless weapon_detail[:type] == 'melee_attack'
+      next unless weapon_detail[:type] == "melee_attack"
 
       weapon_detail[:range]
     end.compact.max
@@ -139,7 +141,7 @@ class PlayerCharacter
       when :attack
         # check all equipped and create attack for each
         weapon_attacks = @properties[:equipped].map do |item|
-          weapon_detail = Session.load_weapon(item)
+          weapon_detail = session.load_weapon(item)
           next if weapon_detail.nil?
           next unless %w[ranged_attack melee_attack].include?(weapon_detail[:type])
           next if weapon_detail[:ammo] && !item_count(weapon_detail[:ammo]).positive?
@@ -150,7 +152,7 @@ class PlayerCharacter
         end.compact
 
         unarmed_attack = AttackAction.new(session, self, :attack)
-        unarmed_attack.using = 'unarmed_attack'
+        unarmed_attack.using = "unarmed_attack"
 
         weapon_attacks + [unarmed_attack]
       when :dodge
@@ -200,17 +202,17 @@ class PlayerCharacter
     modifier = 0
 
     modifier += case (weapon[:type])
-                when 'melee_attack'
-                  weapon[:properties]&.include?('finesse') ? [str_mod, dex_mod].max : str_mod
-                when 'ranged_attack'
-                  dex_mod
-                end
+      when "melee_attack"
+        weapon[:properties]&.include?("finesse") ? [str_mod, dex_mod].max : str_mod
+      when "ranged_attack"
+        dex_mod
+      end
 
     modifier
   end
 
   def proficient_with_weapon?(weapon)
-    return true if weapon[:name] == 'Unarmed Attack'
+    return true if weapon[:name] == "Unarmed Attack"
 
     @properties[:weapon_proficiencies]&.detect do |prof|
       weapon[:proficiency_type]&.include?(prof)
@@ -223,9 +225,9 @@ class PlayerCharacter
     @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
   end
 
-  def self.load(path)
+  def self.load(session, path)
     fighter_prop = YAML.load_file(path).deep_symbolize_keys!
-    @fighter = PlayerCharacter.new(fighter_prop)
+    @fighter = PlayerCharacter.new(session, fighter_prop)
   end
 
   def npc?
@@ -233,7 +235,7 @@ class PlayerCharacter
   end
 
   def describe_health
-    ''
+    ""
   end
 
   private
@@ -247,14 +249,14 @@ class PlayerCharacter
   end
 
   def equipped_ac
-    @equipments ||= YAML.load_file(File.join(File.dirname(__FILE__), '..', 'items', 'equipment.yml')).deep_symbolize_keys!
+    @equipments ||= YAML.load_file(File.join(session.root_path, "items", "equipment.yml")).deep_symbolize_keys!
 
     equipped_meta = @equipped.map { |e| @equipments[e.to_sym] }.compact
     armor = equipped_meta.detect do |equipment|
-      equipment[:type] == 'armor'
+      equipment[:type] == "armor"
     end
 
-    shield = equipped_meta.detect { |e| e[:type] == 'shield' }
+    shield = equipped_meta.detect { |e| e[:type] == "shield" }
 
     (armor.nil? ? 10 : armor[:ac]) + (shield.nil? ? 0 : shield[:bonus_ac])
   end

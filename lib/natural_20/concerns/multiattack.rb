@@ -4,7 +4,7 @@ module Multiattack
   end
 
   # Get available multiattack actions
-  # @param session [Session]
+  # @param session [Natural20::Session]
   # @param battle [Battle]
   # @return [Array]
   def multi_attack_actions(session, battle)
@@ -14,7 +14,7 @@ module Multiattack
   def reset_turn!(battle)
     entity_state = super battle
 
-    return entity_state unless class_feature?('multiattack')
+    return entity_state unless class_feature?("multiattack")
 
     multiattack_groups = {}
     @properties[:actions].select { |a| a[:multiattack_group] }.each do |a|
@@ -37,7 +37,7 @@ module Multiattack
   # @param npc_action [Hash]
   def multiattack?(battle, npc_action)
     return false unless npc_action
-    return false unless class_feature?('multiattack')
+    return false unless class_feature?("multiattack")
 
     entity_state = battle.entity_state_for(self)
 
