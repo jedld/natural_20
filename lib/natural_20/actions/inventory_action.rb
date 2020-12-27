@@ -1,3 +1,4 @@
+# typed: true
 class InventoryAction < Action
   def self.can?(_entity, _battle)
     true

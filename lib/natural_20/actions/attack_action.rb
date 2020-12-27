@@ -1,3 +1,4 @@
+# typed: true
 class AttackAction < Action
   attr_accessor :target, :using, :npc_action, :as_reaction
   attr_reader :advantage_mod

@@ -1,3 +1,4 @@
+# typed: false
 # class used for ray trace and path trace computations
 class RayTracer
   def initialize(map)

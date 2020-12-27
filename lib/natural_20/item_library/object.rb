@@ -1,3 +1,4 @@
+# typed: true
 module ItemLibrary
   class Object
     class InvalidInteractionAction < StandardError

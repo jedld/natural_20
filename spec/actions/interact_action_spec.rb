@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe InteractAction do
   let(:session) { Natural20::Session.new }
   let(:entity) { PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml")) }

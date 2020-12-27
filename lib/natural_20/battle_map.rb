@@ -1,3 +1,4 @@
+# typed: false
 class BattleMap
   attr_reader :base_map, :spawn_points, :size, :interactable_objects, :unaware_npcs
 
@@ -62,7 +63,7 @@ class BattleMap
           case token_type
           when 'npc'
             npc_meta = @legend.dig(token.to_sym)
-            entity = Npc.new(npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides])
+            entity = session.npc( npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides])
             @unaware_npcs << entity
             place(column_index, row_index, entity)
           when 'spawn_point'

@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe HelpAction do
   let(:session) { Natural20::Session.new }
   before do
@@ -6,7 +7,7 @@ RSpec.describe HelpAction do
     @battle = Battle.new(session, nil)
     @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
     @rogue = PlayerCharacter.load(session, File.join("fixtures", "halfling_rogue.yml"))
-    @npc = Npc.new(:goblin, name: "Gruk")
+    @npc = session.npc(:goblin, name: "Gruk")
     @battle.add(@fighter, :a)
     @battle.add(@rogue, :a)
     @battle.add(@npc, :b)

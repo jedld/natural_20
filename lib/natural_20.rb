@@ -1,3 +1,4 @@
+# typed: strict
 require "natural_20/version"
 require "natural_20/session"
 require "colorize"
@@ -31,7 +32,8 @@ require "natural_20/ai_controller/standard"
 require "natural_20/item_library/base_item"
 require "natural_20/item_library/healing_potion"
 require "natural_20/item_library/door_object"
-require "active_support/all"
+require "active_support"
+require "active_support/core_ext"
 require "yaml"
 
 module Natural20

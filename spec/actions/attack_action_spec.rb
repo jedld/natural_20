@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe AttackAction do
   let(:session) { Natural20::Session.new }
   before do
@@ -6,8 +7,8 @@ RSpec.describe AttackAction do
     @battle_map = BattleMap.new(session, "fixtures/battle_sim")
     @battle = Battle.new(session, @battle_map)
     @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-    @npc = Npc.new(:ogre)
-    @npc2 = Npc.new(:goblin)
+    @npc = session.npc(:ogre)
+    @npc2 = session.npc(:goblin)
     @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
     @battle.add(@npc, :b, position: :spawn_point_2, token: "g")
 

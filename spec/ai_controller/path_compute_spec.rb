@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe AiController::PathCompute do
   let(:session) { Natural20::Session.new }
 
@@ -32,7 +33,7 @@ RSpec.describe AiController::PathCompute do
     before do
       String.disable_colorization true
       @battle_map = BattleMap.new(session, 'fixtures/battle_sim_3')
-      @npc = Npc.new(:ogre, name: "grok")
+      @npc = session.npc(:ogre, name: "grok")
       @battle_map.place(0, 1, @npc)
       @path_compute = AiController::PathCompute.new(nil, @battle_map, @npc)
     end
@@ -64,7 +65,7 @@ RSpec.describe AiController::PathCompute do
       before do
         String.disable_colorization true
         @battle_map = BattleMap.new(session, 'fixtures/battle_sim_4')
-        @npc = Npc.new(:ogre, name: "grok")
+        @npc = session.npc(:ogre, name: "grok")
         @battle_map.place(0, 1, @npc)
         @path_compute = AiController::PathCompute.new(nil, @battle_map, @npc)
       end

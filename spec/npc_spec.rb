@@ -1,3 +1,4 @@
+# typed: false
 require "natural_20/npc"
 
 RSpec.describe Npc do
@@ -7,7 +8,7 @@ RSpec.describe Npc do
 
   context "goblen npc" do
     before do
-      @npc = Npc.new(:goblin, name: "Spark")
+      @npc = session.npc(:goblin, name: "Spark")
     end
 
     specify "#hp" do
@@ -30,7 +31,7 @@ RSpec.describe Npc do
 
   context "owlbear npc" do
     before do
-      @npc = Npc.new(:owlbear, name: "Grunt")
+      @npc = session.npc(:owlbear, name: "Grunt")
       @battle = Battle.new(session, @map)
       @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")

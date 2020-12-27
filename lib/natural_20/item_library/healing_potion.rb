@@ -1,3 +1,4 @@
+# typed: true
 module ItemLibrary
   class HealingPotion < BaseItem
     def build_map(action)

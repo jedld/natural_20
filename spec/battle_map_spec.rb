@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe BattleMap do
   let(:session) { Natural20::Session.new }
   context "map 1" do
@@ -5,7 +6,7 @@ RSpec.describe BattleMap do
       String.disable_colorization true
       @battle_map = BattleMap.new(session, "fixtures/battle_sim")
       @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-      @npc = Npc.new(:goblin, name: "grok")
+      @npc = session.npc( :goblin, name: "grok")
       @battle_map.place(0, 1, @fighter, "G")
     end
 
@@ -88,8 +89,8 @@ RSpec.describe BattleMap do
       @battle_map = BattleMap.new(session, "fixtures/battle_sim_3")
       @battle = Battle.new(session, @battle_map)
       @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-      @npc = Npc.new(:ogre, name: "grok")
-      @goblin = Npc.new(:goblin, name: "dave")
+      @npc = session.npc( :ogre, name: "grok")
+      @goblin = session.npc( :goblin, name: "dave")
       @battle_map.place(0, 5, @fighter, "G")
       @battle_map.place(0, 1, @npc)
       @battle.add(@fighter, :a)

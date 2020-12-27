@@ -6,6 +6,7 @@ PATH
       colorize
       pqueue
       random_name_generator
+      sorbet-runtime
       tty-prompt
       tty-table
 
@@ -97,6 +98,10 @@ GEM
       thor (~> 1.0)
       tilt (~> 2.0)
       yard (~> 0.9, >= 0.9.24)
+    sorbet (0.5.6189)
+      sorbet-static (= 0.5.6189)
+    sorbet-runtime (0.5.6189)
+    sorbet-static (0.5.6189-universal-darwin-14)
     strings (0.2.0)
       strings-ansi (~> 0.2)
       unicode-display_width (~> 1.5)
@@ -136,6 +141,7 @@ DEPENDENCIES
   rake (~> 12.0)
   rspec (~> 3.0)
   solargraph
+  sorbet
 
 BUNDLED WITH
    2.1.4

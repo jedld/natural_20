@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe MoveAction do
   let(:session) { Natural20::Session.new }
   let(:map) { BattleMap.new(session, "fixtures/battle_sim") }
@@ -5,7 +6,7 @@ RSpec.describe MoveAction do
     srand(1000)
     @battle = Battle.new(session, map)
     @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-    @npc = Npc.new(:goblin)
+    @npc = session.npc(:goblin)
     @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
     @battle.add(@npc, :b, position: :spawn_point_2, token: "g")
     @fighter.reset_turn!(@battle)
@@ -40,7 +41,7 @@ RSpec.describe MoveAction do
     let(:map) { BattleMap.new(session, "fixtures/battle_sim_2") }
 
     specify "opportunity attacks on large creatures" do
-      @ogre = Npc.new(:ogre)
+      @ogre = session.npc(:ogre)
       @battle.add(@ogre, :b, position: [1, 1], token: "g")
       @ogre.reset_turn!(@battle)
       expect(@action.opportunity_attack_list([[1, 0], [2, 0], [3, 0]], @battle, map).size).to eq(0)

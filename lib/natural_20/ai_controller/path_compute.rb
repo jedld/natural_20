@@ -1,3 +1,4 @@
+# typed: false
 require 'pqueue'
 module AiController
   MAX_DISTANCE = 4_000_000

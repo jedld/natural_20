@@ -1,3 +1,4 @@
+# typed: false
 module Entity
   attr_accessor :entity_uid, :statuses, :color, :session
 

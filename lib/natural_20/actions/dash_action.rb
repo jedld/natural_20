@@ -1,3 +1,4 @@
+# typed: true
 class DashAction < MoveAction
 
   def build_map

@@ -1,3 +1,4 @@
+# typed: true
 class DisengageAction < Action
   attr_accessor :as_bonus_action
 

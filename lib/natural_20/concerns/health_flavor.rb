@@ -1,3 +1,4 @@
+# typed: false
 module HealthFlavor
   def describe_health
     return '' if hp.zero?

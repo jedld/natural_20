@@ -1,4 +1,5 @@
-require 'random_name_generator'
+# typed: false
+require "random_name_generator"
 
 class Npc
   include Entity
@@ -7,11 +8,14 @@ class Npc
 
   attr_accessor :hp, :resistances, :npc_actions
 
-  def initialize(type, opt = {})
-    @properties = YAML.load_file(File.join('npcs', "#{type}.yml")).deep_symbolize_keys!
+  # @param session [Session]
+  # @param type [String,Symbol]
+  def initialize(session, type, opt = {})
+    @properties = YAML.load_file(File.join("npcs", "#{type}.yml")).deep_symbolize_keys!
     @properties.merge!(opt[:overrides].presence || {})
     @ability_scores = @properties[:ability]
     @color = @properties[:color]
+    @session = session
     @inventory = @properties[:default_inventory].map do |inventory|
       [inventory[:type].to_sym, OpenStruct.new({ qty: inventory[:qty] })]
     end.to_h
@@ -20,13 +24,13 @@ class Npc
     @resistances = []
     @statuses = Set.new
     name = case type
-           when 'goblin'
-             RandomNameGenerator.new(RandomNameGenerator::GOBLIN).compose(1)
-           when 'ogre'
-             %w[Guzar Irth Grukurg Zoduk].sample(1).first
-           else
-             type.to_s.humanize
-           end
+      when "goblin"
+        RandomNameGenerator.new(RandomNameGenerator::GOBLIN).compose(1)
+      when "ogre"
+        %w[Guzar Irth Grukurg Zoduk].sample(1).first
+      else
+        type.to_s.humanize
+      end
     @name = opt.fetch(:name, name)
     entity_uid = SecureRandom.uuid
     setup_attributes
@@ -86,7 +90,7 @@ class Npc
   end
 
   def melee_distance
-    @properties[:actions].select { |a| a[:type] == 'melee_attack' }.map do |action|
+    @properties[:actions].select { |a| a[:type] == "melee_attack" }.map do |action|
       action[:range]
     end&.max
   end

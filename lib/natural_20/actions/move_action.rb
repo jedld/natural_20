@@ -1,3 +1,4 @@
+# typed: true
 class MoveAction < Action
   include MovementHelper
 

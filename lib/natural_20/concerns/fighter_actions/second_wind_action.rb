@@ -1,3 +1,4 @@
+# typed: true
 class SecondWindAction < Action
   def self.can?(entity, battle)
     (battle.nil? || entity.total_bonus_actions(battle).positive?) && entity.second_wind_count.positive?

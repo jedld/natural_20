@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe DieRoll do
   before do
     String.disable_colorization true

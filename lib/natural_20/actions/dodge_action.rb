@@ -1,3 +1,4 @@
+# typed: true
 class DodgeAction < Action
   attr_accessor :as_bonus_action
 

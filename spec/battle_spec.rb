@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe Battle do
   let(:session) { Natural20::Session.new }
   context "Simple Battle" do
@@ -5,9 +6,9 @@ RSpec.describe Battle do
       @map = BattleMap.new(session, "fixtures/battle_sim")
       @battle = Battle.new(session, @map)
       @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-      @npc = Npc.new(:goblin, name: "a")
-      @npc2 = Npc.new(:goblin, name: "b")
-      @npc3 = Npc.new(:ogre, name: "c")
+      @npc = session.npc(:goblin, name: "a")
+      @npc2 = session.npc(:goblin, name: "b")
+      @npc3 = session.npc(:ogre, name: "c")
       @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
       @battle.add(@npc, :b, position: :spawn_point_2, token: "g")
       @battle.add(@npc2, :b, position: :spawn_point_3, token: "O")
@@ -72,7 +73,7 @@ RSpec.describe Battle do
       @battle_map = BattleMap.new(session, "fixtures/battle_sim_objects")
       @battle = Battle.new(session, @battle_map)
       @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-      @npc = Npc.new(:goblin, name: "a")
+      @npc = session.npc(:goblin, name: "a")
       @battle_map.place(0, 5, @fighter, "G")
       @battle.add(@fighter, :a)
       @door = @battle_map.object_at(1, 4)

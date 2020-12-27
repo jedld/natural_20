@@ -1,3 +1,4 @@
+# typed: false
 module Multiattack
   def setup_attributes
     super

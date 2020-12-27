@@ -1,3 +1,4 @@
+# typed: false
 RSpec.describe AiController::Standard do
   let(:session) { Natural20::Session.new }
   let(:controller) { AiController::Standard.new }
@@ -17,8 +18,8 @@ RSpec.describe AiController::Standard do
       controller.register_battle_listeners(@battle)
 
       @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
-      @npc1 = Npc.new(:goblin)
-      @npc2 = Npc.new(:ogre)
+      @npc1 = session.npc(:goblin)
+      @npc2 = session.npc(:ogre)
 
       @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
       @battle.add(@npc1, :b, position: :spawn_point_2, token: "g")

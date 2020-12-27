@@ -1,3 +1,4 @@
+# typed: false
 module ItemLibrary
   class DoorObject < Object
     attr_reader :state, :locked, :key_name

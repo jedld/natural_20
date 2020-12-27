@@ -1,3 +1,4 @@
+# typed: true
 module ItemLibrary
   class BaseItem
     attr_reader :name

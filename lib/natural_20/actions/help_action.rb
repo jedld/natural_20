@@ -1,3 +1,4 @@
+# typed: true
 class HelpAction < Action
   attr_accessor :target
 

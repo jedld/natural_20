@@ -1,3 +1,4 @@
+# typed: true
 class Action
   attr_reader :action_type, :result, :source, :session
 

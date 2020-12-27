@@ -1,3 +1,4 @@
+# typed: true
 module Natural20
   class Session
     attr_reader :root_path
@@ -12,15 +13,19 @@ module Natural20
         YAML.load_file(file)
       end
       @characters.map do |char_content|
-        PlayerCharacter.new(char_content)
+        PlayerCharacter.new(self, char_content)
       end
+    end
+
+    def npc(npc_type, options = {})
+      Npc.new(self, npc_type, options)
     end
 
     def load_npcs
       files = Dir[File.join(@root_path, "npcs", "*.yml")]
       files.map do |fname|
         npc_name = File.basename(fname, ".yml")
-        Npc.new(npc_name, rand_life: true)
+        Npc.new(self, npc_name, rand_life: true)
       end
     end
 

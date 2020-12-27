@@ -1,3 +1,4 @@
+# typed: true
 class DieRoll
   class DieRolls
     attr_accessor :rolls

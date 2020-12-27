@@ -1,3 +1,4 @@
+# typed: false
 module RogueClass
   attr_accessor :rogue_level
 

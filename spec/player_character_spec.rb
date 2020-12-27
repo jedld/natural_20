@@ -1,3 +1,4 @@
+# typed: false
 require "natural_20/player_character"
 
 RSpec.describe PlayerCharacter do

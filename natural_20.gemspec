@@ -30,10 +30,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "solargraph"
   spec.add_development_dependency "rspec"
+  spec.add_development_dependency "sorbet"
   spec.add_dependency "tty-table"
   spec.add_dependency "tty-prompt"
   spec.add_dependency "activesupport"
   spec.add_dependency "random_name_generator"
   spec.add_dependency "colorize"
   spec.add_dependency "pqueue"
+  spec.add_dependency "sorbet-runtime"
 end

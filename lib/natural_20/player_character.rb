@@ -1,3 +1,4 @@
+# typed: false
 class PlayerCharacter
   include Entity
   include RogueClass

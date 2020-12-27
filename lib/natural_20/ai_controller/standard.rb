@@ -1,3 +1,4 @@
+# typed: false
 module AiController
   class Standard
     include MovementHelper

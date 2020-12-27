@@ -1,3 +1,4 @@
+# typed: false
 require "natural_20/concerns/fighter_actions/second_wind_action"
 
 module FighterClass

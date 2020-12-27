@@ -1,3 +1,4 @@
+# typed: true
 class MultiattackAction < Action
   attr_accessor :as_bonus_action
 

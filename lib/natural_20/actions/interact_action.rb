@@ -1,3 +1,4 @@
+# typed: true
 class InteractAction < Action
   attr_accessor :target, :object_action
 

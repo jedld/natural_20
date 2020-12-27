@@ -1,3 +1,4 @@
+# typed: true
 class EventManager
   def self.clear
     @event_listeners = {}

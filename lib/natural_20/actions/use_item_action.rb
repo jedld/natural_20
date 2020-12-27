@@ -1,3 +1,4 @@
+# typed: true
 class UseItemAction < Action
   attr_accessor :target, :target_item
   def self.can?(entity, battle)

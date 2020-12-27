@@ -1,3 +1,4 @@
+# typed: true
 require "bundler/setup"
 require "natural_20"
 require "pry-byebug"

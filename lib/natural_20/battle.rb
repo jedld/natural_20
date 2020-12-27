@@ -1,3 +1,4 @@
+# typed: false
 class Battle
   attr_accessor :combat_order, :round
   attr_reader :map, :entities, :session, :battle_log, :started
@@ -108,9 +109,10 @@ class Battle
     action.resolve(@session, @map, opts)
   end
 
-  # Targets that make sense for a given action
+  # Generates targets that make sense for a given action
   # @param entity [Entity]
   # @param action [Action]
+  # @option target_types [Array]
   # @return [Entity]
   def valid_targets_for(entity, action, target_types: [:enemies], range: nil, include_objects: false)
     raise "not an action" unless action.is_a?(Action)

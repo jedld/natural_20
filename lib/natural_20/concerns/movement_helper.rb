@@ -1,3 +1,4 @@
+# typed: true
 module MovementHelper
   def compute_actual_moves(entity, current_moves, map, battle, movement_budget)
     actual_moves = []
