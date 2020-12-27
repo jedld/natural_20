@@ -1,5 +1,5 @@
 # typed: true
-class InteractAction < Action
+class InteractAction < Natural20::Action
   attr_accessor :target, :object_action
 
   def self.can?(entity, battle)
@@ -16,30 +16,30 @@ class InteractAction < Action
                      action: self,
                      param: [
                        {
-                         type: :select_object
-                       }
+                         type: :select_object,
+                       },
                      ],
                      next: lambda { |object|
-                             self.target = object
-                             OpenStruct.new({
-                                              param: [
-                                                {
+                       self.target = object
+                       OpenStruct.new({
+                         param: [
+                           {
                                                   type: :interact,
-                                                  target: object
-                                                }
-                                              ],
-                                              next: lambda { |action|
-                                                      self.object_action = action
-                                                      OpenStruct.new({
-                                                                       param: nil,
-                                                                       next: lambda {
-                                                                               self
-                                                                             }
-                                                                     })
-                                                    }
-
-                                            })
-                           }
+                                                  target: object,
+                                                },
+                         ],
+                         next: lambda { |action|
+                           self.object_action = action
+                           OpenStruct.new({
+                             param: nil,
+                             next: lambda {
+                               self
+                             },
+                           })
+                         },
+               
+                       })
+                     },
                    })
   end
 
@@ -56,7 +56,7 @@ class InteractAction < Action
       object_action: object_action,
       map: map,
       battle: battle,
-      type: :interact
+      type: :interact,
     }.merge(result)
     @result = [result_payload]
     self
@@ -67,8 +67,8 @@ class InteractAction < Action
       entity = item[:source]
       case (item[:type])
       when :interact
-        EventManager.received_event({ event: :interact, source: entity, target: item[:target],
-                                      object_action: item[:object_action] })
+        Natural20::EventManager.received_event({ event: :interact, source: entity, target: item[:target],
+                                                 object_action: item[:object_action] })
         item[:target].use!(entity, item)
         if item[:cost] == :action
           battle&.consume!(entity, :action, 1)

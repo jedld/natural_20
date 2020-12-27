@@ -12,7 +12,7 @@ require 'natural_20/cli/commandline_ui'
 @session = Natural20::Session.new
 
 # event handlers
-EventManager.standard_cli
+Natural20::EventManager.standard_cli
 
 def training_dummy
   chosen_characters = @prompt.multi_select('Select Character') do |menu|
@@ -27,8 +27,8 @@ def training_dummy
     end
   end
 
-  map = BattleMap.new(@session, "maps/battle_sim")
-  battle = Battle.new(@session, map)
+  map = Natural20::BattleMap.new(@session, "maps/battle_sim")
+  battle = Natural20::Battle.new(@session, map)
   command_line = CommandlineUI.new(battle, map)
   command_line.battle_ui(chosen_characters, chosen_enemies)
 end
@@ -37,7 +37,7 @@ def dice_roller
   dice_roll_str = nil
   loop do
     dice_roll_str = @prompt.ask('Dice Roll (ex. d20, d8+1) (a) > ')
-    dieRoll = DieRoll.roll dice_roll_str
+    dieRoll = Natural20::DieRoll.roll dice_roll_str
     puts "#{dieRoll} = #{dieRoll.result}"
     break unless dice_roll_str != 'q'
   end

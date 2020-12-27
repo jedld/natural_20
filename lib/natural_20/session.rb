@@ -13,19 +13,19 @@ module Natural20
         YAML.load_file(file)
       end
       @characters.map do |char_content|
-        PlayerCharacter.new(self, char_content)
+        Natural20::PlayerCharacter.new(self, char_content)
       end
     end
 
     def npc(npc_type, options = {})
-      Npc.new(self, npc_type, options)
+      Natural20::Npc.new(self, npc_type, options)
     end
 
     def load_npcs
       files = Dir[File.join(@root_path, "npcs", "*.yml")]
       files.map do |fname|
         npc_name = File.basename(fname, ".yml")
-        Npc.new(self, npc_name, rand_life: true)
+        Natural20::Npc.new(self, npc_name, rand_life: true)
       end
     end
 

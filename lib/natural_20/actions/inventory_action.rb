@@ -1,5 +1,5 @@
 # typed: true
-class InventoryAction < Action
+class InventoryAction < Natural20::Action
   def self.can?(_entity, _battle)
     true
   end
@@ -9,15 +9,15 @@ class InventoryAction < Action
                      action: self,
                      param: [
                        {
-                         type: :show_inventory
-                       }
+                         type: :show_inventory,
+                       },
                      ],
                      next: lambda { |_path|
-                             OpenStruct.new({
+                       OpenStruct.new({
                                               param: nil,
-                                              next: -> { self }
+                                              next: -> { self },
                                             })
-                           }
+                     },
                    })
   end
 end

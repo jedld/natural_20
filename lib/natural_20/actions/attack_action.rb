@@ -1,5 +1,5 @@
 # typed: true
-class AttackAction < Action
+class AttackAction < Natural20::Action
   attr_accessor :target, :using, :npc_action, :as_reaction
   attr_reader :advantage_mod
 
@@ -34,17 +34,17 @@ class AttackAction < Action
                      next: lambda { |target|
                        self.target = target
                        OpenStruct.new({
-                                              param: [
-                                                { type: :select_weapon },
-                                              ],
-                                              next: lambda { |weapon|
-                                                self.using = weapon
-                                                OpenStruct.new({
-                                                                       param: nil,
-                                                                       next: -> { self },
-                                                                     })
-                                              },
-                                            })
+                         param: [
+                           { type: :select_weapon },
+                         ],
+                         next: lambda { |weapon|
+                           self.using = weapon
+                           OpenStruct.new({
+                             param: nil,
+                             next: -> { self },
+                           })
+                         },
+                       })
                      },
                    })
   end
@@ -58,19 +58,19 @@ class AttackAction < Action
     @result.each do |item|
       case (item[:type])
       when :damage
-        EventManager.received_event({ source: item[:source], attack_roll: item[:attack_roll], target: item[:target], event: :attacked,
-                                      attack_name: item[:attack_name],
-                                      damage_type: item[:damage_type],
-                                      as_reaction: as_reaction,
-                                      damage_roll: item[:damage],
-                                      sneak_attack: item[:sneak_attack],
-                                      value: item[:damage].result + (item[:sneak_attack]&.result.presence || 0) })
+        Natural20::EventManager.received_event({ source: item[:source], attack_roll: item[:attack_roll], target: item[:target], event: :attacked,
+                                                 attack_name: item[:attack_name],
+                                                 damage_type: item[:damage_type],
+                                                 as_reaction: as_reaction,
+                                                 damage_roll: item[:damage],
+                                                 sneak_attack: item[:sneak_attack],
+                                                 value: item[:damage].result + (item[:sneak_attack]&.result.presence || 0) })
         item[:target].take_damage!(item, battle)
       when :miss
-        EventManager.received_event({ attack_roll: item[:attack_roll],
-                                      attack_name: item[:attack_name],
-                                      as_reaction: as_reaction,
-                                      source: item[:source], target: item[:target], event: :miss })
+        Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
+                                                 attack_name: item[:attack_name],
+                                                 as_reaction: as_reaction,
+                                                 source: item[:source], target: item[:target], event: :miss })
       end
 
       # handle ammo
@@ -144,15 +144,15 @@ class AttackAction < Action
     @advantage_mod = target_advantage_condition(battle, @source, target, weapon)
 
     # perform the dice rolls
-    attack_roll = DieRoll.roll("1d20+#{attack_mod}", disadvantage: with_disadvantage?, advantage: with_advantage?)
+    attack_roll = Natural20::DieRoll.roll("1d20+#{attack_mod}", disadvantage: with_disadvantage?, advantage: with_advantage?)
 
     if @source.class_feature?("sneak_attack") && (weapon[:properties]&.include?("finesse") || weapon[:type] == "ranged_attack")
       if with_advantage? || battle.enemy_in_melee_range?(target, [@source])
-        sneak_attack_roll = DieRoll.roll(@source.sneak_attack_level, crit: attack_roll.nat_20?)
+        sneak_attack_roll = Natural20::DieRoll.roll(@source.sneak_attack_level, crit: attack_roll.nat_20?)
       end
     end
 
-    damage = DieRoll.roll(damage_roll, crit: attack_roll.nat_20?)
+    damage = Natural20::DieRoll.roll(damage_roll, crit: attack_roll.nat_20?)
 
     # apply weapon bonus attacks
     damage = check_weapon_bonuses(weapon, damage, attack_roll)
@@ -201,7 +201,7 @@ class AttackAction < Action
 
   def check_weapon_bonuses(weapon, damage_roll, attack_roll)
     if weapon.dig(:bonus, :additional, :restriction) == "nat20_attack" && attack_roll.nat_20?
-      damage_roll += DieRoll.roll(weapon.dig(:bonus, :additional, :die))
+      damage_roll += Natural20::DieRoll.roll(weapon.dig(:bonus, :additional, :die))
     end
 
     damage_roll

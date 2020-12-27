@@ -8,8 +8,8 @@ module ItemLibrary
             type: :select_target,
             num: 1,
             range: 5,
-            target_types: [:allies, :self]
-          }
+            target_types: [:allies, :self],
+          },
         ],
         next: ->(target) {
           action.target = target
@@ -17,9 +17,9 @@ module ItemLibrary
             param: nil,
             next: ->() {
               action
-            }
+            },
           })
-        }
+        },
       })
     end
 
@@ -33,10 +33,10 @@ module ItemLibrary
     end
 
     def resolve
-      hp_regain_roll = DieRoll.roll(@properties[:hp_regained])
+      hp_regain_roll = Natural20::DieRoll.roll(@properties[:hp_regained])
 
       {
-        hp_gain_roll: hp_regain_roll
+        hp_gain_roll: hp_regain_roll,
       }
     end
 

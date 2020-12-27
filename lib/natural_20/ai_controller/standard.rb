@@ -4,14 +4,14 @@ module AiController
     include MovementHelper
 
     attr_reader :battle_data
+
     def initialize
       @battle_data = {}
     end
 
     def register_battle_listeners(battle)
       # detects noisy things
-      battle.add_battlefield_event_listener(:sound, lambda { |entity, position, stealth|
-      })
+      battle.add_battlefield_event_listener(:sound, lambda { |entity, position, stealth| })
 
       # detects line of sight movement
       battle.add_battlefield_event_listener(:movement, lambda { |entity, position|
@@ -48,10 +48,10 @@ module AiController
         entity_x, entity_y = map.position_of(entity)
         target_x, target_y = event[:position]
 
-        distance = Math.sqrt((target_x - entity_x)**2 + (target_y - entity_y)**2).ceil
+        distance = Math.sqrt((target_x - entity_x) ** 2 + (target_y - entity_y) ** 2).ceil
 
         action = entity.available_actions(session, battle).select do |s|
-          s.action_type == :attack && s.npc_action[:type] == 'melee_attack' && distance <= s.npc_action[:range]
+          s.action_type == :attack && s.npc_action[:type] == "melee_attack" && distance <= s.npc_action[:range]
         end.first
 
         if action
@@ -63,8 +63,8 @@ module AiController
     end
 
     # Tells AI to compute moves for an entity
-    # @param entity [Entity] The entity to compute moves for
-    # @param battle [Battle] An instance of the current battle
+    # @param entity [Natural20::Entity] The entity to compute moves for
+    # @param battle [Natural20::Battle] An instance of the current battle
     # @return [Array]
     def move_for(entity, battle)
       initialize_battle_data(battle, entity)
@@ -161,8 +161,8 @@ module AiController
     end
 
     # gain information about enemies in a fair and realistic way (e.g. using line of sight)
-    # @param battle [Battle]
-    # @param entity [Entity]
+    # @param battle [Natural20::Battle]
+    # @param entity [Natural20::Entity]
     def observe_enemies(battle, entity, enemy_positions = {})
       objects_around_me = battle.map.look(entity)
 
@@ -189,7 +189,7 @@ module AiController
       @battle_data[battle][entity] ||= {
         known_enemy_positions: {},
         hiding_spots: {},
-        investigate_location: {}
+        investigate_location: {},
       }
     end
   end

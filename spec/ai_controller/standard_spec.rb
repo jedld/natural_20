@@ -6,27 +6,27 @@ RSpec.describe AiController::Standard do
   # setup battle scenario
   # Gomerin vs a goblin and an ogre
   before do
-    EventManager.clear
-    EventManager.standard_cli
+    Natural20::EventManager.clear
+    Natural20::EventManager.standard_cli
   end
 
   context "standard tests" do
     before do
-      @map = BattleMap.new(session, "fixtures/battle_sim_2")
-      @battle = Battle.new(session, @map)
+      @map = Natural20::BattleMap.new(session, "fixtures/battle_sim_2")
+      @battle = Natural20::Battle.new(session, @map)
 
       controller.register_battle_listeners(@battle)
 
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @npc1 = session.npc(:goblin)
       @npc2 = session.npc(:ogre)
 
       @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
       @battle.add(@npc1, :b, position: :spawn_point_2, token: "g")
       @battle.add(@npc2, :b, position: :spawn_point_3, token: "g")
-      EventManager.register_event_listener([:died], ->(event) { puts "#{event[:source].name} died." })
-      EventManager.register_event_listener([:unconsious], ->(event) { puts "#{event[:source].name} unconsious." })
-      EventManager.register_event_listener([:initiative], ->(event) { puts "#{event[:source].name} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative." })
+      Natural20::EventManager.register_event_listener([:died], ->(event) { puts "#{event[:source].name} died." })
+      Natural20::EventManager.register_event_listener([:unconsious], ->(event) { puts "#{event[:source].name} unconsious." })
+      Natural20::EventManager.register_event_listener([:initiative], ->(event) { puts "#{event[:source].name} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative." })
       srand(7000)
     end
 

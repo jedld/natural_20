@@ -1,5 +1,5 @@
-name: Battle Sim
-description: Map for Battle Sim
+name: Natural20::Battle Sim
+description: Map for Natural20::Battle Sim
 map:
   base:
     - ....#.

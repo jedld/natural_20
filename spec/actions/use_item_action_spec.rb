@@ -1,7 +1,7 @@
 # typed: false
 RSpec.describe UseItemAction do
   let(:session) { Natural20::Session.new }
-  let(:entity) { PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml")) }
+  let(:entity) { Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml")) }
 
   before do
     @action = auto_build_self(entity, session, described_class,

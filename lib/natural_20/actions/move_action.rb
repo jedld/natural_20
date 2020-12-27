@@ -1,5 +1,5 @@
 # typed: true
-class MoveAction < Action
+class MoveAction < Natural20::Action
   include MovementHelper
 
   attr_accessor :move_path, :as_dash, :as_bonus_action
@@ -13,16 +13,16 @@ class MoveAction < Action
                      action: self,
                      param: [
                        {
-                         type: :movement
-                       }
+                         type: :movement,
+                       },
                      ],
                      next: lambda { |path|
-                             self.move_path = path
-                             OpenStruct.new({
-                                              param: nil,
-                                              next: -> { self }
-                                            })
-                           }
+                       self.move_path = path
+                       OpenStruct.new({
+                         param: nil,
+                         next: -> { self },
+                       })
+                     },
                    })
   end
 
@@ -32,7 +32,7 @@ class MoveAction < Action
   end
 
   def resolve(_session, map, opts = {})
-    raise 'no path specified' if (move_path.nil? || move_path.empty?) && opts[:move_path].nil?
+    raise "no path specified" if (move_path.nil? || move_path.empty?) && opts[:move_path].nil?
 
     # check for melee opportunity attacks
     battle = opts[:battle]
@@ -42,10 +42,10 @@ class MoveAction < Action
     actual_moves = []
 
     movement_budget = if as_dash
-                        @source.speed / 5
-                      else
-                        @source.available_movement(battle)
-                      end
+        @source.speed / 5
+      else
+        @source.available_movement(battle)
+      end
 
     actual_moves = compute_actual_moves(@source, current_moves, map, battle, movement_budget)
 
@@ -72,7 +72,7 @@ class MoveAction < Action
       battle: battle,
       type: :move,
       path: actual_moves,
-      position: actual_moves.last
+      position: actual_moves.last,
     }]
 
     self
@@ -107,8 +107,8 @@ class MoveAction < Action
           battle.entity_state_for(item[:source])[:movement] -= battle.map.movement_cost(item[:source], item[:path], battle)
         end
 
-        EventManager.received_event({ event: :move, source: item[:source], position: item[:position], path: item[:path],
-                                      as_dash: as_dash, as_bonus: as_bonus_action })
+        Natural20::EventManager.received_event({ event: :move, source: item[:source], position: item[:position], path: item[:path],
+                                                 as_dash: as_dash, as_bonus: as_bonus_action })
       end
     end
   end

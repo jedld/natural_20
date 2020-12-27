@@ -1,12 +1,12 @@
 # typed: false
 require "natural_20/player_character"
 
-RSpec.describe PlayerCharacter do
+RSpec.describe Natural20::PlayerCharacter do
   let(:session) { Natural20::Session.new }
 
   context "fighter" do
     before do
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
     end
 
     it "creates a player character" do

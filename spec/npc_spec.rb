@@ -1,7 +1,7 @@
 # typed: false
 require "natural_20/npc"
 
-RSpec.describe Npc do
+RSpec.describe Natural20::Npc do
   let(:session) do
     Natural20::Session.new
   end
@@ -32,8 +32,8 @@ RSpec.describe Npc do
   context "owlbear npc" do
     before do
       @npc = session.npc(:owlbear, name: "Grunt")
-      @battle = Battle.new(session, @map)
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @battle = Natural20::Battle.new(session, @map)
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
       @battle.add(@npc, :a, position: :spawn_point_2, token: "G")
       @npc.reset_turn!(@battle)

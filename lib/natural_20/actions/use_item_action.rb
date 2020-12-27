@@ -1,5 +1,5 @@
 # typed: true
-class UseItemAction < Action
+class UseItemAction < Natural20::Action
   attr_accessor :target, :target_item
   def self.can?(entity, battle)
     battle.nil? || entity.total_actions(battle).positive?
@@ -15,8 +15,8 @@ class UseItemAction < Action
       action: self,
       param: [
         {
-          type: :select_item
-        }
+          type: :select_item,
+        },
       ],
       next: ->(item) {
         item_details = session.load_equipment(item)
@@ -24,7 +24,7 @@ class UseItemAction < Action
 
         @target_item = item_details[:item_class].constantize.new(item, item_details)
         @target_item.build_map(self)
-      }
+      },
     })
   end
 
@@ -36,7 +36,7 @@ class UseItemAction < Action
       map: map,
       battle: battle,
       type: :use_item,
-      item: target_item
+      item: target_item,
     }.merge(target_item.resolve)
     @result = [result_payload]
     self
@@ -46,7 +46,7 @@ class UseItemAction < Action
     @result.each do |item|
       case (item[:type])
       when :use_item
-        EventManager.received_event({event: :use_item, source: item[:source], item: item[:item]})
+        Natural20::EventManager.received_event({ event: :use_item, source: item[:source], item: item[:item] })
         item[:item].use!(item[:target], item)
         item[:source].deduct_item(item[:item].name, 1) if item[:item].consumable?
         battle.entity_state_for(item[:source])[:action] -= 1 if battle

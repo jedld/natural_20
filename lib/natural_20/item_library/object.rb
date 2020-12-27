@@ -12,11 +12,11 @@ module ItemLibrary
       end
 
       def message
-        "Invalid action specified #{action}. should be in #{valid_actions.join(',')}"
+        "Invalid action specified #{action}. should be in #{valid_actions.join(",")}"
       end
     end
 
-    include Entity
+    include Natural20::Entity
 
     attr_accessor :hp, :statuses, :resistances, :name, :map
 
@@ -27,7 +27,7 @@ module ItemLibrary
       @properties = properties
       @resistances = properties[:resistances].presence || []
       setup_other_attributes
-      @hp = DieRoll.roll(properties[:hp_die] || properties[:max_hp]).result
+      @hp = Natural20::DieRoll.roll(properties[:hp_die] || properties[:max_hp]).result
     end
 
     def position

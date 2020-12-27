@@ -2,8 +2,8 @@
 RSpec.describe DisengageAction do
   let(:session) { Natural20::Session.new }
   before do
-    @battle = Battle.new(session, nil)
-    @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+    @battle = Natural20::Battle.new(session, nil)
+    @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
     @npc = session.npc(:goblin)
     @battle.add(@fighter, :a)
     @battle.add(@npc, :b)

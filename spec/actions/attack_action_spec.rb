@@ -4,9 +4,9 @@ RSpec.describe AttackAction do
   before do
     String.disable_colorization true
     srand(1000)
-    @battle_map = BattleMap.new(session, "fixtures/battle_sim")
-    @battle = Battle.new(session, @battle_map)
-    @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+    @battle_map = Natural20::BattleMap.new(session, "fixtures/battle_sim")
+    @battle = Natural20::Battle.new(session, @battle_map)
+    @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
     @npc = session.npc(:ogre)
     @npc2 = session.npc(:goblin)
     @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
@@ -38,7 +38,7 @@ RSpec.describe AttackAction do
   end
 
   specify "unarmed attack" do
-    EventManager.standard_cli
+    Natural20::EventManager.standard_cli
     action = AttackAction.build(session, @fighter).next.call(@npc).next.call("unarmed_attack").next.call
     @battle.action!(action)
     @battle.commit(action)
@@ -48,7 +48,7 @@ RSpec.describe AttackAction do
   specify "range disadvantage" do
     @battle.add(@npc2, :b, position: [3, 3], token: "O")
     @npc2.reset_turn!(@battle)
-    EventManager.standard_cli
+    Natural20::EventManager.standard_cli
     action = AttackAction.build(session, @fighter).next.call(@npc).next.call("longbow").next.call
     @battle.action!(action)
     @battle.commit(action)

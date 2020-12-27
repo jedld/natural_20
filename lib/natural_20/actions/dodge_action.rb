@@ -1,5 +1,5 @@
 # typed: true
-class DodgeAction < Action
+class DodgeAction < Natural20::Action
   attr_accessor :as_bonus_action
 
   def self.can?(entity, battle)
@@ -31,7 +31,7 @@ class DodgeAction < Action
     @result.each do |item|
       case (item[:type])
       when :dodge
-        EventManager.received_event({source: item[:source], event: :dodge })
+        Natural20::EventManager.received_event({ source: item[:source], event: :dodge })
         item[:source].dodging!(battle)
       end
 

@@ -1,7 +1,7 @@
 # typed: false
 require "natural_20/concerns/fighter_actions/second_wind_action"
 
-module FighterClass
+module Natural20::FighterClass
   attr_accessor :fighter_level, :second_wind_count
 
   def initialize_fighter

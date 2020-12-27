@@ -5,8 +5,8 @@ RSpec.describe AiController::PathCompute do
   context "medium size" do
     before do
       String.disable_colorization true
-      @map = BattleMap.new(session, 'fixtures/path_finding_test')
-      @fighter = PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
+      @map = Natural20::BattleMap.new(session, 'fixtures/path_finding_test')
+      @fighter = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
       @path_compute = AiController::PathCompute.new(nil, @map, @fighter)
     end
 
@@ -32,7 +32,7 @@ RSpec.describe AiController::PathCompute do
   context "large creatures" do
     before do
       String.disable_colorization true
-      @battle_map = BattleMap.new(session, 'fixtures/battle_sim_3')
+      @battle_map = Natural20::BattleMap.new(session, 'fixtures/battle_sim_3')
       @npc = session.npc(:ogre, name: "grok")
       @battle_map.place(0, 1, @npc)
       @path_compute = AiController::PathCompute.new(nil, @battle_map, @npc)
@@ -64,7 +64,7 @@ RSpec.describe AiController::PathCompute do
     context "no path" do
       before do
         String.disable_colorization true
-        @battle_map = BattleMap.new(session, 'fixtures/battle_sim_4')
+        @battle_map = Natural20::BattleMap.new(session, 'fixtures/battle_sim_4')
         @npc = session.npc(:ogre, name: "grok")
         @battle_map.place(0, 1, @npc)
         @path_compute = AiController::PathCompute.new(nil, @battle_map, @npc)

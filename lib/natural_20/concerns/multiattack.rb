@@ -6,12 +6,12 @@ module Multiattack
 
   # Get available multiattack actions
   # @param session [Natural20::Session]
-  # @param battle [Battle]
+  # @param battle [Natural20::Battle]
   # @return [Array]
   def multi_attack_actions(session, battle)
   end
 
-  # @param battle [Battle]
+  # @param battle [Natural20::Battle]
   def reset_turn!(battle)
     entity_state = super battle
 
@@ -28,13 +28,13 @@ module Multiattack
     entity_state
   end
 
-  # @param battle [Battle]
+  # @param battle [Natural20::Battle]
   def clear_multiattack!(battle)
     entity_state = battle.entity_state_for(self)
     entity_state[:multiattack] = {}
   end
 
-  # @param battle [Battle]
+  # @param battle [Natural20::Battle]
   # @param npc_action [Hash]
   def multiattack?(battle, npc_action)
     return false unless npc_action

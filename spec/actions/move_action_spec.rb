@@ -1,11 +1,11 @@
 # typed: false
 RSpec.describe MoveAction do
   let(:session) { Natural20::Session.new }
-  let(:map) { BattleMap.new(session, "fixtures/battle_sim") }
+  let(:map) { Natural20::BattleMap.new(session, "fixtures/battle_sim") }
   before do
     srand(1000)
-    @battle = Battle.new(session, map)
-    @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+    @battle = Natural20::Battle.new(session, map)
+    @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
     @npc = session.npc(:goblin)
     @battle.add(@fighter, :a, position: :spawn_point_1, token: "G")
     @battle.add(@npc, :b, position: :spawn_point_2, token: "g")
@@ -38,7 +38,7 @@ RSpec.describe MoveAction do
   end
 
   context "opportunity attack large creature" do
-    let(:map) { BattleMap.new(session, "fixtures/battle_sim_2") }
+    let(:map) { Natural20::BattleMap.new(session, "fixtures/battle_sim_2") }
 
     specify "opportunity attacks on large creatures" do
       @ogre = session.npc(:ogre)
@@ -49,7 +49,7 @@ RSpec.describe MoveAction do
   end
 
   specify "opportunity attach triggers" do
-    EventManager.standard_cli
+    Natural20::EventManager.standard_cli
 
     @npc.attach_handler(:opportunity_attack, ->(battle, session, map, event) {
       action = @npc.available_actions(session, battle).select { |s|

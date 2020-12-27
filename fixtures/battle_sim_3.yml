@@ -1,5 +1,5 @@
 name: Ogre Den
-description: Map for Battle Sim
+description: Map for Natural20::Battle Sim
 map:
   base:
     - '#######'

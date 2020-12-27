@@ -1,5 +1,5 @@
 # typed: false
-module RogueClass
+module Natural20::RogueClass
   attr_accessor :rogue_level
 
   def initialize_rogue
@@ -16,7 +16,7 @@ module RogueClass
       "7d6", "7d6",
       "8d6", "8d6",
       "9d6", "9d6",
-      "10d6", "10d6"
+      "10d6", "10d6",
     ][level]
   end
 

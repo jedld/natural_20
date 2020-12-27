@@ -1,5 +1,5 @@
 # typed: true
-class MultiattackAction < Action
+class MultiattackAction < Natural20::Action
   attr_accessor :as_bonus_action
 
   def self.can?(entity, battle)
@@ -9,7 +9,7 @@ class MultiattackAction < Action
   def build_map
     OpenStruct.new({
                      param: nil,
-                     next: -> { self }
+                     next: -> { self },
                    })
   end
 
@@ -22,12 +22,12 @@ class MultiattackAction < Action
     @result = [{
       source: @source,
       type: :multiattack,
-      battle: opts[:battle]
+      battle: opts[:battle],
     }]
     self
   end
 
-  # @param battle [Battle]
+  # @param battle [Natural20::Battle]
   def apply!(battle)
     @result.each do |item|
       case (item[:type])

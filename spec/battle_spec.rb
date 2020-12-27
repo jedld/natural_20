@@ -1,11 +1,11 @@
 # typed: false
-RSpec.describe Battle do
+RSpec.describe Natural20::Battle do
   let(:session) { Natural20::Session.new }
-  context "Simple Battle" do
+  context "Simple Natural20::Battle" do
     before do
-      @map = BattleMap.new(session, "fixtures/battle_sim")
-      @battle = Battle.new(session, @map)
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @map = Natural20::BattleMap.new(session, "fixtures/battle_sim")
+      @battle = Natural20::Battle.new(session, @map)
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @npc = session.npc(:goblin, name: "a")
       @npc2 = session.npc(:goblin, name: "b")
       @npc3 = session.npc(:ogre, name: "c")
@@ -16,9 +16,9 @@ RSpec.describe Battle do
       @npc.reset_turn!(@battle)
       @npc2.reset_turn!(@battle)
 
-      EventManager.register_event_listener([:died], ->(event) { puts "#{event[:source].name} died." })
-      EventManager.register_event_listener([:unconsious], ->(event) { puts "#{event[:source].name} unconsious." })
-      EventManager.register_event_listener([:initiative], ->(event) { puts "#{event[:source].name} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative." })
+      Natural20::EventManager.register_event_listener([:died], ->(event) { puts "#{event[:source].name} died." })
+      Natural20::EventManager.register_event_listener([:unconsious], ->(event) { puts "#{event[:source].name} unconsious." })
+      Natural20::EventManager.register_event_listener([:initiative], ->(event) { puts "#{event[:source].name} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative." })
       srand(7000)
     end
 
@@ -32,7 +32,7 @@ RSpec.describe Battle do
                                  attack_name: "Vicious Rapier",
                                  source: @fighter,
                                  type: :miss,
-                                 attack_roll: DieRoll.new([2], 8, 20),
+                                 attack_roll: Natural20::DieRoll.new([2], 8, 20),
                                  target: @npc,
                                  npc_action: nil,
                                }])
@@ -43,9 +43,9 @@ RSpec.describe Battle do
                                  type: :damage,
                                  source: @fighter,
                                  battle: @battle,
-                                 attack_roll: DieRoll.new([10], 8, 20),
+                                 attack_roll: Natural20::DieRoll.new([10], 8, 20),
                                  hit?: true,
-                                 damage: DieRoll.new([2], 7, 8),
+                                 damage: Natural20::DieRoll.new([2], 7, 8),
                                  damage_type: "piercing",
                                  target_ac: 15,
                                  target: @npc,
@@ -70,9 +70,9 @@ RSpec.describe Battle do
 
   context "#valid_targets_for" do
     before do
-      @battle_map = BattleMap.new(session, "fixtures/battle_sim_objects")
-      @battle = Battle.new(session, @battle_map)
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @battle_map = Natural20::BattleMap.new(session, "fixtures/battle_sim_objects")
+      @battle = Natural20::Battle.new(session, @battle_map)
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @npc = session.npc(:goblin, name: "a")
       @battle_map.place(0, 5, @fighter, "G")
       @battle.add(@fighter, :a)

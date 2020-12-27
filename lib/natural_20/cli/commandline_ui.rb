@@ -3,8 +3,8 @@ class CommandlineUI
   attr_reader :battle, :map, :session
 
   # Creates an instance of a commandline UI helper
-  # @param battle [Battle]
-  # @param map [BattleMap]
+  # @param battle [Natural20::Battle]
+  # @param map [Natural20::BattleMap]
   def initialize(battle, map)
     @battle = battle
     @session = battle.session
@@ -13,8 +13,8 @@ class CommandlineUI
   end
 
   # Create a attack target selection CLI UI
-  # @param entity [Entity]
-  # @param action [Action]
+  # @param entity [Natural20::Entity]
+  # @param action [Natural20::Action]
   # @option options range [Integer]
   def attack_ui(entity, action, options = {})
     selected_targets = []
@@ -62,7 +62,7 @@ class CommandlineUI
     selected_targets.flatten
   end
 
-  # @param entity [Entity]
+  # @param entity [Natural20::Entity]
   def target_ui(entity, initial_pos: nil, num_select: 1, validation: nil)
     selected = []
     initial_pos ||= map.position_of(entity)
@@ -106,7 +106,7 @@ class CommandlineUI
     selected.compact.map { |e| map.thing_at(*e) }
   end
 
-  # @param entity [Entity]
+  # @param entity [Natural20::Entity]
   def move_ui(entity, options = {})
     path = [map.position_of(entity)]
     loop do
@@ -279,7 +279,7 @@ class CommandlineUI
               menu.choice action.label, action
             end
             menu.choice "End", :end
-            menu.choice "Stop Battle", :stop
+            menu.choice "Stop Natural20::Battle", :stop
           end
 
           break if action == :end

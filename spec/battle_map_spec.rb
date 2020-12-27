@@ -1,11 +1,11 @@
 # typed: false
-RSpec.describe BattleMap do
+RSpec.describe Natural20::BattleMap do
   let(:session) { Natural20::Session.new }
   context "map 1" do
     before do
       String.disable_colorization true
-      @battle_map = BattleMap.new(session, "fixtures/battle_sim")
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @battle_map = Natural20::BattleMap.new(session, "fixtures/battle_sim")
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @npc = session.npc( :goblin, name: "grok")
       @battle_map.place(0, 1, @fighter, "G")
     end
@@ -86,9 +86,9 @@ RSpec.describe BattleMap do
 
   context "other sizes test" do
     before do
-      @battle_map = BattleMap.new(session, "fixtures/battle_sim_3")
-      @battle = Battle.new(session, @battle_map)
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @battle_map = Natural20::BattleMap.new(session, "fixtures/battle_sim_3")
+      @battle = Natural20::Battle.new(session, @battle_map)
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @npc = session.npc( :ogre, name: "grok")
       @goblin = session.npc( :goblin, name: "dave")
       @battle_map.place(0, 5, @fighter, "G")
@@ -118,8 +118,8 @@ RSpec.describe BattleMap do
 
   context "other objects" do
     before do
-      @battle_map = BattleMap.new(session, "fixtures/battle_sim_objects")
-      @fighter = PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+      @battle_map = Natural20::BattleMap.new(session, "fixtures/battle_sim_objects")
+      @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
       @battle_map.place(0, 5, @fighter, "G")
     end
 

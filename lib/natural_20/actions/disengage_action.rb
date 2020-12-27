@@ -1,5 +1,5 @@
 # typed: true
-class DisengageAction < Action
+class DisengageAction < Natural20::Action
   attr_accessor :as_bonus_action
 
   def self.can?(entity, battle)
@@ -9,7 +9,7 @@ class DisengageAction < Action
   def build_map
     OpenStruct.new({
                      param: nil,
-                     next: -> { self }
+                     next: -> { self },
                    })
   end
 
@@ -22,7 +22,7 @@ class DisengageAction < Action
     @result = [{
       source: @source,
       type: :disengage,
-      battle: opts[:battle]
+      battle: opts[:battle],
     }]
     self
   end
@@ -31,7 +31,7 @@ class DisengageAction < Action
     @result.each do |item|
       case (item[:type])
       when :disengage
-        EventManager.received_event({ source: item[:source], event: :disengage })
+        Natural20::EventManager.received_event({ source: item[:source], event: :disengage })
         item[:source].disengage!(battle)
       end
 
@@ -46,6 +46,6 @@ end
 
 class DisengageBonusAction < DisengageAction
   def self.can?(entity, battle)
-    battle && entity.class_feature?('cunning_action') && entity.total_bonus_actions(battle) > 0
+    battle && entity.class_feature?("cunning_action") && entity.total_bonus_actions(battle) > 0
   end
 end
