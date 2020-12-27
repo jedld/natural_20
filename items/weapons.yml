@@ -1,0 +1,97 @@
+unarmed_attack:
+  name: Unarmed Attack
+  type: melee_attack
+  proficiency_type:
+    - martial
+  subtype: weapon
+  range: 5
+  damage: 1
+  modifiers:
+  damage_type: bludgeoning
+  properties:
+  cost: 0
+  weight: 0
+  meta:
+    noise_target: 5
+    noise_source: 5
+dagger:
+  name: Dagger
+  type: melee_attack
+  proficiency_type:
+    - martial
+  subtype: weapon
+  range: 5
+  damage: 1d4
+  modifiers:
+  damage_type: piercing
+  properties:
+    - light
+    - thrown
+    - finesse
+  cost: 2
+  weight: 10
+  meta:
+    noise_target: 5
+    noise_source: 5
+vicious_rapier:
+  name: Vicious Rapier
+  type: melee_attack
+  proficiency_type:
+    - martial
+  subtype: weapon
+  range: 5
+  damage: 1d8
+  modifiers:
+  damage_type: piercing
+  properties:
+    - finesse
+  cost: 10
+  weight: 10
+  bonus:
+    additional:
+      die: 2d6
+      restriction: nat20_attack
+  meta:
+    noise_target: 5
+    noise_source: 5
+shortbow:
+  name: Shortbow
+  type: ranged_attack
+  proficiency_type:
+    - martial
+  subtype: weapon
+  range: 80
+  range_max: 320
+  damage: 1d6
+  modifiers:
+  damage_type: piercing
+  ammo: arrows
+  properties:
+    - ammunition
+    - ranged
+  cost: 25
+  weight: 2
+  meta:
+    noise_target: 5
+    noise_source: 5
+longbow:
+  name: Longbow
+  type: ranged_attack
+  proficiency_type:
+    - martial
+  subtype: weapon
+  range: 150
+  range_max: 600
+  damage: 1d8
+  modifiers:
+  damage_type: piercing
+  ammo: arrows
+  properties:
+    - heavy
+    - ammunition
+    - ranged
+  cost: 50
+  weight: 2
+  meta:
+    noise_target: 5
+    noise_source: 5

@@ -1,0 +1,38 @@
+require "natural_20/version"
+require "colorize"
+require "lib/die_roll"
+require "lib/concerns/entity"
+require "lib/item_library/object"
+require "lib/concerns/movement_helper"
+require "lib/actions/action"
+require "lib/concerns/fighter_class"
+require "lib/concerns/rogue_class"
+require "lib/actions/attack_action"
+require "lib/actions/multiattack_action"
+require "lib/actions/dodge_action"
+require "lib/actions/help_action"
+require "lib/actions/disengage_action"
+require "lib/actions/move_action"
+require "lib/actions/dash_action"
+require "lib/actions/use_item_action"
+require "lib/actions/interact_action"
+require "lib/actions/inventory_action"
+require "lib/battle"
+require "lib/utils/ray_tracer"
+require "lib/battle_map"
+require "lib/event_manager"
+require "lib/concerns/health_flavor"
+require "lib/concerns/multiattack"
+require "lib/player_character"
+require "lib/npc"
+require "lib/ai_controller/path_compute"
+require "lib/ai_controller/standard"
+require "lib/item_library/base_item"
+require "lib/item_library/healing_potion"
+require "lib/item_library/door_object"
+
+module Natural20
+  class Error < StandardError; end
+
+  # Your code goes here...
+end

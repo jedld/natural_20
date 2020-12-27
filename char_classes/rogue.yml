@@ -1,0 +1,45 @@
+---
+hit_die: 1d8
+proficiencies:
+- light_armor
+- longsword
+- simple_weapon
+- hand_crossbow
+- rapier
+- shortsword
+saving_throw_proficiency:
+- dex
+- int
+available_skills:
+- acrobatics
+- athletics
+- deception
+- insight
+- intimidation
+- investigation
+- perception
+- performance
+class_features:
+- cunning_action
+- sneak_attack
+proficiency_bonuses:
+- 2
+- 2
+- 2
+- 2
+- 3
+- 3
+- 3
+- 3
+- 4
+- 4
+- 4
+- 4
+- 5
+- 5
+- 5
+- 5
+- 6
+- 6
+- 6
+- 6

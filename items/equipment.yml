@@ -1,0 +1,35 @@
+padded:
+  name: Padded Armor
+  type: armor
+  subtype: light
+  ac: 11
+  cost: 5
+  weight: 8
+  disadvantage:
+    - stealh
+leather:
+  name: Leather
+  type: armor
+  subtype: light
+  ac: 11
+  cost: 10
+  weight: 10
+studded_leather:
+  name: Studded Leather
+  type: armor
+  subtype: light
+  ac: 12
+  cost: 45
+  weight: 13
+shield_of_the_hidden_lord:
+  name:
+  type: shield
+  require_attune: true
+  bonus_ac: 4
+healing_potion:
+  name: Potion of Healing
+  type: potion
+  usable: true
+  consumable: true
+  hp_regained: 2d4+2
+  item_class: ItemLibrary::HealingPotion

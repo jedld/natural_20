@@ -1,0 +1,44 @@
+name: Battle Sim
+description: Map for Battle Sim
+map:
+  base:
+    - .......
+    - .......
+    - '##..###'
+    - ....#..
+    - .......
+    - '###=###'
+    - .......
+  meta:
+    - ...D...
+    - .......
+    - .......
+    - ..C....
+    - .......
+    - .......
+    - .B...A.
+legend:
+  =:
+    name: front_door
+    type: wooden_door
+    state: closed
+    locked: true
+    key: wooden_door_key
+  A:
+    name: spawn_point_1
+    type: spawn_point
+  B:
+    name: spawn_point_2
+    type: spawn_point
+  C:
+    name: spawn_point_3
+    type: spawn_point
+  D:
+    name: spawn_point_4
+    type: spawn_point
+  g:
+    name: Krizzit
+    type: npc
+    sub_type: goblin
+    overrides:
+      hp: 40

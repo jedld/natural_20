@@ -1,0 +1,59 @@
+---
+kind: Goblin
+description: Goblins are small, black-hearted humanoids that lair in despoiled dungeons
+  and other dismal settings. Individually weak, they gather in large numbers to torment
+  other creatures.
+size: small
+race:
+- humanoid
+- goblinoid
+alignment: neutral_evil
+default_ac: 15
+max_hp: 7
+hp_die: 2d6
+speed: 30
+passive_perception: 9
+dark_vision: 60
+token:
+ - g
+color: green
+ability:
+  str: 8
+  dex: 14
+  con: 10
+  int: 10
+  wis: 8
+  cha: 8
+skills:
+  stealth: 6
+languages:
+- common
+- goblin
+cr: 0.25
+xp: 50
+proficiency_bonus: 2
+attributes:
+- nimble_escape
+actions:
+- name: Scimitar
+  type: melee_attack
+  range: 5
+  targets: 1
+  attack: 4
+  damage: 5
+  damage_die: 1d6+2
+  damage_type: slashing
+- name: Shortbow
+  type: ranged_attack
+  range: 80
+  range_max: 320
+  targets: 1
+  attack: 4
+  damage: 5
+  damage_die: 1d6
+  damage_mod: 2
+  damage_type: piercing
+  ammo: arrows
+default_inventory:
+- type: arrows
+  qty: 20

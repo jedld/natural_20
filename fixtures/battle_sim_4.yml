@@ -1,0 +1,26 @@
+name: Ogre Den
+description: Map for Battle Sim
+map:
+  base:
+    - '#######'
+    - '......#'
+    - '......#'
+    - '#######'
+    - '......#'
+    - '......#'
+    - '#######'
+  meta:
+    - .......
+    - A......
+    - .......
+    - .......
+    - .......
+    - B......
+    - .......
+legend:
+  A:
+    name: spawn_point_1
+    type: spawn_point
+  B:
+    name: spawn_point_2
+    type: spawn_point

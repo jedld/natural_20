@@ -1,0 +1,33 @@
+name: Warehouse
+description: Warehouse
+map:
+  base:
+    - '#######'
+    - '......#'
+    - '..o...#'
+    - '..#...#'
+    - '#=#####'
+    - '......#'
+    - '#######'
+  meta:
+    - .......
+    - A......
+    - .......
+    - .......
+    - .......
+    - B......
+    - .......
+legend:
+  =:
+    name: front_door
+    type: wooden_door
+    state: closed
+  o:
+    name: barrel
+    type: barrel
+  A:
+    name: spawn_point_1
+    type: spawn_point
+  B:
+    name: spawn_point_2
+    type: spawn_point

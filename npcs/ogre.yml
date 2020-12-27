@@ -1,0 +1,58 @@
+---
+kind: Ogre
+description: Ogres are hulking giants notorious for their quick tempers. When its
+  rage is incited, an ogre lashes out in a frustrated tantrum until it runs out of
+  objects or creatures to smash.
+size: large
+race:
+- giant
+alignment: chaotic_evil
+default_ac: 11
+max_hp: 59
+hp_die: 7d10+21
+speed: 40
+passive_perception: 9
+dark_vision: 60
+token:
+  - O┐
+  - └┘
+color: green
+ability:
+  str: 19
+  dex: 8
+  con: 16
+  int: 5
+  wis: 7
+  cha: 7
+skills:
+  stealth: 6
+languages:
+- common
+- giant
+cr: 2
+xp: 250
+proficiency_bonus: 2
+attributes: []
+actions:
+- name: Greatclub
+  type: melee_attack
+  range: 5
+  targets: 1
+  attack: 6
+  damage: 13
+  damage_die: 2d8+4
+  damage_type: slashing
+- name: Javelin
+  type: ranged_attack
+  range: 30
+  range_max: 120
+  targets: 1
+  attack: 6
+  damage: 5
+  damage_die: 2d6+4
+  damage_mod: 2
+  damage_type: piercing
+  ammo: javelin
+default_inventory:
+- type: javelin
+  qty: 1

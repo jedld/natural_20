@@ -1,0 +1,55 @@
+---
+kind: Owlbear
+description: A monstrous cross between giant owl and bear, an owlbear’s reputation for ferocity and aggression makes it one of the most feared predators of the wild.
+size: large
+race:
+  - monstrosity
+alignment: unaligned
+default_ac: 13
+max_hp: 59
+hp_die: 7d10+21
+speed: 40
+passive_perception: 13
+dark_vision: 60
+token:
+  - \/
+  - └┘
+color: light_magenta
+ability:
+  str: 20
+  dex: 12
+  con: 17
+  int: 3
+  wis: 12
+  cha: 7
+skills:
+  perceiption: 3
+languages:
+cr: 3
+xp: 700
+proficiency_bonus: 2
+attributes:
+  - keen_sight_and_smell
+  - multiattack
+multiattack:
+  - beak,claws
+actions:
+  - name: beak
+    type: melee_attack
+    range: 5
+    targets: 1
+    attack: 7
+    damage: 10
+    damage_die: 1d10+5
+    damage_type: piercing
+    multiattack_group: 1
+  - name: claws
+    type: melee_attack
+    range: 5
+    targets: 1
+    attack: 7
+    damage: 14
+    damage_die: 2d8+5
+    damage_type: piercing
+    multiattack_group: 1
+default_inventory: []

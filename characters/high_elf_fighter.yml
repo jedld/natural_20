@@ -1,0 +1,47 @@
+---
+name: Gomerin
+race: high_elf
+classes:
+  fighter: 1
+level: 1
+hit_die: inherit
+max_hp: 67
+ability:
+  str: 12
+  dex: 20
+  con: 16
+  int: 16
+  wis: 12
+  cha: 11
+class_features:
+- dueling
+- second_wind
+skills:
+- acrobatics
+- arcana
+- athletics
+- history
+- perception
+weapon_proficiencies:
+- martial
+- simple
+languages:
+- abyssal
+- celestial
+- common
+- elvish
+- goblin
+equipped:
+- vicious_rapier
+- longbow
+- shield
+- studded_leather
+- shield_of_the_hidden_lord
+inventory:
+- type: arrows
+  qty: 20
+- type: healing_potion
+  qty: 1
+- type: wooden_door_key
+  label: Key to a wooden door
+  qty: 1
