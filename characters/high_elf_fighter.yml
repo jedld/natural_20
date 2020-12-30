@@ -34,7 +34,6 @@ languages:
 equipped:
 - vicious_rapier
 - longbow
-- shield
 - studded_leather
 - shield_of_the_hidden_lord
 inventory:

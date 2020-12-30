@@ -18,7 +18,7 @@ RSpec.describe InteractAction do
       @action.resolve(session)
       @action.apply!(nil)
       expect(@door.opened?).to be
-      expect(@battle_map.objects_near(entity, nil)).to eq([@door])
+      expect(@battle_map.objects_near(entity, nil)).to include @door
     end
   end
 end

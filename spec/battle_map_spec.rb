@@ -129,7 +129,7 @@ RSpec.describe Natural20::BattleMap do
         "       \n" +
         "       \n" +
         "#=#    \n" +
-        "G·····#\n" +
+        "G`····#\n" +
         "##     \n")
 
         door = @battle_map.object_at(1, 4)
@@ -140,7 +140,7 @@ RSpec.describe Natural20::BattleMap do
           "  o    \n" +
           " ·#    \n" +
           "#-#    \n" +
-          "G·····#\n" +
+          "G`····#\n" +
           "##     \n")
     end
 
@@ -148,6 +148,14 @@ RSpec.describe Natural20::BattleMap do
       door = @battle_map.object_at(1, 4)
       door.close!
       expect(@battle_map.passable?(@fighter, 1,4)).to_not be
+    end
+
+    specify "#objects_near" do
+      door = @battle_map.object_at(1, 4)
+      goblin = @battle_map.entity_at(1, 5)
+      expect(goblin.dead?).to be
+      expect(@battle_map.objects_near(@fighter).size).to eq(2)
+      expect(@battle_map.objects_near(@fighter)).to eq([door, goblin])
     end
   end
 end

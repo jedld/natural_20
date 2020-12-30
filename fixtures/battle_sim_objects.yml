@@ -15,7 +15,7 @@ map:
     - .......
     - .......
     - .......
-    - B......
+    - Bg.....
     - .......
 legend:
   =:
@@ -31,3 +31,11 @@ legend:
   B:
     name: spawn_point_2
     type: spawn_point
+  g:
+    name: dead_goblin
+    type: npc
+    sub_type: goblin
+    overrides:
+      hp: 0
+      statuses:
+        - dead

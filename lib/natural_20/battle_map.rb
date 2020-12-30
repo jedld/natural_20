@@ -64,6 +64,8 @@ module Natural20
             case token_type
             when "npc"
               npc_meta = @legend.dig(token.to_sym)
+              raise "npc type requires sub_type as well" unless npc_meta[:sub_type]
+
               entity = session.npc(npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides])
               @unaware_npcs << entity
               place(column_index, row_index, entity)
@@ -91,15 +93,25 @@ module Natural20
     # Get object at map location
     # @param pos_x [Integer]
     # @param pos_y [Integer]
+    # @return [ItemLibrary::Object]
     def object_at(pos_x, pos_y)
       @objects[pos_x][pos_y]
     end
 
+    # Lists interactable objects near an entity
+    # @param entity [Entity]
+    # @param battle [Natural20::Battle]
+    # @return [Array]
     def objects_near(entity, battle = nil)
       target_squares = entity.melee_squares(self, @entities[entity])
       objects = []
       @interactable_objects.each do |object, position|
-        objects << object if !object.available_actions(entity, battle).empty? && target_squares.include?(position)
+        objects << object if !object.available_interactions(entity, battle).empty? && target_squares.include?(position)
+      end
+      @entities.each do |object, position|
+        if !object.available_interactions(entity, battle).empty? && target_squares.include?(position)
+          objects << object
+        end
       end
       objects
     end

@@ -4,6 +4,7 @@ require "random_name_generator"
 module Natural20
   class Npc
     include Natural20::Entity
+    prepend Natural20::Lootable
     include HealthFlavor
     include Multiattack
 
@@ -17,13 +18,24 @@ module Natural20
       @ability_scores = @properties[:ability]
       @color = @properties[:color]
       @session = session
+
       @inventory = @properties[:default_inventory].map do |inventory|
         [inventory[:type].to_sym, OpenStruct.new({ qty: inventory[:qty] })]
       end.to_h
+
+      @properties[:inventory]&.each do |inventory|
+        @inventory[inventory[:type]] = OpenStruct.new({ qty: inventory[:qty] })
+      end
+
       @npc_actions = @properties[:actions]
       @opt = opt
       @resistances = []
       @statuses = Set.new
+
+      @properties[:statuses]&.each do |stat|
+        @statuses.add(stat.to_sym)
+      end
+
       name = case type
         when "goblin"
           RandomNameGenerator.new(RandomNameGenerator::GOBLIN).compose(1)
@@ -98,6 +110,10 @@ module Natural20
 
     def class_feature?(feature)
       @properties[:attributes]&.include?(feature)
+    end
+
+    def available_interactions(entity, battle)
+      []
     end
 
     private

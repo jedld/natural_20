@@ -4,6 +4,7 @@ module Natural20
     include Natural20::Entity
     include Natural20::RogueClass
     include Natural20::FighterClass
+    prepend Natural20::Lootable
     include Multiattack
 
     attr_accessor :hp, :other_counters, :resistances
@@ -192,6 +193,10 @@ module Natural20
       end.compact.flatten + c_class.keys.map { |c| send(:"special_actions_for_#{c}", session, battle) }.flatten
     end
 
+    def available_interactions(entity, battle)
+      []
+    end
+
     def attack_roll_mod(weapon)
       modifier = attack_ability_mod(weapon)
 
@@ -227,11 +232,17 @@ module Natural20
       @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
     end
 
+    # Loads a pregen character from path
+    # @param session [Natural20::Session] The session to use
+    # @param path [String] path to character sheet YAML
+    # @return [Natural20::PlayerCharacter] An instance of PlayerCharacter
     def self.load(session, path)
       fighter_prop = YAML.load_file(path).deep_symbolize_keys!
-      @fighter = Natural20::PlayerCharacter.new(session, fighter_prop)
+      Natural20::PlayerCharacter.new(session, fighter_prop)
     end
 
+    # returns if an npc or a player character
+    # @return [Boolean]
     def npc?
       false
     end

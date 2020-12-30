@@ -63,5 +63,13 @@ RSpec.describe Natural20::PlayerCharacter do
                                              consumable: true,
                                              qty: 1 }])
     end
+
+    specify "#inventory_weight" do
+      expect(@fighter.inventory_weight).to eq(38.0)
+    end
+
+    specify "#carry_capacity" do
+      expect(@fighter.carry_capacity).to eq(180.0)
+    end
   end
 end

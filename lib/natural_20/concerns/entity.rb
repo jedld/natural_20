@@ -331,12 +331,17 @@ module Natural20
       map.objects_near(self, battle)
     end
 
+    # Returns items in the "backpack" of the entity
+    # @return [Array]
     def inventory
       @inventory.map do |k, v|
+        item = @session.load_weapon(k) || @session.load_equipment(k) || @session.load_object(k)
+
         OpenStruct.new(
           name: k.to_sym,
           label: -> { v[:label].presence || k.to_s.humanize },
           qty: v[:qty],
+          weight: item[:weight],
         )
       end
     end
@@ -346,9 +351,39 @@ module Natural20
         @properties[:tools]&.include?(prof.to_s)
     end
 
-    # return [Integer]
+    # Returns tghe proficiency bonus of this entity
+    # @return [Integer]
     def proficiency_bonus
       @properties[:proficiency_bonus].presence || 2
+    end
+
+    # returns in lbs the weight of all items in the inventory
+    # @return [Float] weight in lbs
+    def inventory_weight
+      (inventory + equipped_items).inject(0.0) do |sum, item|
+        sum + (item.weight.presence || "0").to_f * item.qty
+      end
+    end
+
+    # returns equipped items
+    # @return [Array] A List of items
+    def equipped_items
+      equipped_arr = @properties[:equipped] || []
+      equipped_arr.map do |k|
+        item = @session.load_weapon(k) || @session.load_equipment(k) || @session.load_object(k)
+        OpenStruct.new(
+          name: k.to_sym,
+          label: -> { item[:label].presence || k.to_s.humanize },
+          qty: 1,
+          weight: item[:weight],
+        )
+      end
+    end
+
+    # returns the carrying capacity of an entity in lbs
+    # @return [Float] carrying capacity in lbs
+    def carry_capacity
+      @ability_scores.fetch(:str, 1) * 15.0
     end
 
     protected

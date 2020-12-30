@@ -53,7 +53,7 @@ module ItemLibrary
       @properties[:size] || :medium
     end
 
-    def available_actions(entity, battle)
+    def available_interactions(entity, battle)
       []
     end
 

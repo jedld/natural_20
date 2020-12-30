@@ -63,7 +63,7 @@ module ItemLibrary
     # Returns available interaction with this object
     # @param entity [Natural20::PlayerCharacter]
     # @return [Array]
-    def available_actions(entity, battle = nil)
+    def available_interactions(entity, battle = nil)
       if locked?
         if entity.action?(battle) && entity.item_count('thieves_tools').positive? && entity.proficient?('thieves_tools')
           return %i[unlock lockpick]

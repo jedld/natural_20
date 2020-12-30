@@ -21,11 +21,22 @@ studded_leather:
   ac: 12
   cost: 45
   weight: 13
+shield:
+  name: Shield
+  type: shield
+  bonus_ac: 2
+  weight: 6
 shield_of_the_hidden_lord:
   name:
   type: shield
   require_attune: true
   bonus_ac: 4
+  weight: 6
+arrows:
+  name: Arrows
+  type: ammunition
+  weight: 0.05
+  cost: 0.05
 healing_potion:
   name: Potion of Healing
   type: potion

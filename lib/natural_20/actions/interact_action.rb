@@ -24,9 +24,9 @@ class InteractAction < Natural20::Action
                        OpenStruct.new({
                          param: [
                            {
-                                                  type: :interact,
-                                                  target: object,
-                                                },
+                             type: :interact,
+                             target: object,
+                           },
                          ],
                          next: lambda { |action|
                            self.object_action = action

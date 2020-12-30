@@ -41,8 +41,6 @@ module Natural20
 
     def load_object(object_name)
       @objects ||= YAML.load_file(File.join(@root_path, "items", "objects.yml")).deep_symbolize_keys!
-      raise "cannot find #{object_name}" unless @objects.key?(object_name.to_sym)
-
       @objects[object_name.to_sym]
     end
   end
