@@ -91,8 +91,7 @@ class MoveAction < Natural20::Action
 
       @source.grappling_targets.each do |grappling_target|
         start_pos = map.entity_or_object_pos(grappling_target)
-        grappled_entity_movement = check_opportunity_attacks(grappling_target, [start_pos] + grappled_movement,
-                                                             battle, grappled: true)
+        grappled_entity_movement = [start_pos] + grappled_movement
 
         additional_effects << {
           source: grappling_target,
