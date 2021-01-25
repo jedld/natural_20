@@ -1,11 +1,15 @@
 # typed: false
-module HealthFlavor
+module Natural20::HealthFlavor
   def describe_health
     return '' if hp.zero? || hp.negative?
 
     percentage = (hp.to_f / max_hp) * 100
 
-    token = if percentage > 90
+    token = if dead?
+              'dead'
+            elsif unconscious?
+              'unconscious'
+            elsif percentage > 90
               'max'
             elsif percentage > 75
               'over_75'

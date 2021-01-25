@@ -23,6 +23,16 @@ en:
     prone: Go Prone
     stand: Stand Up
     use_item: Use Item
+  attack_status:
+    being_helped: Being being_helped
+    prone: Target Prone
+    ranged_with_enemy_in_melee: Ranged weapon with enemy in melee range
+    small_creature_using_heavy: Heavy weapon used by small creature
+    target_dodge: Target is Dodging
+    target_is_prone: Target is prone in melee
+    target_is_prone_range: Ranged attack on prone target
+    target_long_range: Long range penalty
+    unseen_attacker: Attacker is unseen
   back: Back
   battle_simulator: Battle Simulator
   character_sheet:
@@ -68,6 +78,8 @@ en:
       over_25: starting to look more ragged or visibly slowing down
       over_50: 'visibly wounded with some injuries, but still fighting strong'
       over_75: 'doesn''t show any signs of slowing, just a few minor inconveniencing injuries'
+      dead: appears to be dead
+      unconscious: appears to be unconscious
   event:
     acrobatics:
       failure: '%{roll} = %{value} (dc 10) %{name} failed on an acrobatics check'
@@ -156,4 +168,6 @@ en:
   select_npcs: Select NPCs
   select_party_member: 'Select Party Member %{index}'
   unequip: Unequip
+  with_advantage: advantage
+  with_disadvantage: disadvantage
   'yes': 'Yes'

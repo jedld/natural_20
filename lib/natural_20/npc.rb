@@ -6,7 +6,7 @@ module Natural20
     include Natural20::Entity
     include Natural20::Notable
     prepend Natural20::Lootable
-    include HealthFlavor
+    include Natural20::HealthFlavor
     include Multiattack
 
     attr_accessor :hp, :resistances, :npc_actions, :battle_defaults

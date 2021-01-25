@@ -1,5 +1,44 @@
 # reusable utility methods for weapon calculations
 module Natural20::Weapons
+  # Check all the factors that affect advantage/disadvantage in attack rolls
+  def target_advantage_condition(battle, source, target, weapon)
+    advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon)
+
+    return 0 if advantages.empty? && disadvantages.empty?
+    return 0 if !advantages.empty? && !disadvantages.empty?
+
+    return 1 unless advantages.empty?
+
+    -1
+  end
+
+  # Compute all advantages and disadvantages
+  # @param battle [Natural20::Battle]
+  # @param source [Natural20::Entity]
+  # @param target [Natural20::Entity]
+  # @option weapon type [String]
+  # @return [Array]
+  def compute_advantages_and_disadvantages(battle, source, target, weapon)
+    advantage = []
+    disadvantage = []
+
+    disadvantage << :prone if source.prone?
+    disadvantage << :target_dodge if target.dodge?(battle)
+    advantage << :being_helped if battle.help_with?(target)
+    disadvantage << :target_long_range if battle.map && battle.map.distance(source, target) > weapon[:range]
+
+    if weapon[:type] == 'ranged_attack' && battle.map
+      disadvantage << :ranged_with_enemy_in_melee if battle.enemy_in_melee_range?(source)
+      disadvantage << :target_is_prone_range if target.prone?
+    end
+
+    disadvantage << :small_creature_using_heavy if weapon[:properties]&.include?('heavy') && source.size == :small
+    advantage << :target_is_prone if weapon[:type] == 'melee_attack' && target.prone?
+
+    advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source)
+    [advantage, disadvantage]
+  end
+
   # Calculates weapon damage roll
   # @param entity [Natural20::Entity]
   # @param weapon [Hash] weapon descriptor

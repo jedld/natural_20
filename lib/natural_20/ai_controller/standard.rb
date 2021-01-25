@@ -173,44 +173,48 @@ module AiController
 
       path_compute = PathCompute.new(battle, battle.map, entity)
       start_x, start_y = battle.map.position_of(entity)
-      to_enemy = enemy_positions.map do |k, v|
-        melee_positions = entity.locate_melee_positions(battle.map, v, battle)
-        shortest_path = nil
-        shortest_length = 1_000_000
 
-        melee_positions.each do |positions|
-          path = path_compute.compute_path(start_x, start_y, *positions)
-          next if path.nil?
+      compute_target_squares = if enemy_positions.is_a?(Hash)
+                                 positions = []
+                                 enemy_positions.each do |_k, v|
+                                   positions += entity.locate_melee_positions(battle.map, v, battle)
+                                 end
+                                 positions
+                               else
+                                 enemy_positions
+                               end
+      shortest_path = nil
+      shortest_length = 1_000_000
 
-          movement_cost = battle.map.movement_cost(entity, path, battle)
-          if movement_cost.cost * battle.map.feet_per_grid < shortest_length
-            shortest_path = path
-            shortest_length = path.size
-          end
+      compute_target_squares.each do |positions|
+        path = path_compute.compute_path(start_x, start_y, *positions)
+        next if path.nil?
+
+        movement_cost = battle.map.movement_cost(entity, path, battle)
+        if movement_cost.cost * battle.map.feet_per_grid < shortest_length
+          shortest_path = path
+          shortest_length = path.size
         end
-        [k, shortest_path]
-      end.compact.to_h
+      end
 
-      to_enemy.each do |_, path|
-        next if path.nil? || path.empty?
+      return [] if shortest_path.nil? || shortest_path.empty?
 
-        if entity.available_movement(battle).zero? && use_dash
-          if DashBonusAction.can?(entity, battle)
-            action DashBonusAction.new(battle.session, entity, :dash_bonus)
-            action.as_bonus_action = true
-            valid_actions <<  action
-          elsif DashAction.can?(entity, battle)
-            valid_actions << DashAction.new(battle.session, entity, :dash)
-          end
-        elsif MoveAction.can?(entity, battle)
-          move_action = MoveAction.new(battle.session, entity, :move)
-          move_budget = entity.available_movement(battle) / battle.map.feet_per_grid
-          path = compute_actual_moves(entity, path, battle.map, battle, move_budget).movement
-          next if path.size.zero? || path.size == 1
-
-          move_action.move_path = path
-          valid_actions << move_action
+      if entity.available_movement(battle).zero? && use_dash
+        if DashBonusAction.can?(entity, battle)
+          action DashBonusAction.new(battle.session, entity, :dash_bonus)
+          action.as_bonus_action = true
+          valid_actions <<  action
+        elsif DashAction.can?(entity, battle)
+          valid_actions << DashAction.new(battle.session, entity, :dash)
         end
+      elsif MoveAction.can?(entity, battle)
+        move_action = MoveAction.new(battle.session, entity, :move)
+        move_budget = entity.available_movement(battle) / battle.map.feet_per_grid
+        shortest_path = compute_actual_moves(entity, shortest_path, battle.map, battle, move_budget).movement
+        return [] if shortest_path.size.zero? || shortest_path.size == 1
+
+        move_action.move_path = shortest_path
+        valid_actions << move_action
       end
 
       valid_actions

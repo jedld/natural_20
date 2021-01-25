@@ -17,24 +17,43 @@ class CommandlineUI < Natural20::Controller
     @renderer = Natural20::MapRenderer.new(@map, @battle)
   end
 
+  def target_name(entity, target, weapon: nil)
+    cover_ac = cover_calculation(@map, entity, target)
+    target_labels = []
+    target_labels << target.name.colorize(:red)
+    target_labels << "(cover AC +#{cover_ac})" if cover_ac.positive?
+    if weapon
+      advantage_mod = target_advantage_condition(battle, entity, target, weapon)
+      adv_details, disadv_details = compute_advantages_and_disadvantages(battle, entity, target, weapon)
+      target_labels << t(:with_advantage) if advantage_mod.positive?
+      target_labels << t(:with_disadvantage) if advantage_mod.negative?
+
+      reasons = []
+      adv_details.each do |d|
+        reasons << "+#{t("attack_status.#{d}")}".colorize(:blue)
+      end
+      disadv_details.each do |d|
+        reasons << "-#{t("attack_status.#{d}")}".colorize(:red)
+      end
+
+      target_labels << reasons.join(',')
+    end
+    target_labels.join(' ')
+  end
+
   # Create a attack target selection CLI UI
   # @param entity [Natural20::Entity]
   # @param action [Natural20::Action]
   # @option options range [Integer]
   # @options options target [Array<Natural20::Entity>] passed when there are specific valid targets
   def attack_ui(entity, action, options = {})
+    weapon_details = options[:weapon] ? session.load_weapon(options[:weapon]) : nil
     selected_targets = []
     valid_targets = options[:targets] || battle.valid_targets_for(entity, action, target_types: options[:target_types],
                                                                                   range: options[:range])
     target = prompt.select("#{entity.name} targets") do |menu|
       valid_targets.each do |target|
-        cover_ac = cover_calculation(@map, entity, target)
-        target_name = if cover_ac.positive?
-                        "#{target.name.colorize(:red)} (cover AC +#{cover_ac})"
-                      else
-                        target.name.colorize(:red)
-                      end
-        menu.choice target_name, target
+        menu.choice target_name(entity, target, weapon: weapon_details), target
       end
       menu.choice 'Manual - Use cursor to select a target instead', :manual
       menu.choice 'Back', nil
@@ -45,15 +64,15 @@ class CommandlineUI < Natural20::Controller
     if target == :manual
       valid_targets = options[:targets] || battle.valid_targets_for(entity, action,
                                                                     target_types: options[:target_types], range: options[:range], include_objects: true)
-      targets = target_ui(entity, validation: lambda { |selected|
-                                                selected_entities = map.thing_at(*selected)
+      targets = target_ui(entity, weapon: weapon_details, validation: lambda { |selected|
+                                                                        selected_entities = map.thing_at(*selected)
 
-                                                return false if selected_entities.empty?
+                                                                        return false if selected_entities.empty?
 
-                                                selected_entities.detect do |selected_entity|
-                                                  valid_targets.include?(selected_entity)
-                                                end
-                                              })
+                                                                        selected_entities.detect do |selected_entity|
+                                                                          valid_targets.include?(selected_entity)
+                                                                        end
+                                                                      })
 
       if targets.flatten.uniq.size > (options[:num_select].presence || 1)
         loop do
@@ -82,7 +101,7 @@ class CommandlineUI < Natural20::Controller
   end
 
   # @param entity [Natural20::Entity]
-  def target_ui(entity, initial_pos: nil, num_select: 1, validation: nil, perception: 10, look_mode: false)
+  def target_ui(entity, initial_pos: nil, num_select: 1, validation: nil, perception: 10, weapon: nil, look_mode: false)
     selected = []
     initial_pos ||= map.position_of(entity)
     new_pos = nil
@@ -101,12 +120,7 @@ class CommandlineUI < Natural20::Controller
         prompt.say(t('perception.using_darkvision')) unless map.can_see_square?(entity, *initial_pos,
                                                                                 allow_dark_vision: false)
         things.each do |thing|
-          if thing.npc?
-            target_cover_ac = cover_calculation(@map, entity, thing)
-            prompt.say("target cover AC +#{target_cover_ac}") if target_cover_ac > 0
-            source_cover_ac = cover_calculation(@map, thing, entity)
-            prompt.say("#{entity.name} has AC +#{source_cover_ac} cover from #{thing.name}") if source_cover_ac > 0
-          end
+          prompt.say(target_name(entity, thing, weapon: weapon)) if thing.npc?
 
           prompt.say("#{thing.label}:")
 

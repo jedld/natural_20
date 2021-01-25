@@ -33,7 +33,8 @@ class AttackAction < Natural20::Action
                      param: [
                        {
                          type: :select_target,
-                         num: 1
+                         num: 1,
+                         weapon: using
                        }
                      ],
                      next: lambda { |target|
@@ -86,7 +87,7 @@ class AttackAction < Natural20::Action
         if item[:source].item_count(item[:weapon]).positive?
           item[:source].deduct_item(item[:weapon], 1)
         else
-          @properties[:equipped].delete(item[:weapon])
+          item[:source].unequip(item[:weapon], transfer_inventory: false)
         end
 
         if item[:type] == :damage
@@ -240,31 +241,6 @@ class AttackAction < Natural20::Action
     cover_calculation(map, @source, target)
   end
 
-  # Compute all advantages and disadvantages
-  # @param battle [Natural20::Battle]
-  # @param source [Natural20::Entity]
-  # @param target [Natural20::Entity]
-  # @option weapon type [String]
-  # @return [Array]
-  def compute_advantages_and_disadvantages(battle, source, target, weapon)
-    advantage = []
-    disadvantage = []
-
-    disadvantage << :prone if source.prone?
-    disadvantage << :target_doge if target.dodge?(battle)
-    advantage << :being_helped if battle.help_with?(target)
-    if weapon[:type] == 'ranged_attack' && battle.map
-      disadvantage << :ranged_with_enemy_in_melee if battle.enemy_in_melee_range?(source)
-      disadvantage << :target_is_prone if target.prone?
-    end
-
-    disadvantage << :small_creature_using_heavy if weapon[:properties]&.include?('heavy') && source.size == :small
-    advantage << :target_is_prone if weapon[:type] == 'melee_attack' && target.prone?
-
-    advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source)
-    [advantage, disadvantage]
-  end
-
   protected
 
   def check_weapon_bonuses(battle, weapon, damage_roll, attack_roll)
@@ -274,17 +250,5 @@ class AttackAction < Natural20::Action
     end
 
     damage_roll
-  end
-
-  # Check all the factors that affect advantage/disadvantage in attack rolls
-  def target_advantage_condition(battle, source, target, weapon)
-    advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon)
-
-    return 0 if advantages.empty? && disadvantages.empty?
-    return 0 if !advantages.empty? && !disadvantages.empty?
-
-    return 1 unless advantages.empty?
-
-    -1
   end
 end

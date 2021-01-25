@@ -116,7 +116,7 @@ RSpec.describe AttackAction do
 
           specify 'has range disadvantage' do
             expect(@action.compute_advantages_and_disadvantages(@battle, @character, @guard,
-                                                                weapon)).to eq([[], [:target_is_prone]])
+                                                                weapon)).to eq([[], [:target_is_prone_range]])
           end
         end
 
