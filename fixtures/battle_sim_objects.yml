@@ -2,26 +2,60 @@ name: Warehouse
 description: Warehouse
 map:
   base:
-    - '#######'
-    - '......#'
-    - '..o...#'
-    - '..#...#'
-    - '#=#####'
-    - '......#'
-    - '#######'
+    - "########"
+    - "..wwww.#"
+    - "..wwww.#"
+    - "#T#www.#"
+    - "#=######"
+    - "...wwww#"
+    - "..pw.ppw"
+    - "########"
+  base_1:
+    - ........
+    - ........
+    - ..o.....
+    - ........
+    - ........
+    - ........
+    - ........
+    - ........
   meta:
-    - .......
-    - A......
-    - .......
-    - .......
-    - .......
-    - Bg.....
-    - .......
+    - ........
+    - A....C..
+    - ........
+    - ........
+    - ........
+    - Bg...e#.
+    - ........
+    - ........
+notes:
+  - type: point
+    positions:
+      - [3, 5]
+      - [4, 5]
+      - [5, 5]
+    notes:
+      - note: A pool of stinky water
+  - type: rectangle
+    positions:
+      - [0, 5, 6, 5]
+    notes:
+      - note: A vile stench fills this room
 legend:
   =:
     name: front_door
     type: wooden_door
     state: closed
+  T:
+    name: pit_trap
+    type: pit_trap
+    perception_dc: 20
+  p:
+    name: pit
+    type: bottomless_pit
+  w:
+    name: Pool of water
+    type: water
   o:
     name: barrel
     type: barrel
@@ -31,11 +65,37 @@ legend:
   B:
     name: spawn_point_2
     type: spawn_point
+  C:
+    name: spawn_point_3
+    type: spawn_point
+  e:
+    name: Frenabs
+    type: npc
+    sub_type: goblin
+    overrides:
+      battle_defaults:
+        statuses:
+          - hiding
+        stealth: 1d20+6
   g:
     name: dead_goblin
     type: npc
     sub_type: goblin
     overrides:
       hp: 0
+      notes:
+        - note: Dead Goblin!
+          highlight: true
+          perception_dc: 10
+        - if: inventory:wooden_door_key
+          note: In his hand is a wooden door key.
+          perception_dc: 10
+        - note: Remnants of a dead goblin, corpse is still fresh
+        - note: Stay away this goblin is a traitor
+          language: goblin
       statuses:
         - dead
+      inventory:
+        - type: wooden_door_key
+          label: Key to a wooden door
+          qty: 1

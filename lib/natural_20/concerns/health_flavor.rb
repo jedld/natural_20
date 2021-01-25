@@ -1,20 +1,23 @@
 # typed: false
 module HealthFlavor
   def describe_health
-    return '' if hp.zero?
+    return '' if hp.zero? || hp.negative?
 
     percentage = (hp.to_f / max_hp) * 100
 
-    if percentage > 75
-      "doesn't show any signs of slowing, just a few minor inconveniencing injuries"
-    elsif percentage > 50
-      'visibly wounded with some nondebilitating injuries, but still fighting strong'
-    elsif percentage > 25
-      'starting to look more ragged or visibly slowing down'
-    elsif percentage > 10
-      'looking in bad condition, unable to fight or survive much longer'
-    else
-      'barely hanging on, one more solid blow may take them down'
-    end
+    token = if percentage > 90
+              'max'
+            elsif percentage > 75
+              'over_75'
+            elsif percentage > 50
+              'over_50'
+            elsif percentage > 25
+              'over_25'
+            elsif percentage > 10
+              'over_10'
+            else
+              'almost_dead'
+            end
+    t("entity.health_flavor.#{token}")
   end
 end

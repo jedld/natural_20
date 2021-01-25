@@ -28,12 +28,6 @@ tools:
 weapon_proficiencies:
 - martial
 - simple
-languages:
-- abyssal
-- celestial
-- common
-- elvish
-- goblin
 equipped:
 - dagger
 - shortbow

@@ -4,6 +4,11 @@ module AiController
   MAX_DISTANCE = 4_000_000
   # Path finding algorithm
   class PathCompute
+
+    # Creates a path finder
+    # @param battle [Natural20::Battle]
+    # @param map [Natural20::BattleMap]
+    # @param entity [Natural20::Entity]
     def initialize(battle, map, entity)
       @entity = entity
       @map = map
@@ -13,7 +18,6 @@ module AiController
 
     # compute path using Djikstras shortest path
     def compute_path(source_x, source_y, destination_x, destination_y)
-
       pq = PQueue.new([]){ |a, b| a[1] < b[1] }
       visited_nodes = Set.new
 
@@ -31,7 +35,8 @@ module AiController
 
         adjacent_squares = get_adjacent_from(*current_node)
         adjacent_squares.reject { |n| visited_nodes.include?(n) }.each do |node|
-          current_distance = distance + 1
+          move_cost = @map.difficult_terrain?(@entity, node[0], node[1], @battle) ? 2 : 1
+          current_distance = distance + move_cost
           distances[node[0]][node[1]] = current_distance if distances[node[0]][node[1]] > current_distance
           pq << [node, distances[node[0]][node[1]]]
         end

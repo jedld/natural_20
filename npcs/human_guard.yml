@@ -1,0 +1,48 @@
+---
+kind: Guard
+description: Generic guards present in towns and in the service of nobles
+size: medium
+race:
+- humanoid
+- human
+alignment: neutral_evil
+default_ac: 16
+max_hp: 11
+hp_die: 2d8 + 2
+speed: 30
+passive_perception: 12
+token:
+ - Î
+color: magenta
+ability:
+  str: 13
+  dex: 12
+  con: 12
+  int: 10
+  wis: 11
+  cha: 10
+skills:
+  perception: 2
+languages:
+- common
+cr: 0.125
+xp: 25
+proficiency_bonus: 2
+actions:
+- name: spear
+  type: melee_attack
+  if: equipped:spear
+  range: 5
+  targets: 1
+  attack: 3
+  damage: 5
+  damage_die: 1d6+1
+  damage_type: piercing
+equipped:
+  - spear
+  - chain_shirt
+default_inventory:
+- type: shield
+  qty: 1
+- type: spear
+  qty: 1

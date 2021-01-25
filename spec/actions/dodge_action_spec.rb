@@ -5,7 +5,7 @@ RSpec.describe DodgeAction do
     Natural20::EventManager.standard_cli
     String.disable_colorization true
     @battle = Natural20::Battle.new(session, nil)
-    @fighter = Natural20::PlayerCharacter.load(session, File.join("fixtures", "high_elf_fighter.yml"))
+    @fighter = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
     @npc = session.npc(:goblin)
     @battle.add(@fighter, :a)
     @battle.add(@npc, :b)
@@ -13,30 +13,30 @@ RSpec.describe DodgeAction do
     @fighter.reset_turn!(@battle)
   end
 
-  it "auto build" do
+  it 'auto build' do
     expect(@npc.dodge?(@battle)).to_not be
     cont = DodgeAction.build(session, @npc)
-    dodge_action = cont.next.call()
+    dodge_action = cont.next.call
     dodge_action.resolve(session, nil, battle: @battle)
     dodge_action.apply!(@battle)
     expect(@npc.dodge?(@battle)).to be
 
     cont = AttackAction.build(session, @fighter)
     begin
-      param = cont.param&.map { |p|
+      param = cont.param&.map do |p|
         case (p[:type])
         when :select_target
           @npc
         when :select_weapon
-          "vicious_rapier"
+          'vicious_rapier'
         else
           raise "unknown #{p.type}"
         end
-      }
+      end
       cont = cont.next.call(*param)
     end while !param.nil?
     expect(cont.target).to eq(@npc)
     expect(cont.source).to eq(@fighter)
-    expect(cont.using).to eq("vicious_rapier")
+    expect(cont.using).to eq('vicious_rapier')
   end
 end

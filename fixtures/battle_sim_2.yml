@@ -12,7 +12,7 @@ map:
     - ....C.
     - ......
     - ......
-    - ..A...
+    - ..AD..
     - ......
     - .B....
 legend:
@@ -24,4 +24,7 @@ legend:
     type: spawn_point
   C:
     name: spawn_point_3
+    type: spawn_point
+  D:
+    name: spawn_point_4
     type: spawn_point

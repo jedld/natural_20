@@ -3,24 +3,24 @@ module ItemLibrary
   class HealingPotion < BaseItem
     def build_map(action)
       OpenStruct.new({
-        param: [
-          {
-            type: :select_target,
-            num: 1,
-            range: 5,
-            target_types: [:allies, :self],
-          },
-        ],
-        next: ->(target) {
-          action.target = target
-          OpenStruct.new({
-            param: nil,
-            next: ->() {
-              action
-            },
-          })
-        },
-      })
+                       param: [
+                         {
+                           type: :select_target,
+                           num: 1,
+                           range: 5,
+                           target_types: %i[allies self]
+                         }
+                       ],
+                       next: lambda { |target|
+                               action.target = target
+                               OpenStruct.new({
+                                                param: nil,
+                                                next: lambda {
+                                                        action
+                                                      }
+                                              })
+                             }
+                     })
     end
 
     def initialize(name, properties)
@@ -32,11 +32,15 @@ module ItemLibrary
       @properties[:consumable]
     end
 
-    def resolve
-      hp_regain_roll = Natural20::DieRoll.roll(@properties[:hp_regained])
+    # @param entity [Natural20::Entity]
+    # @param battle [Natrual20::Battle]
+    def resolve(entity, battle)
+      hp_regain_roll = Natural20::DieRoll.roll(@properties[:hp_regained], description: t('dice_roll.healing_potion'),
+                                                                          entity: entity,
+                                                                          battle: battle)
 
       {
-        hp_gain_roll: hp_regain_roll,
+        hp_gain_roll: hp_regain_roll
       }
     end
 

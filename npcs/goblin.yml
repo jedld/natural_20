@@ -13,7 +13,7 @@ max_hp: 7
 hp_die: 2d6
 speed: 30
 passive_perception: 9
-dark_vision: 60
+darkvision: 60
 token:
  - g
 color: green
@@ -37,6 +37,7 @@ attributes:
 actions:
 - name: Scimitar
   type: melee_attack
+  if: equipped:scimitar
   range: 5
   targets: 1
   attack: 4
@@ -45,6 +46,7 @@ actions:
   damage_type: slashing
 - name: Shortbow
   type: ranged_attack
+  if: equipped:shortbow
   range: 80
   range_max: 320
   targets: 1
@@ -54,6 +56,9 @@ actions:
   damage_mod: 2
   damage_type: piercing
   ammo: arrows
+equipped:
+  - scimitar
+  - shortbow
 default_inventory:
 - type: arrows
   qty: 20

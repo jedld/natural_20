@@ -1,0 +1,164 @@
+name: Battle Sim
+description: Map for Battle Sim
+map:
+  floor_type: rock
+  illumination: 0.0
+  base:
+    - z........
+    - .........
+    - HH..HHHHd
+    - .d..Hwwww
+    - .HHHHwwwt
+    - .T..dwwow
+    - HHH=HHHHH
+    - ....www..
+    - ....pp...
+  light:
+    - .........
+    - .........
+    - .........
+    - .........
+    - A........
+    - .........
+    - .........
+    - ..A......
+    - .........
+  meta:
+    - ...O.....
+    - ....Y....
+    - ??..?????
+    - ....?b..j
+    - .????..i.
+    - ........e
+    - ?????????
+    - ABg......
+    - .........
+lights:
+  A:
+    bright: 5
+    dim: 5
+notes:
+  - type: point
+    positions:
+      - [4, 7]
+      - [5, 7]
+      - [6, 7]
+    notes:
+      - note: A pool of stinky water
+  - type: rectangle
+    positions:
+      - [5, 3, 8, 5]
+    notes:
+      - note: A flooded room with a treasure in the center
+triggers:
+  on_map_entry:
+    - type: message
+      content: "You and your party were hired to retreive a ruby gem from a certain treasure chest deep in this dungeon.\nGood Luck!"
+  object_received:
+    - type: message
+      if: object_type:ruby_gem & entity:pc
+      content: "You have successfully retrieved the ruby gem! Congratulations\nPat yourself on the back for doing this incredibly tough challenge."
+    - type: battle_end
+      if: object_type:ruby_gem & entity:pc
+legend:
+  Y:
+    name: Field brazier
+    type: brazier
+  t:
+    name: Treasure Chest
+    type: chest
+    inventory:
+      - type: gold_piece
+        label: Gold Pieces
+        qty: 10
+  z:
+    name: Treasure Chest
+    type: chest
+    inventory:
+      - type: ruby_gem
+        label: A transparent clear red gemstone worth around 5,000 gp
+        qty: 1
+  H:
+    name: Stone Wall
+    type: stone_wall
+  d:
+    name: Mysterious Door
+    type: wooden_door
+    state: closed
+  p:
+    name: chasm
+    type: bottomless_pit
+    notes:
+      - note: A bottomless chasm, you can't see where it ends
+  =:
+    label: Front Door
+    type: wooden_door
+    state: closed
+    locked: true
+    key: wooden_door_key
+  w:
+    name: Pool of water
+    type: water
+  A:
+    name: spawn_point_1
+    type: spawn_point
+  B:
+    name: spawn_point_2
+    type: spawn_point
+  C:
+    name: spawn_point_3
+    type: spawn_point
+  D:
+    name: spawn_point_4
+    type: spawn_point
+  O:
+    name: The Owlbear
+    type: npc
+    sub_type: owlbear
+    group: b
+  T:
+    name: pit_trap
+    type: pit_trap
+    perception_dc: 20
+  b:
+    name: Stivnux
+    type: npc
+    sub_type: goblin
+  i:
+    name: Tolkiq
+    type: npc
+    sub_type: goblin
+  j:
+    name: Kobs
+    type: npc
+    sub_type: goblin
+  e:
+    name: Frenabs
+    type: npc
+    sub_type: goblin
+    overrides:
+      battle_defaults:
+        statuses:
+          - hiding
+        stealth: 1d20+6
+  o:
+    name: barrel
+    type: barrel
+  g:
+    name: dead_goblin
+    type: npc
+    sub_type: goblin
+    overrides:
+      hp: 0
+      notes:
+        - note: Remnants of a dead goblin, corpse is still fresh
+          highlight: true
+        - if: inventory:wooden_door_key
+          note: In his hand is a wooden door key.
+          perception_dc: 10
+      statuses:
+        - dead
+      inventory:
+        - type: wooden_door_key
+          label: Key to a wooden door
+          qty: 1

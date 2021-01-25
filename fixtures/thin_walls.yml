@@ -1,0 +1,53 @@
+name: Natural20::Battle Sim
+description: Map for thin walls
+map:
+  illumination: 0.0
+  base:
+    - ......
+    - ......
+    - ......
+    - ......
+    - ......
+    - ......
+  light:
+    - ......
+    - ..A...
+    - ......
+    - ......
+    - ......
+    - ..A...
+  meta:
+    - g....C
+    - ......
+    - ......
+    - ..A..D
+    - ......
+    - .B...$
+lights:
+  A:
+    bright: 10
+    dim: 5
+legend:
+  A:
+    name: spawn_point_1
+    type: spawn_point
+  B:
+    name: spawn_point_2
+    type: spawn_point
+  C:
+    name: spawn_point_3
+    type: spawn_point
+  D:
+    name: spawn_point_4
+    type: spawn_point
+
+  $:
+    name: Guard
+    type: npc
+    sub_type: human_guard
+  g:
+    name: Krizzit
+    type: npc
+    sub_type: goblin
+    overrides:
+      hp: 40

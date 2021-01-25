@@ -1,6 +1,7 @@
 # typed: true
 class UseItemAction < Natural20::Action
   attr_accessor :target, :target_item
+
   def self.can?(entity, battle)
     battle.nil? || entity.total_actions(battle).positive?
   end
@@ -12,23 +13,23 @@ class UseItemAction < Natural20::Action
 
   def build_map
     OpenStruct.new({
-      action: self,
-      param: [
-        {
-          type: :select_item,
-        },
-      ],
-      next: ->(item) {
-        item_details = session.load_equipment(item)
-        raise "item #{item_details[:name]} not usable!" unless item_details[:usable]
+                     action: self,
+                     param: [
+                       {
+                         type: :select_item
+                       }
+                     ],
+                     next: lambda { |item|
+                             item_details = session.load_equipment(item)
+                             raise "item #{item_details[:name]} not usable!" unless item_details[:usable]
 
-        @target_item = item_details[:item_class].constantize.new(item, item_details)
-        @target_item.build_map(self)
-      },
-    })
+                             @target_item = item_details[:item_class].constantize.new(item, item_details)
+                             @target_item.build_map(self)
+                           }
+                   })
   end
 
-  def resolve(session, map = nil, opts = {})
+  def resolve(_session, map = nil, opts = {})
     battle = opts[:battle]
     result_payload = {
       source: @source,
@@ -36,8 +37,8 @@ class UseItemAction < Natural20::Action
       map: map,
       battle: battle,
       type: :use_item,
-      item: target_item,
-    }.merge(target_item.resolve)
+      item: target_item
+    }.merge(target_item.resolve(@source, battle))
     @result = [result_payload]
     self
   end

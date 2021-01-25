@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "natural_20"
+
+require 'optparse'
+
+filename = ARGV[0]
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: compute_lights battle_map.yml"
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+end.parse!
+
+puts "#{filename} #{options.inspect}"

@@ -7,15 +7,20 @@ module Natural20
     prepend Natural20::Lootable
     include Multiattack
 
-    attr_accessor :hp, :other_counters, :resistances
+    attr_accessor :hp, :other_counters, :resistances, :experience_points
+
+    ACTION_LIST = %i[look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
+                     dash_bonus hide_bonus grapple escape_grapple drop_grapple prone stand].freeze
 
     # @param session [Natural20::Session]
     def initialize(session, properties)
       @session = session
       @properties = properties.deep_symbolize_keys!
+
       @ability_scores = @properties[:ability]
       @equipped = @properties[:equipped]
-      @race_properties = YAML.load_file(File.join(session.root_path, "races", "#{@properties[:race]}.yml")).deep_symbolize_keys!
+      @race_properties = YAML.load_file(File.join(session.root_path, 'races',
+                                                  "#{@properties[:race]}.yml")).deep_symbolize_keys!
       @inventory = {}
       @color = @properties[:color]
       @properties[:inventory]&.each do |inventory|
@@ -29,7 +34,8 @@ module Natural20
       @class_properties = @properties[:classes].map do |klass, level|
         send(:"#{klass}_level=", level)
         send(:"initialize_#{klass}")
-        [klass.to_sym, YAML.load_file(File.join(session.root_path, "char_classes", "#{klass}.yml")).deep_symbolize_keys!]
+        [klass.to_sym,
+         YAML.load_file(File.join(session.root_path, 'char_classes', "#{klass}.yml")).deep_symbolize_keys!]
       end.to_h
     end
 
@@ -59,6 +65,17 @@ module Natural20
 
     def speed
       @race_properties[:base_speed]
+    end
+
+    def languages
+      class_languages = []
+      @class_properties.values.each do |prop|
+        class_languages += prop[:languages] || []
+      end
+
+      racial_languages = @race_properties[:languages] || []
+
+      (super + class_languages + racial_languages).sort
     end
 
     def c_class
@@ -93,18 +110,6 @@ module Natural20
       proficiency_bonus_table[level - 1]
     end
 
-    def perception_proficient?
-      @properties[:skills].include?("perception")
-    end
-
-    def investigation_proficient?
-      @properties[:skills].include?("investigation")
-    end
-
-    def insight_proficient?
-      @properties[:skills].include?("insight")
-    end
-
     def to_h
       {
         name: name,
@@ -116,31 +121,41 @@ module Natural20
           con: @ability_scores.fetch(:con),
           int: @ability_scores.fetch(:int),
           wis: @ability_scores.fetch(:wis),
-          cha: @ability_scores.fetch(:cha),
+          cha: @ability_scores.fetch(:cha)
         },
         passive: {
           perception: passive_perception,
           investigation: passive_investigation,
-          insight: passive_insight,
-        },
+          insight: passive_insight
+        }
       }
     end
 
     def melee_distance
-      @properties[:equipped].map do |item|
+      (@properties[:equipped].map do |item|
         weapon_detail = session.load_weapon(item)
         next if weapon_detail.nil?
-        next unless weapon_detail[:type] == "melee_attack"
+        next unless weapon_detail[:type] == 'melee_attack'
 
         weapon_detail[:range]
-      end.compact.max
+      end.compact + [5]).max
+    end
+
+    def darkvision?(distance)
+      return true if super
+
+      !!(@race_properties[:darkvision] && @race_properties[:darkvision] >= distance)
     end
 
     def available_actions(session, battle = nil)
-      %i[attack move dash dash_bonus dodge help disengage disengage_bonus use_item interact inventory].map do |type|
+      return [] if unconscious?
+
+      ACTION_LIST.map do |type|
         next unless "#{type.to_s.camelize}Action".constantize.can?(self, battle)
 
         case type
+        when :look
+          LookAction.new(session, self, :look)
         when :attack
           # check all equipped and create attack for each
           weapon_attacks = @properties[:equipped].map do |item|
@@ -149,13 +164,23 @@ module Natural20
             next unless %w[ranged_attack melee_attack].include?(weapon_detail[:type])
             next if weapon_detail[:ammo] && !item_count(weapon_detail[:ammo]).positive?
 
+            attacks = []
+
             action = AttackAction.new(session, self, :attack)
             action.using = item
-            action
+            attacks << action
+
+            if weapon_detail[:properties] && weapon_detail[:properties].include?('thrown')
+              action = AttackAction.new(session, self, :attack)
+              action.using = item
+              action.thrown = true
+              attacks << action
+            end
+            attacks
           end.compact
 
           unarmed_attack = AttackAction.new(session, self, :attack)
-          unarmed_attack.using = "unarmed_attack"
+          unarmed_attack.using = 'unarmed_attack'
 
           weapon_attacks + [unarmed_attack]
         when :dodge
@@ -163,28 +188,43 @@ module Natural20
         when :help
           action = HelpAction.new(session, self, :help)
           action
+        when :hide
+          HideAction.new(session, self, :hide)
+        when :hide_bonus
+          action = HideBonusAction.new(session, self, :hide_bonus)
+          action.as_bonus_action = true
+          action
         when :disengage_bonus
           action = DisengageAction.new(session, self, :disengage_bonus)
           action.as_bonus_action = true
           action
         when :disengage
-          action = DisengageAction.new(session, self, :disengage)
-          action
+          DisengageAction.new(session, self, :disengage)
+        when :drop_grapple
+          DropGrappleAction.new(session, self, :drop_grapple)
+        when :grapple
+          GrappleAction.new(session, self, :grapple)
+        when :escape_grapple
+          EscapeGrappleAction.new(session, self, :escape_grapple)
         when :move
           MoveAction.new(session, self, type)
+        when :prone
+          ProneAction.new(session, self, type)
+        when :stand
+          StandAction.new(session, self, type)
         when :dash_bonus
           action = DashBonusAction.new(session, self, :dash_bonus)
-          action.as_dash = true
           action.as_bonus_action = true
           action
         when :dash
           action = DashAction.new(session, self, type)
-          action.as_dash = true
           action
         when :use_item
           UseItemAction.new(session, self, type)
         when :interact
           InteractAction.new(session, self, type)
+        when :ground_interact
+          GroundInteractAction.new(session, self, type)
         when :inventory
           InventoryAction.new(session, self, type)
         else
@@ -193,41 +233,13 @@ module Natural20
       end.compact.flatten + c_class.keys.map { |c| send(:"special_actions_for_#{c}", session, battle) }.flatten
     end
 
-    def available_interactions(entity, battle)
+    def available_interactions(_entity, _battle)
       []
-    end
-
-    def attack_roll_mod(weapon)
-      modifier = attack_ability_mod(weapon)
-
-      modifier += proficiency_bonus if proficient_with_weapon?(weapon)
-
-      modifier
-    end
-
-    def attack_ability_mod(weapon)
-      modifier = 0
-
-      modifier += case (weapon[:type])
-        when "melee_attack"
-          weapon[:properties]&.include?("finesse") ? [str_mod, dex_mod].max : str_mod
-        when "ranged_attack"
-          dex_mod
-        end
-
-      modifier
-    end
-
-    def proficient_with_weapon?(weapon)
-      return true if weapon[:name] == "Unarmed Attack"
-
-      @properties[:weapon_proficiencies]&.detect do |prof|
-        weapon[:proficiency_type]&.include?(prof)
-      end
     end
 
     def class_feature?(feature)
       return true if @properties[:class_features]&.include?(feature)
+      return true if @properties[:attributes]&.include?(feature)
 
       @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
     end
@@ -237,8 +249,7 @@ module Natural20
     # @param path [String] path to character sheet YAML
     # @return [Natural20::PlayerCharacter] An instance of PlayerCharacter
     def self.load(session, path)
-      fighter_prop = YAML.load_file(path).deep_symbolize_keys!
-      Natural20::PlayerCharacter.new(session, fighter_prop)
+      Natural20::PlayerCharacter.new(session, YAML.load_file(path).deep_symbolize_keys!)
     end
 
     # returns if an npc or a player character
@@ -247,8 +258,12 @@ module Natural20
       false
     end
 
+    def pc?
+      true
+    end
+
     def describe_health
-      ""
+      ''
     end
 
     private
@@ -258,18 +273,19 @@ module Natural20
     end
 
     def setup_attributes
+      super
       @hp = @properties[:max_hp]
     end
 
     def equipped_ac
-      @equipments ||= YAML.load_file(File.join(session.root_path, "items", "equipment.yml")).deep_symbolize_keys!
+      @equipments ||= YAML.load_file(File.join(session.root_path, 'items', 'equipment.yml')).deep_symbolize_keys!
 
       equipped_meta = @equipped.map { |e| @equipments[e.to_sym] }.compact
       armor = equipped_meta.detect do |equipment|
-        equipment[:type] == "armor"
+        equipment[:type] == 'armor'
       end
 
-      shield = equipped_meta.detect { |e| e[:type] == "shield" }
+      shield = equipped_meta.detect { |e| e[:type] == 'shield' }
 
       (armor.nil? ? 10 : armor[:ac]) + (shield.nil? ? 0 : shield[:bonus_ac])
     end

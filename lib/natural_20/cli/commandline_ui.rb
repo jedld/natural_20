@@ -1,5 +1,10 @@
-# typed: false
-class CommandlineUI
+require 'natural_20/cli/inventory_ui'
+class CommandlineUI < Natural20::Controller
+  include Natural20::InventoryUI
+  include Natural20::MovementHelper
+  include Natural20::Cover
+
+  TTY_PROMPT_PER_PAGE = 20
   attr_reader :battle, :map, :session
 
   # Creates an instance of a commandline UI helper
@@ -9,41 +14,51 @@ class CommandlineUI
     @battle = battle
     @session = battle.session
     @map = map
-    @prompt = TTY::Prompt.new
+    @renderer = Natural20::MapRenderer.new(@map, @battle)
   end
 
   # Create a attack target selection CLI UI
   # @param entity [Natural20::Entity]
   # @param action [Natural20::Action]
   # @option options range [Integer]
+  # @options options target [Array<Natural20::Entity>] passed when there are specific valid targets
   def attack_ui(entity, action, options = {})
     selected_targets = []
-
-    target = @prompt.select("#{entity.name} targets") do |menu|
-      battle.valid_targets_for(entity, action, target_types: options[:target_types], range: options[:range]).each do |target|
-        menu.choice target.name, target
+    valid_targets = options[:targets] || battle.valid_targets_for(entity, action, target_types: options[:target_types],
+                                                                                  range: options[:range])
+    target = prompt.select("#{entity.name} targets") do |menu|
+      valid_targets.each do |target|
+        cover_ac = cover_calculation(@map, entity, target)
+        target_name = if cover_ac.positive?
+                        "#{target.name.colorize(:red)} (cover AC +#{cover_ac})"
+                      else
+                        target.name.colorize(:red)
+                      end
+        menu.choice target_name, target
       end
-      menu.choice "Manual"
-      menu.choice "Back", nil
+      menu.choice 'Manual - Use cursor to select a target instead', :manual
+      menu.choice 'Back', nil
     end
 
-    return nil if target == "Back"
+    return nil if target == 'Back'
 
-    if target == "Manual"
+    if target == :manual
+      valid_targets = options[:targets] || battle.valid_targets_for(entity, action,
+                                                                    target_types: options[:target_types], range: options[:range], include_objects: true)
       targets = target_ui(entity, validation: lambda { |selected|
-                                    selected_entities = map.thing_at(*selected)
+                                                selected_entities = map.thing_at(*selected)
 
-                                    return false if selected_entities.empty?
+                                                return false if selected_entities.empty?
 
-                                    selected_entities.detect do |selected_entity|
-                                      battle.valid_targets_for(entity, action, target_types: options[:target_types], range: options[:range], include_objects: true).include?(selected_entity)
-                                    end
-                                  })
+                                                selected_entities.detect do |selected_entity|
+                                                  valid_targets.include?(selected_entity)
+                                                end
+                                              })
 
-      if targets.size > (options[:num_select].presence || 1)
+      if targets.flatten.uniq.size > (options[:num_select].presence || 1)
         loop do
-          target = @prompt.select("multiple targets at location(s) please select specific targets") do |menu|
-            targets.each do |t|
+          target = prompt.select('multiple targets at location(s) please select specific targets') do |menu|
+            targets.flatten.uniq.each do |t|
               menu.choice t.name.to_s, t
             end
           end
@@ -62,31 +77,87 @@ class CommandlineUI
     selected_targets.flatten
   end
 
+  def self.clear_screen
+    puts "\e[H\e[2J"
+  end
+
   # @param entity [Natural20::Entity]
-  def target_ui(entity, initial_pos: nil, num_select: 1, validation: nil)
+  def target_ui(entity, initial_pos: nil, num_select: 1, validation: nil, perception: 10, look_mode: false)
     selected = []
     initial_pos ||= map.position_of(entity)
     new_pos = nil
     loop do
-      puts "\e[H\e[2J"
-      puts " "
-      puts map.render(line_of_sight: entity, select_pos: initial_pos)
-      @prompt.say(map.thing_at(*initial_pos).map(&:name).join(",").to_s)
-      movement = @prompt.keypress("ESC- back, (wsad) - movement, x,space - select, r - reset")
+      CommandlineUI.clear_screen
+      highlights = map.highlight(entity, perception)
+      prompt.say(t('perception.looking_around', perception: perception))
+      describe_map(battle.map)
+      puts @renderer.render(line_of_sight: entity, select_pos: initial_pos, highlight: highlights)
+      puts "\n"
+      things = map.thing_at(*initial_pos)
 
-      if movement == "w"
+      prompt.say(t('object.ground')) if things.empty?
+
+      if map.can_see_square?(entity, *initial_pos)
+        prompt.say(t('perception.using_darkvision')) unless map.can_see_square?(entity, *initial_pos,
+                                                                                allow_dark_vision: false)
+        things.each do |thing|
+          if thing.npc?
+            target_cover_ac = cover_calculation(@map, entity, thing)
+            prompt.say("target cover AC +#{target_cover_ac}") if target_cover_ac > 0
+            source_cover_ac = cover_calculation(@map, thing, entity)
+            prompt.say("#{entity.name} has AC +#{source_cover_ac} cover from #{thing.name}") if source_cover_ac > 0
+          end
+
+          prompt.say("#{thing.label}:")
+
+          if !@battle.can_see?(thing, entity) && thing.sentient? && thing.conscious?
+            prompt.say(t('perception.hide_success', label: thing.label))
+          end
+
+          map.perception_on(thing, entity, perception).each do |note|
+            prompt.say("  #{note}")
+          end
+          health_description = thing.try(:describe_health)
+          prompt.say("  #{health_description}") unless health_description.blank?
+        end
+
+        map.perception_on_area(*initial_pos, entity, perception).each do |note|
+          prompt.say(note)
+        end
+
+        prompt.say(t('perception.terrain_and_surroundings'))
+        terrain_adjectives = []
+        terrain_adjectives << 'difficult terrain' if map.difficult_terrain?(entity, *initial_pos)
+
+        intensity = map.light_at(initial_pos[0], initial_pos[1])
+        terrain_adjectives << if intensity >= 1.0
+                                'bright'
+                              elsif intensity >= 0.5
+                                'dim'
+                              else
+                                'dark'
+                              end
+
+        prompt.say("  #{terrain_adjectives.join(', ')}")
+      else
+        prompt.say(t('perception.dark'))
+      end
+
+      movement = prompt.keypress(look_mode ? t('perception.navigation_look') : t('perception.navigation'))
+
+      if movement == 'w'
         new_pos = [initial_pos[0], initial_pos[1] - 1]
-      elsif movement == "a"
+      elsif movement == 'a'
         new_pos = [initial_pos[0] - 1, initial_pos[1]]
-      elsif movement == "d"
+      elsif movement == 'd'
         new_pos = [initial_pos[0] + 1, initial_pos[1]]
-      elsif movement == "s"
+      elsif movement == 's'
         new_pos = [initial_pos[0], initial_pos[1] + 1]
-      elsif ["x", " "].include? movement
+      elsif ['x', ' '].include? movement
         next if validation && !validation.call(new_pos)
 
         selected << initial_pos
-      elsif movement == "r"
+      elsif movement == 'r'
         new_pos = map.position_of(entity)
         next
       elsif movement == "\e"
@@ -96,48 +167,76 @@ class CommandlineUI
       end
 
       next if new_pos.nil?
+      next if new_pos[0].negative? || new_pos[0] >= map.size[0] || new_pos[1].negative? || new_pos[1] >= map.size[1]
       next unless map.line_of_sight_for?(entity, *new_pos)
 
       initial_pos = new_pos
 
-      break unless movement != "x"
+      break unless movement != 'x'
     end
 
     selected.compact.map { |e| map.thing_at(*e) }
   end
 
   # @param entity [Natural20::Entity]
-  def move_ui(entity, options = {})
+  def move_ui(entity, _options = {})
     path = [map.position_of(entity)]
+    toggle_jump = false
+    jump_index = []
+    test_jump = []
     loop do
       puts "\e[H\e[2J"
-      puts "movement #{map.movement_cost(entity, path).to_s.colorize(:green)}ft."
-      puts " "
-      puts map.render(line_of_sight: entity, path: path)
-      movement = @prompt.keypress(" (wsadx) - movement, (qezc) diagonals, space/enter - confirm path, r - reset")
+      movement = map.movement_cost(entity, path, battle, jump_index)
+      movement_cost = "#{(movement.cost * map.feet_per_grid).to_s.colorize(:green)}ft."
+      if entity.prone?
+        puts "movement (crawling) #{movement_cost}"
+      elsif toggle_jump && !jump_index.include?(path.size - 1)
+        puts "movement (ready to jump) #{movement_cost}"
+      elsif toggle_jump
+        puts "movement (jump) #{movement_cost}"
+      else
+        puts "movement #{movement_cost}"
+      end
+      describe_map(battle.map)
+      puts @renderer.render(entity: entity, line_of_sight: entity, path: path, update_on_drop: true,
+                            acrobatics_checks: movement.acrobatics_check_locations, athletics_checks: movement.athletics_check_locations)
+      prompt.say('(warning) token cannot end its movement in this square') unless @map.placeable?(entity, *path.last,
+                                                                                                  battle)
+      prompt.say('(warning) need to perform a jump over this terrain') if @map.jump_required?(entity, *path.last)
+      directions = []
+      directions << '(wsadx) - movement, (qezc) diagonals'
+      directions << 'j - toggle jump' unless entity.prone?
+      directions << 'space/enter - confirm path'
+      directions << 'r - reset'
+      movement = prompt.keypress(directions.join(','))
 
-      if movement == "w"
+      if movement == 'w'
         new_path = [path.last[0], path.last[1] - 1]
-      elsif movement == "a"
+      elsif movement == 'a'
         new_path = [path.last[0] - 1, path.last[1]]
-      elsif movement == "d"
+      elsif movement == 'd'
         new_path = [path.last[0] + 1, path.last[1]]
-      elsif movement == "s" || movement == "x"
+      elsif %w[s x].include?(movement)
         new_path = [path.last[0], path.last[1] + 1]
-      elsif movement == " " || movement == '\r'
-        next unless map.placeable?(entity, *path.last, battle)
+      elsif [' ', '\r'].include?(movement)
+        next unless valid_move_path?(entity, path, battle, @map, manual_jump: jump_index)
 
-        return path
-      elsif movement == "q"
+        return [path, jump_index]
+      elsif movement == 'q'
         new_path = [path.last[0] - 1, path.last[1] - 1]
-      elsif movement == "e"
+      elsif movement == 'e'
         new_path = [path.last[0] + 1, path.last[1] - 1]
-      elsif movement == "z"
+      elsif movement == 'z'
         new_path = [path.last[0] - 1, path.last[1] + 1]
-      elsif movement == "c"
+      elsif movement == 'c'
         new_path = [path.last[0] + 1, path.last[1] + 1]
-      elsif movement == "r"
+      elsif movement == 'r'
         path = [map.position_of(entity)]
+        jump_index = []
+        toggle_jump = false
+        next
+      elsif movement == 'j' && !entity.prone?
+        toggle_jump = !toggle_jump
         next
       elsif movement == "\e"
         return nil
@@ -147,25 +246,63 @@ class CommandlineUI
 
       next if new_path[0].negative? || new_path[0] >= map.size[0] || new_path[1].negative? || new_path[1] >= map.size[1]
 
+      test_jump = jump_index + [path.size] if toggle_jump
+
       if path.size > 1 && new_path == path[path.size - 2]
+        jump_index.delete(path.size - 1)
         path.pop
-      elsif map.passable?(entity, *new_path, battle) && map.movement_cost(entity, path + [new_path]) <= (options[:as_dash] ? entity.speed : entity.available_movement(battle))
+        toggle_jump = if jump_index.include?(path.size - 1)
+                        true
+                      else
+                        false
+                      end
+      elsif valid_move_path?(entity, path + [new_path], battle, @map, test_placement: false, manual_jump: test_jump)
         path << new_path
+        jump_index = test_jump
+      elsif valid_move_path?(entity, path + [new_path], battle, @map, test_placement: false, manual_jump: jump_index)
+        path << new_path
+        toggle_jump = false
       end
-      break unless true
     end
   end
 
+  def roll_for(entity, die_type, number_of_times, description, advantage: false, disadvantage: false)
+    return nil unless @session.setting(:manual_dice_roll)
+
+    prompt.say(t('dice_roll.prompt', description: description, name: entity.name.colorize(:green)))
+    number_of_times.times.map do |index|
+      if advantage || disadvantage
+        2.times.map do |index|
+          prompt.ask(t("dice_roll.roll_attempt_#{advantage ? 'advantage' : 'disadvantage'}", total: number_of_times, die_type: die_type,
+                                                                                             number: index + 1)) do |q|
+            q.in("1-#{die_type}")
+          end
+        end.map(&:to_i)
+      else
+        prompt.ask(t('dice_roll.roll_attempt', die_type: die_type, number: index + 1, total: number_of_times)) do |q|
+          q.in("1-#{die_type}")
+        end.to_i
+      end
+    end
+  end
+
+  # Show action UI
+  # @param action [Natural20::Action]
+  # @param entity [Entity]
   def action_ui(action, entity)
+    return :stop if action == :stop
+
     cont = action.build_map
     loop do
       param = cont.param&.map do |p|
         case (p[:type])
+        when :look
+          self
         when :movement
-          move_path = move_ui(entity, p)
+          move_path, jump_index = move_ui(entity, p)
           return nil if move_path.nil?
 
-          move_path
+          [move_path, jump_index]
         when :target, :select_target
           targets = attack_ui(entity, action, p)
           return nil if targets.nil? || targets.empty?
@@ -174,7 +311,7 @@ class CommandlineUI
         when :select_weapon
           action.using || action.npc_action
         when :select_item
-          item = @prompt.select("#{entity.name} use item") do |menu|
+          item = prompt.select("#{entity.name} use item", per_page: TTY_PROMPT_PER_PAGE) do |menu|
             entity.usable_items.each do |d|
               if d[:consumable]
                 menu.choice "#{d[:label].colorize(:blue)} (#{d[:qty]})", d[:name]
@@ -182,40 +319,94 @@ class CommandlineUI
                 menu.choice d[:label].colorize(:blue).to_s, d[:name]
               end
             end
-            menu.choice "Back", :back
+            menu.choice t(:back).colorize(:blue), :back
           end
 
           return nil if item == :back
 
           item
+        when :select_ground_items
+          selected_items = prompt.multi_select("Items on the ground around #{entity.name}") do |menu|
+            map.items_on_the_ground(entity).each do |ground_item|
+              ground, items = ground_item
+              items.each do |t|
+                item_label = t("object.#{t.label}", default: t.label)
+                menu.choice t('inventory.inventory_items', name: item_label, qty: t.qty), [ground, t]
+              end
+            end
+          end
+
+          return nil if selected_items.empty?
+
+          item_selection = {}
+          selected_items.each do |s_item|
+            ground, item = s_item
+
+            qty = how_many?(item)
+            item_selection[ground] ||= []
+            item_selection[ground] << [item, qty]
+          end
+
+          item_selection.map do |k, v|
+            [k, v]
+          end
         when :select_object
-          item = @prompt.select("#{entity.name} interact with") do |menu|
+          item = prompt.select("#{entity.name} interact with") do |menu|
             entity.usable_objects(map, battle).each do |d|
               menu.choice d.name.humanize.to_s, d
             end
-            menu.choice "Back", :back
+            menu.choice t(:back).colorize(:blue), :back
           end
 
           return nil if item == :back
 
           item
-        when :interact
-          object_action = @prompt.select("#{entity.name} will") do |menu|
-            p[:target].available_actions(entity).each do |d|
-              menu.choice d.to_s.humanize, d
+        when :select_items
+          selected_items = prompt.multi_select(p[:label], per_page: TTY_PROMPT_PER_PAGE) do |menu|
+            p[:items].each do |m|
+              item_label = t("object.#{m.label}", default: m.label)
+              if m.try(:equipped)
+                menu.choice t('inventory.equiped_items', name: item_label), m
+              else
+                menu.choice t('inventory.inventory_items', name: item_label, qty: m.qty), m
+              end
             end
-            menu.choice "Back", :back
+            menu.choice t(:back).colorize(:blue), :back
+          end
+
+          return nil if selected_items.include?(:back)
+
+          selected_items = selected_items.map do |m|
+            count = how_many?(m)
+            [m, count]
+          end
+          selected_items
+        when :interact
+          object_action = prompt.select("#{entity.name} will") do |menu|
+            interactions = p[:target].available_interactions(entity)
+            class_key = p[:target].class.to_s
+            if interactions.is_a?(Array)
+              interactions.each do |k|
+                menu.choice t(:"object.#{class_key}.#{k}", default: k.to_s.humanize), k
+              end
+            else
+              interactions.each do |k, options|
+                label = options[:label] || t(:"object.#{class_key}.#{k}", default: k.to_s.humanize)
+                if options[:disabled]
+                  menu.choice label, k, disabled: options[:disabled_text]
+                else
+                  menu.choice label, k
+                end
+              end
+            end
+            menu.choice 'Back', :back
           end
 
           return nil if item == :back
 
           object_action
         when :show_inventory
-          @prompt.select("#{entity.name}'s Inventory") do |menu|
-            entity.inventory.each do |item|
-              menu.choice "#{item.label.call} x #{item.qty}", item.name
-            end
-          end
+          inventory_ui(entity)
         else
           raise "unknown #{p[:type]}"
         end
@@ -226,76 +417,94 @@ class CommandlineUI
     @action = cont
   end
 
-  # Starts a battle
-  # @param chosen_characters [Array]
-  # @param chosen_enemies [Array]
-  def battle_ui(chosen_characters, chosen_enemies)
-    chosen_characters.each_with_index do |chosen_character, index|
-      battle.add(chosen_character, :a, position: "spawn_point_#{index + 1}", token: chosen_character.name[0])
+  def describe_map(map)
+    puts "Battle Map (#{map.size[0]}x#{map.size[1]}) #{map.feet_per_grid}ft per square:"
+  end
+
+  # Return moves by a player using the commandline UI
+  # @param entity [Natural20::Entity] The entity to compute moves for
+  # @param battle [Natural20::Battle] An instance of the current battle
+  # @return [Array]
+  def move_for(entity, battle)
+    puts ''
+    puts "#{entity.name}'s turn"
+    puts '==============================='
+    loop do
+      describe_map(battle.map)
+      puts @renderer.render(line_of_sight: entity)
+      puts t(:character_status_line, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
+                                     available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(','))
+
+      action = prompt.select("#{entity.name} (#{entity.token&.first}) will", per_page: TTY_PROMPT_PER_PAGE,
+                                                                             filter: true) do |menu|
+        entity.available_actions(@session, battle).each do |action|
+          menu.choice action.label, action
+        end
+        # menu.choice 'Console (Developer Mode)', :console
+        menu.choice 'End'.colorize(:red), :end
+      end
+
+      if action == :console
+        prompt.say('battle - battle object')
+        prompt.say('entity - Current Player/NPC')
+        prompt.say('@map - Current map')
+        binding.pry
+        next
+      end
+
+      return nil if action == :end
+
+      action = action_ui(action, entity)
+      next if action.nil?
+
+      return action
     end
+  end
 
-    controller = AiController::Standard.new
-
-    chosen_enemies.each_with_index do |item, index|
-      controller.register_handlers_on(item)
-      battle.add(item, :b, position: "spawn_point_#{index + 3}")
-    end
-
-    battle.start
-    puts "Combat Order:"
-
-    battle.combat_order.each_with_index do |entity, index|
-      puts "#{index + 1}. #{entity.name}"
-    end
+  def game_loop
+    Natural20::EventManager.set_context(battle, battle.current_party)
 
     battle.while_active do |entity|
-      puts ""
-      puts "#{entity.name}'s turn"
-      puts "==============================="
-      if entity.npc?
+      if battle.has_controller_for?(entity)
         cycles = 0
         loop do
           cycles += 1
-          action = controller.move_for(entity, battle)
-
+          action = battle.move_for(entity)
           if action.nil?
-            puts "#{entity.name}: End turn."
+            prompt.keypress(t(:end_turn, name: entity.name)) unless battle.current_party.include? entity
             break
           end
 
           battle.action!(action)
           battle.commit(action)
+          session.save_game(battle)
+          break if battle.check_combat
           break if action.nil?
-        end
-        puts map.render(line_of_sight: chosen_characters)
-        @prompt.keypress("Press space or enter to continue", keys: %i[space return])
-      else
-        loop do
-          puts map.render(line_of_sight: entity)
-          puts "#{entity.hp}/#{entity.max_hp} actions: #{entity.total_actions(battle)} bonus action: #{entity.total_bonus_actions(battle)}, movement: #{entity.available_movement(battle)}"
-
-          action = @prompt.select("#{entity.name} will") do |menu|
-            entity.available_actions(@session, battle).each do |action|
-              menu.choice action.label, action
-            end
-            menu.choice "End", :end
-            menu.choice "Stop Natural20::Battle", :stop
-          end
-
-          break if action == :end
-          return if action == :stop
-
-          action = action_ui(action, entity)
-          next if action.nil?
-
-          battle.action!(action)
-          battle.commit(action)
-          break unless true
         end
       end
     end
 
-    puts "------------"
+    puts '------------'
     puts "battle ended in #{battle.round + 1} rounds."
+  end
+
+  # Starts a battle
+  # @param chosen_characters [Array]
+  def battle_ui(chosen_characters)
+    battle.map.activate_map_triggers(:on_map_entry, nil, ui_controller: self)
+    battle.register_players(chosen_characters, self)
+    game_loop
+  end
+
+  def show_message(message)
+    puts ''
+    prompt.keypress(message)
+  end
+
+  protected
+
+  # @return [TTY::Prompt]
+  def prompt
+    @@prompt ||= TTY::Prompt.new
   end
 end

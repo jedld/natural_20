@@ -12,8 +12,16 @@ module ItemLibrary
       !!@properties[:consumable]
     end
 
-    def use!(battle, map, entity)
+    def item?
+      true
+    end
 
+    def use!(battle, map, entity); end
+
+    protected
+
+    def t(key, options = {})
+      I18n.t(key, options)
     end
   end
 end

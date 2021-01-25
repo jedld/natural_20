@@ -1,97 +1,195 @@
-unarmed_attack:
-  name: Unarmed Attack
-  type: melee_attack
-  proficiency_type:
-    - martial
-  subtype: weapon
-  range: 5
-  damage: 1
-  modifiers:
-  damage_type: bludgeoning
-  properties:
-  cost: 0
-  weight: 0
-  meta:
-    noise_target: 5
-    noise_source: 5
+---
 dagger:
+  cost: 2
+  damage: 1d4
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
   name: Dagger
-  type: melee_attack
   proficiency_type:
     - martial
-  subtype: weapon
-  range: 5
-  damage: 1d4
-  modifiers:
-  damage_type: piercing
   properties:
     - light
     - thrown
     - finesse
-  cost: 2
-  weight: 10
-  meta:
-    noise_target: 5
-    noise_source: 5
-vicious_rapier:
-  name: Vicious Rapier
-  type: melee_attack
-  proficiency_type:
-    - martial
-  subtype: weapon
   range: 5
-  damage: 1d8
-  modifiers:
-  damage_type: piercing
-  properties:
-    - finesse
-  cost: 10
+  subtype: weapon
+  thrown:
+    range: 30
+    range_max: 120
+  type: melee_attack
   weight: 10
-  bonus:
-    additional:
-      die: 2d6
-      restriction: nat20_attack
-  meta:
-    noise_target: 5
-    noise_source: 5
-shortbow:
-  name: Shortbow
-  type: ranged_attack
-  proficiency_type:
-    - martial
-  subtype: weapon
-  range: 80
-  range_max: 320
-  damage: 1d6
-  modifiers:
-  damage_type: piercing
-  ammo: arrows
-  properties:
-    - ammunition
-    - ranged
-  cost: 25
-  weight: 2
-  meta:
-    noise_target: 5
-    noise_source: 5
-longbow:
-  name: Longbow
-  type: ranged_attack
-  proficiency_type:
-    - martial
-  subtype: weapon
-  range: 150
-  range_max: 600
+greatclub:
+  cost: 2sp
   damage: 1d8
-  modifiers:
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Greatclub
+  proficiency_type:
+    - simple
+  properties:
+    - two_handed
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 10
+javelin:
+  cost: 5sp
+  damage: 1d6
   damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Javelin
+  proficiency_type:
+    - simple
+  properties:
+    - thrown
+  range: 5
+  subtype: weapon
+  thrown:
+    range: 30
+    range_max: 120
+  type: melee_attack
+  weight: 2
+spear:
+  cost: 5sp
+  damage: 1d6
+  damage_2: 1d8
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Spear
+  proficiency_type:
+    - simple
+  properties:
+    - thrown
+    - versatile
+  range: 5
+  subtype: weapon
+  thrown:
+    range: 20
+    range_max: 60
+  type: melee_attack
+  weight: 2
+longbow:
   ammo: arrows
+  cost: 50
+  damage: 1d8
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Longbow
+  proficiency_type:
+    - martial
   properties:
     - heavy
     - ammunition
     - ranged
-  cost: 50
+  range: 150
+  range_max: 600
+  subtype: weapon
+  type: ranged_attack
   weight: 2
+rapier:
+  cost: 25
+  damage: 1d8
+  damage_type: piercing
   meta:
-    noise_target: 5
     noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Rapier
+  proficiency_type:
+    - martial
+  properties:
+    - finesse
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 2
+scimitar:
+  cost: 25
+  damage: 1d6
+  damage_type: slashing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Scimitar
+  proficiency_type:
+    - martial
+  properties:
+    - finesse
+    - light
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 3
+shortbow:
+  ammo: arrows
+  cost: 25
+  damage: 1d6
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Shortbow
+  proficiency_type:
+    - martial
+  properties:
+    - ammunition
+    - ranged
+  range: 80
+  range_max: 320
+  subtype: weapon
+  type: ranged_attack
+  weight: 2
+unarmed_attack:
+  cost: 0
+  damage: 1
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Unarmed Attack
+  proficiency_type:
+    - martial
+  properties: null
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 0
+vicious_rapier:
+  bonus:
+    additional:
+      die: 2d6
+      restriction: nat20_attack
+  cost: 10
+  damage: 1d8
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Vicious Rapier
+  proficiency_type:
+    - martial
+  properties:
+    - finesse
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 2

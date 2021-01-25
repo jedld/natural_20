@@ -1,46 +1,81 @@
-padded:
-  name: Padded Armor
-  type: armor
-  subtype: light
-  ac: 11
-  cost: 5
-  weight: 8
-  disadvantage:
-    - stealh
-leather:
-  name: Leather
-  type: armor
-  subtype: light
-  ac: 11
-  cost: 10
-  weight: 10
-studded_leather:
-  name: Studded Leather
-  type: armor
-  subtype: light
-  ac: 12
-  cost: 45
-  weight: 13
-shield:
-  name: Shield
-  type: shield
-  bonus_ac: 2
-  weight: 6
-shield_of_the_hidden_lord:
-  name:
-  type: shield
-  require_attune: true
-  bonus_ac: 4
-  weight: 6
+---
 arrows:
+  cost: 0.05
   name: Arrows
   type: ammunition
   weight: 0.05
-  cost: 0.05
+copper_piece:
+  cost: 0.01
+  name: Copper Piece (cp)
+  type: currency
+  weight: 0.02
+electronum:
+  cost: 0.5
+  name: Electronum (ep)
+  type: currency
+  weight: 0.02
+gold_piece:
+  cost: 1
+  name: Gold Piece (gp)
+  type: currency
+  weight: 0.02
 healing_potion:
+  consumable: true
+  hp_regained: 2d4+2
+  item_class: 'ItemLibrary::HealingPotion'
   name: Potion of Healing
   type: potion
   usable: true
-  consumable: true
-  hp_regained: 2d4+2
-  item_class: ItemLibrary::HealingPotion
+leather:
+  ac: 11
+  cost: 10
+  name: Leather
+  subtype: light
+  type: armor
+  weight: 10
+padded:
+  ac: 11
+  cost: 5
+  disadvantage:
+    - stealh
+  name: Padded Armor
+  subtype: light
+  type: armor
+  weight: 8
+platinum:
+  cost: 10
+  name: platinum (pp)
+  type: currency
+  weight: 0.02
+ruby_gem:
+  cost: 5000
+  name: Ruby Gemstone
+  type: gemstone
+  weight: 1
+shield:
+  bonus_ac: 2
+  name: Shield
+  type: shield
+  weight: 6
+silver_piece:
+  cost: 0.1
+  name: Silver Piece (sp)
+  type: currency
+  weight: 0.02
+studded_leather:
+  ac: 12
+  cost: 45
+  name: Studded Leather
+  subtype: light
+  type: armor
+  weight: 13
+thieves_tools:
+  cost: 25
+  name: Thieves Tools
+  type: tool
+  weight: 1
+wooden_door_key:
+  cost: 0.05
+  name: Wooden Door Key
+  type: tool
+  weight: 0.05

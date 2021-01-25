@@ -3,9 +3,10 @@ name: Gomerin
 race: high_elf
 classes:
   fighter: 1
+description: A high elf fighter seeking for glory
 level: 1
 hit_die: inherit
-max_hp: 67
+max_hp: 10
 ability:
   str: 12
   dex: 20
@@ -28,19 +29,18 @@ weapon_proficiencies:
 languages:
 - abyssal
 - celestial
-- common
-- elvish
 - goblin
+token:
+- G
 equipped:
-- vicious_rapier
+- rapier
 - longbow
 - studded_leather
-- shield_of_the_hidden_lord
+- shield
 inventory:
+- type: spear
+  qty: 1
 - type: arrows
   qty: 20
 - type: healing_potion
-  qty: 1
-- type: wooden_door_key
-  label: Key to a wooden door
   qty: 1

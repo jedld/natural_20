@@ -35,7 +35,7 @@ equipped:
 - vicious_rapier
 - longbow
 - studded_leather
-- shield_of_the_hidden_lord
+- shield
 inventory:
 - type: shield
   qty: 1

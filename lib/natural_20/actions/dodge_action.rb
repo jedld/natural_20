@@ -3,14 +3,14 @@ class DodgeAction < Natural20::Action
   attr_accessor :as_bonus_action
 
   def self.can?(entity, battle)
-    battle && entity.total_actions(battle) > 0
+    battle && entity.total_actions(battle).positive?
   end
 
   def build_map
     OpenStruct.new({
-      param: nil,
-      next: ->() { self },
-    })
+                     param: nil,
+                     next: -> { self }
+                   })
   end
 
   def self.build(session, source)
@@ -18,11 +18,11 @@ class DodgeAction < Natural20::Action
     action.build_map
   end
 
-  def resolve(session, map, opts = {})
+  def resolve(_session, _map, opts = {})
     @result = [{
       source: @source,
       type: :dodge,
-      battle: opts[:battle],
+      battle: opts[:battle]
     }]
     self
   end

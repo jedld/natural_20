@@ -5,7 +5,7 @@ class RayTracer
     @map = map
   end
 
-  def ray_trace(pos1_x, pos1_y, pos2_x, pos2_y, max_distance)
+  def ray_trace(pos1_x, pos1_y, pos2_x, pos2_y, _max_distance)
     return true if [pos1_x, pos1_y] == [pos2_x, pos2_y]
 
     if pos2_x == pos1_x
@@ -18,9 +18,9 @@ class RayTracer
       end
       true
     else
-      m = (pos2_y - pos1_y).to_f / (pos2_x - pos1_x).to_f
-      if m == 0
-        scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
+      m = (pos2_y - pos1_y).to_f / (pos2_x - pos1_x)
+      scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
+      if m.zero?
 
         scanner.each_with_index do |x, index|
           return false if !distance.nil? && index > distance
@@ -30,7 +30,6 @@ class RayTracer
 
         true
       else
-        scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
 
         b = pos1_y - m * pos1_x
         step = m.abs > 1 ? 1 / m.abs : m.abs
@@ -60,7 +59,7 @@ class RayTracer
       end
       true
     else
-      m = (pos2_y - pos1_y).to_f / (pos2_x - pos1_x).to_f
+      m = (pos2_y - pos1_y).to_f / (pos2_x - pos1_x)
       if m == 0
         scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
 

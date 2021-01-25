@@ -3,9 +3,10 @@ name: RumbleBelly
 race: halfling
 classes:
   rogue: 1
+description: A halfling rogue with a dark past
 level: 1
 hit_die: inherit
-max_hp: 67
+max_hp: 8
 ability:
   str: 11
   dex: 20
@@ -14,7 +15,6 @@ ability:
   wis: 12
   cha: 17
 class_features:
-- cunning_action
 - sneak_attack
 skills:
 - acrobatics
@@ -22,18 +22,14 @@ skills:
 - athletics
 - history
 - perception
+token:
+  - R
 tools:
 - thieves_tools
 - carpenters_tools
 weapon_proficiencies:
 - martial
 - simple
-languages:
-- abyssal
-- celestial
-- common
-- elvish
-- goblin
 equipped:
 - dagger
 - shortbow

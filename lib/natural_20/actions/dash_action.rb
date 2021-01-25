@@ -1,28 +1,41 @@
 # typed: true
-class DashAction < MoveAction
+class DashAction < Natural20::Action
+  attr_accessor :as_bonus_action
 
   def build_map
     OpenStruct.new({
-      action: self,
-      param: [
-        {
-          type: :movement,
-          as_dash: true,
-        },
-      ],
-      next: ->(path) {
-        self.move_path = path
-        self.as_dash = true
-        OpenStruct.new({
-          param: nil,
-          next: ->() { self },
-        })
-      },
-    })
+                     param: nil,
+                     next: -> { self }
+                   })
   end
 
   def self.can?(entity, battle)
-    battle && entity.total_actions(battle) > 0
+    battle && entity.total_actions(battle).positive?
+  end
+
+  def resolve(_session, _map, opts = {})
+    @result = [{
+      source: @source,
+      type: :dash,
+      battle: opts[:battle]
+    }]
+    self
+  end
+
+  def apply!(battle)
+    @result.each do |item|
+      case (item[:type])
+      when :dash
+        Natural20::EventManager.received_event({ source: item[:source], event: :dash })
+        battle.entity_state_for(item[:source])[:movement] += item[:source].speed
+      end
+
+      if as_bonus_action
+        battle.entity_state_for(item[:source])[:bonus_action] -= 1
+      else
+        battle.entity_state_for(item[:source])[:action] -= 1
+      end
+    end
   end
 end
 

@@ -20,11 +20,17 @@ module Natural20
     end
 
     def label
-      action_type.to_s.humanize
+      I18n.t(:"action.#{action_type}")
     end
 
     def apply!(battle); end
 
     def resolve(session, map, opts = {}); end
+
+    protected
+
+    def t(k, options = {})
+      I18n.t(k, options)
+    end
   end
 end

@@ -9,7 +9,7 @@ class DisengageAction < Natural20::Action
   def build_map
     OpenStruct.new({
                      param: nil,
-                     next: -> { self },
+                     next: -> { self }
                    })
   end
 
@@ -22,7 +22,7 @@ class DisengageAction < Natural20::Action
     @result = [{
       source: @source,
       type: :disengage,
-      battle: opts[:battle],
+      battle: opts[:battle]
     }]
     self
   end
@@ -45,7 +45,9 @@ class DisengageAction < Natural20::Action
 end
 
 class DisengageBonusAction < DisengageAction
+  # @param entity [Natural20::Entity]
+  # @param battle [Natural20::Battle]
   def self.can?(entity, battle)
-    battle && entity.class_feature?("cunning_action") && entity.total_bonus_actions(battle) > 0
+    battle && entity.any_class_feature?(%w[cunning_action nimble_escape]) && entity.total_bonus_actions(battle) > 0
   end
 end

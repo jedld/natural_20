@@ -1,0 +1,159 @@
+---
+en:
+  action:
+    attack_action: '%{name} with %{weapon_name} -> Hit: +%{mod} Dmg: %{dmg}'
+    attack_action_throw: '%{name} with %{weapon_name} (Throw) -> Hit: +%{mod} Dmg: %{dmg}'
+    dash: Dash
+    dash_bonus: Bonus Action -> Dash
+    disengage: Disengage
+    disengage_bonus: Bonus Action -> Disengage
+    dodge: Dodge
+    drop_grapple: Drop Grapple
+    escape_grapple: Escape a Grapple
+    grapple: Grapple
+    ground_interact: Pickup items
+    help: Help
+    hide: Hide
+    hide_bonus: Bonus Action -> Hide
+    interact: Interact/Loot
+    inventory: Show Character Sheet & Inventory
+    look: Look Around (Perception Check)
+    move: Move
+    npc_action: '%{name} with %{action_name}'
+    prone: Go Prone
+    stand: Stand Up
+    use_item: Use Item
+  back: Back
+  battle_simulator: Battle Simulator
+  character_sheet:
+    ac: 'AC: %{ac}'
+    hp: 'HP: %{current}/%{max}'
+    inventory: 'Inventory %{weight}/%{carry_capacity} lbs'
+    languages: 'Languages:'
+    level: 'Level: %{level}'
+    name: 'Name: %{name}'
+    race: 'Race: %{race}'
+  character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
+  dead_goblin_items: Dead Goblin's items
+  dice_roll:
+    acrobatics: Rolling for an acrobatics check
+    athletics: Rolling for an athletics check
+    attack: Rolling for attack (to hit)
+    damage: Roll for attack damage
+    death_saving_throw: Roll for death saving throw
+    description: '%{description} (%{roll_str})'
+    dexterity: Roll for dexterity (skill check)
+    healing_potion: Roll for healing potion (heal amount)
+    initiative: Roll for initiative
+    perception: Roll for a perception check
+    prompt: '%{name} - %{description}'
+    roll_attempt: 'roll %{number}/%{total}. Please roll a d%{die_type} [1-%{die_type}]:'
+    roll_attempt_advantage: 'roll %{number}/%{total}. roll a d%{die_type} [1-%{die_type}] (advantage):'
+    roll_attempt_disadvantage: 'roll %{number}/%{total}. roll a d%{die_type} [1-%{die_type}] (disadvantage):'
+    second_wind: Roll for second wind hp gain
+    sneak_attack: Roll for sneak attack damage
+    special_weapon_damage: Roll for special weapon additional damage
+    stealth: Rolling for stealth check
+    strength_check: Roll for strength (skill check)
+    thieves_tools: Roll for thieves tools (skill check)
+  dice_roller: Dice Roller
+  drop: Drop Item
+  end_turn: '%{name}: End turn.'
+  engine_title: Welcome to Wizards and Goblins (DnD 5e Adventure Engine)
+  entity:
+    health_flavor:
+      almost_dead: 'barely hanging on, one more solid blow may take them down'
+      max: looks to be in good condition
+      over_10: 'looking in bad condition, unable to fight or survive much longer'
+      over_25: starting to look more ragged or visibly slowing down
+      over_50: 'visibly wounded with some injuries, but still fighting strong'
+      over_75: 'doesn''t show any signs of slowing, just a few minor inconveniencing injuries'
+  event:
+    acrobatics:
+      failure: '%{roll} = %{value} (dc 10) %{name} failed on an acrobatics check'
+      success: '%{roll} = %{value} (dc 10) %{name} succeeded on an acrobatics check'
+    athletics:
+      failure: '%{roll} = %{value} (dc 10) %{name} failed on an athletics check'
+      success: '%{roll} = %{value} (dc 10) %{name} succeeded on an athletics check'
+    combat_end: Combat has ended
+    combat_start: Combat has started!
+    death_fail: 'Death Saving Throw: %{name} rolls a %{roll} = %{value} (fail). Saves: %{saves} Fails: %{fails}'
+    death_fail_hit: 'Death Saving Throw Failure. Saves: %{saves} Fails: %{fails}'
+    death_save: 'Death Saving Throw: %{name} rolls a %{roll} = %{value} (success). Saves: %{saves} Fails: %{fails}'
+    dodge: '%{name} takes the dodge action.'
+    drop_grapple: '%{source} has dropped grapple on %{target}'
+    escape_grapple_failure: '%{source} failed to escape the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
+    escape_grapple_success: '%{source} successfully escaped the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
+    grapple_failure: '%{source} failed to grapple %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
+    grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
+    grapple_success_no_roll: '%{source} successfully grappled %{target}'
+    something: (something)
+    status:
+      prone: '%{name} is now prone.'
+      stand: '%{name} stands up.'
+  exit: Exit
+  inventory:
+    equiped_items: '%{name} (equipped)'
+    how_many: 'How many %{item_label} (1-%{item_count})? '
+    inventory_items: '%{name} x %{qty}'
+  language:
+    abyssal: Abyssal
+    celestial: Celestial
+    common: Common
+    deep_speech: Deep Speech
+    draconic: Draconic
+    dwarvish: Dwarvish
+    elvish: Elvish
+    giant: Giant
+    gnomish: Gnomish
+    goblin: Goblin
+    halfling: Halfling
+    infernal: Infernal
+    orc: Orc
+    primordial: Primordial
+    sylvan: Sylvan
+    thieves_cant: Thieves Cant
+    undercommon: Undercommon
+  missing_game: missing game.yml in the current folder
+  'no': 'No'
+  object:
+    Arrows: Arrows
+    'ItemLibrary::Chest':
+      loot: Retreive Contents
+    Wooden door key: Wooden Door Key
+    door:
+      door_blocked: (door is blocked)
+      key_required: (missing key)
+    equip_problem:
+      armor_equipped: You already have an armor on (please unequip armor)
+      hands_full: Hand Slots are full (please unequip a weapon/shield)
+    ground: Ground
+    properties:
+      ammunition: Ammunition - You make a ranged attack only if you have ammunition to fire from the weapon
+      finesse: 'Finesse - When making an attack with a finesse weapon, your Strength or Dexterity modifier can be used for the attack and damage roll (Best mod will be automatically be used)'
+      heavy: Heavy - Small creatures have disadvantage on attack rolls with heavy weapons
+      light: 'Light - A light weapon  is small and easy to handle, making it ideal for use when fighting with  two weapons'
+      ranged: Ranged - This weapon can be used to make a ranged attack
+      thrown: Thrown - You can throw the weapon to make a ranged attack
+      versatile: Versatile - This weapon can be used with one or two hands
+  options:
+    automatic_roll: Roll Dice for me automatically (Computer will roll for you)
+    dice_roll: Toggle Manual Dice Roll ...
+    roll_dice_manually: Prompt for each player die roll (Make sure you have a dice set on hand)
+    title: Game Options
+  perception:
+    dark: Dark and hard to make out
+    hide_success: '(You are hidden from %{label})'
+    looking_around: 'Looking around using Perception %{perception}'
+    navigation: 'ESC- back, (wsad) - inspect square, x, space - select'
+    navigation_look: 'ESC- back, (wsad) - inspect square'
+    note_with_language: '(in %{note_language}) %{note}'
+    passed: '(perception) %{note}'
+    terrain_and_surroundings: Terrain and Surroundings
+    using_darkvision: 'Using darkvision:'
+  prompt_dice_roller: 'Dice Roll (ex. d20, d8+1) (a) >'
+  save_already_present: A save game is already present. This will overwrite your game. Are you sure?
+  select_npcs: Select NPCs
+  select_party_member: 'Select Party Member %{index}'
+  unequip: Unequip
+  'yes': 'Yes'

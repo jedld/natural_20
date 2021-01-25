@@ -16,17 +16,17 @@ module Natural20
         end
       end
 
-      def +(die_roll)
-        if die_roll.is_a?(Natural20::DieRoll)
-          @rolls << die_roll
-        elsif die_roll.is_a?(DieRolls)
-          @rolls += die_roll.rolls
+      def +(other)
+        if other.is_a?(Natural20::DieRoll)
+          @rolls << other
+        elsif other.is_a?(DieRolls)
+          @rolls += other.rolls
         end
       end
 
       def result
         @rolls.inject(0) do |sum, roll|
-          sum += roll.result
+          sum + roll.result
         end
       end
 
@@ -41,25 +41,31 @@ module Natural20
       end
 
       def to_s
-        @rolls.map(&:to_s).join(" + ")
+        @rolls.map(&:to_s).join(' + ')
       end
     end
 
     attr_reader :rolls, :modifier, :die_sides
 
-    def initialize(rolls, modifier, die_sides = 20, advantage: false, disadvantage: false)
+    # This represents a dice roll
+    # @param rolls [Array] Integer dice roll representations
+    # @param modifier [Integer] a constant value to add to the roll
+    def initialize(rolls, modifier, die_sides = 20, advantage: false, disadvantage: false, description: nil, entity: entity, battle: battle)
       @rolls = rolls
       @modifier = modifier
       @die_sides = die_sides
       @advantage = advantage
       @disadvantage = disadvantage
+      @description = description
     end
 
+    # This is a natural 20 or critical roll
+    # @return [Boolean]
     def nat_20?
       if @advantage
-        @rolls.map { |r| r.max }.detect { |r| r == 20 }
+        @rolls.map(&:max).detect { |r| r == 20 }
       elsif @disadvantage
-        @rolls.map { |r| r.min }.detect { |r| r == 20 }
+        @rolls.map(&:min).detect { |r| r == 20 }
       else
         @rolls.include?(20)
       end
@@ -67,33 +73,39 @@ module Natural20
 
     def nat_1?
       if @advantage
-        @rolls.map { |r| r.max }.detect { |r| r == 1 }
+        @rolls.map(&:max).detect { |r| r == 1 }
       elsif @disadvantage
-        @rolls.map { |r| r.min }.detect { |r| r == 1 }
+        @rolls.map(&:min).detect { |r| r == 1 }
       else
         @rolls.include?(1)
       end
     end
 
+    # computes the integer result of the dice roll
+    # @return [Integer]
     def result
       sum = if @advantage
-          @rolls.map { |r| r.max }.sum
-        elsif @disadvantage
-          @rolls.map { |r| r.min }.sum
-        else
-          @rolls.sum
-        end
+              @rolls.map(&:max).sum
+            elsif @disadvantage
+              @rolls.map(&:min).sum
+            else
+              @rolls.sum
+            end
 
       sum + @modifier
     end
 
-    def color_roll(r)
-      if r == 1
-        r.to_s.colorize(:red)
-      elsif r == @die_sides
-        r.to_s.colorize(:green)
+    # adds color flair to the roll depending on value
+    # @param roll [String,Integer]
+    # @return [String]
+    def color_roll(roll)
+      case roll
+      when 1
+        roll.to_s.colorize(:red)
+      when @die_sides
+        roll.to_s.colorize(:green)
       else
-        r.to_s
+        roll.to_s
       end
     end
 
@@ -101,21 +113,21 @@ module Natural20
       rolls = @rolls.map do |r|
         if @advantage
           r.map do |i|
-            i == r.max ? color_roll(i) : i.to_s.colorize(:gray)
-          end.join(" | ")
+            i == r.max ? color_roll(i).bold : i.to_s.colorize(:gray)
+          end.join(' | ')
         elsif @disadvantage
           r.map do |i|
-            i == r.min ? color_roll(i) : i.to_s.colorize(:gray)
-          end.join(" | ")
+            i == r.min ? color_roll(i).bold : i.to_s.colorize(:gray)
+          end.join(' | ')
         else
           color_roll(r)
         end
       end
 
       if @modifier != 0
-        "(#{rolls.join(" + ")}) + #{@modifier}"
+        "(#{rolls.join(' + ')}) + #{@modifier}"
       else
-        "(#{rolls.join(" + ")})"
+        "(#{rolls.join(' + ')})"
       end
     end
 
@@ -129,57 +141,60 @@ module Natural20
       end
     end
 
-    def ==(other_object)
-      if other_object.rolls == @rolls && other_object.modifier == @modifier && other_object.die_sides == @die_sides
-        return true
-      end
+    def ==(other)
+      return true if other.rolls == @rolls && other.modifier == @modifier && other.die_sides == @die_sides
 
       false
     end
 
-    def +(die_roll)
-      if die_roll.is_a?(DieRolls)
-        die_roll.add_to_front(self)
-        die_roll
+    def +(other)
+      if other.is_a?(DieRolls)
+        other.add_to_front(self)
+        other
       else
-        DieRolls.new([self, die_roll])
+        DieRolls.new([self, other])
       end
     end
 
     # Rolls the dice, details on dice rolls and its values are preserved
-    # @param roll_str [String]
+    # @param roll_str [String] A dice roll expression
+    # @param entity [Natural20::Entity]
+    # @param crit [Boolean] A critial hit damage roll - double dice rolls
+    # @param advantage [Boolean] Roll with advantage, roll twice and select the highest
+    # @param disadvantage [Boolean] Roll with disadvantage, roll twice and select the lowest
+    # @param battle [Natural20::Battle]
     # @return [Natural20::DieRoll]
-    def self.roll(roll_str, crit: false, disadvantage: false, advantage: false)
+    def self.roll(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
       state = :initial
       die_sides = 20
 
-      die_count_str = ""
-      die_type_str = ""
-      modifier_str = ""
-      modifier_op = ""
+      die_count_str = ''
+      die_type_str = ''
+      modifier_str = ''
+      modifier_op = ''
       roll_str.strip.each_char do |c|
         case state
         when :initial
           if numeric?(c)
             die_count_str << c
-          elsif c == "d"
+          elsif c == 'd'
             state = :die_type
-          elsif c == "+"
+          elsif c == '+'
             state = :modifier
           end
         when :die_type
-          next if c == " "
+          next if c == ' '
 
           if numeric?(c)
             die_type_str << c
-          elsif c == "+"
+          elsif c == '+'
             state = :modifier
-          elsif c == "-"
-            modifier_op = "-"
+          elsif c == '-'
+            modifier_op = '-'
             state = :modifier
           end
         when :modifier
-          next if c == " "
+          next if c == ' '
 
           modifier_str << c if numeric?(c)
         end
@@ -187,7 +202,7 @@ module Natural20
 
       if state == :initial
         modifier_str = die_count_str
-        die_count_str = "0"
+        die_count_str = '0'
       end
 
       number_of_die = die_count_str.blank? ? 1 : die_count_str.to_i
@@ -197,14 +212,25 @@ module Natural20
       die_sides = die_type_str.to_i
 
       number_of_die *= 2 if crit
-
+      description = t('dice_roll.description', description: description, roll_str: roll_str)
       rolls = if advantage || disadvantage
-          number_of_die.times.map { [(1..die_sides).to_a.sample, (1..die_sides).to_a.sample] }
-        else
-          number_of_die.times.map { (1..die_sides).to_a.sample }
-        end
+                if battle
+                  battle.roll_for(entity, die_sides, number_of_die, description, advantage: advantage,
+                                                                                 disadvantage: disadvantage)
+                else
+                  number_of_die.times.map { [(1..die_sides).to_a.sample, (1..die_sides).to_a.sample] }
+                end
+              elsif battle
+                battle.roll_for(entity, die_sides, number_of_die, description)
+              else
+                number_of_die.times.map { (1..die_sides).to_a.sample }
+              end
+      Natural20::DieRoll.new(rolls, modifier_str.blank? ? 0 : "#{modifier_op}#{modifier_str}".to_i, die_sides,
+                             advantage: advantage, disadvantage: disadvantage)
+    end
 
-      Natural20::DieRoll.new(rolls, modifier_str.blank? ? 0 : "#{modifier_op}#{modifier_str}".to_i, die_sides, advantage: advantage, disadvantage: disadvantage)
+    def self.t(key, options = {})
+      I18n.t(key, options)
     end
   end
 end

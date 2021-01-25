@@ -20,8 +20,13 @@ available_skills:
 - perception
 - performance
 class_features:
-- cunning_action
 - sneak_attack
+languages:
+- thieves_cant
+progression:
+  level_2:
+    class_features:
+      - cunning_action
 proficiency_bonuses:
 - 2
 - 2

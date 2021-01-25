@@ -1,10 +1,17 @@
 # Natural20
 
-A toolkit to create your own text based DnD 5th Edition RPG games
+A Ruby toolkit to create your own text based DnD 5th Edition RPG games.
+
+Features:
+ - Accurate DnD 5e ruleset implementation using the Open Game License
+ - Line of Sight computation with Lighting simulation (dim, dark areas)
+ - Rudimentary AI and pathfinding
+ - Text based UI
+ - Easily extensible to incorporate in your own games
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's Gemfile if you plan to use the game engine in an adventure of your own otherwise you can just clone this repository locally:
 
 ```ruby
 gem 'natural_20'
@@ -20,7 +27,30 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+To quickly try this out, clone this repository, in the working folder start the game engine it will
+load the default adventure included in this repository:
+
+```
+bin/nat20
+```
+
+## Adventure Tutorial
+
+The default adventure in this story is meant to showcase the game engine,
+it contains a small dungeon with doors and traps as well as a goblin and a dangerous owlbear.
+you are to lead a party of 2 to steal the treasure behind one of those doors.
+
+You can find the adventure specific files in the following locations:
+
+char_classes/
+characters/
+items/
+npcs/
+races/
+maps/game_map.yml
+game.yml
+
+These are all text readable for you to customize to your liking.
 
 ## Development
 

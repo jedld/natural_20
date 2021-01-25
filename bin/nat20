@@ -1,60 +1,121 @@
 #!/usr/bin/env ruby
 
-require "bundler/setup"
-require "natural_20"
+require 'bundler/setup'
+require 'natural_20'
 
 require 'tty-prompt'
 require 'json'
 require 'pry-byebug'
 require 'natural_20/cli/commandline_ui'
+require 'irb/completion'
 
 @prompt = TTY::Prompt.new
-@session = Natural20::Session.new
+@session = Natural20::Session.new_session
 
 # event handlers
 Natural20::EventManager.standard_cli
 
+def t(token, options = {})
+  I18n.t(token, options)
+end
+
 def training_dummy
-  chosen_characters = @prompt.multi_select('Select Character') do |menu|
+  chosen_characters = @prompt.multi_select(t('select_character')) do |menu|
     @session.load_characters.each do |character|
       menu.choice character.name, character
     end
   end
 
-  chosen_enemies = @prompt.multi_select('Select NPC') do |menu|
-    @session.load_npcs.each do |character|
-      menu.choice "#{character.name} (#{character.kind})", character
-    end
-  end
-
-  map = Natural20::BattleMap.new(@session, "maps/battle_sim")
+  map = Natural20::BattleMap.new(@session, 'maps/battle_sim')
   battle = Natural20::Battle.new(@session, map)
   command_line = CommandlineUI.new(battle, map)
-  command_line.battle_ui(chosen_characters, chosen_enemies)
+  command_line.battle_ui(chosen_characters)
 end
 
 def dice_roller
   dice_roll_str = nil
   loop do
-    dice_roll_str = @prompt.ask('Dice Roll (ex. d20, d8+1) (a) > ')
+    dice_roll_str = @prompt.ask(t(:prompt_dice_roller))
     dieRoll = Natural20::DieRoll.roll dice_roll_str
     puts "#{dieRoll} = #{dieRoll.result}"
     break unless dice_roll_str != 'q'
   end
 end
 
+def new_game
+  return if @session.has_save_game? && @prompt.no?(t('save_already_present'))
+
+  number_of_players = @session.game_properties[:players] || 1
+  chosen_characters = []
+  player_characters = @session.load_characters
+  number_of_players.times.each do |i|
+    character = @prompt.select(t('select_party_member', index: i + 1)) do |menu|
+      player_characters.each do |c|
+        next if chosen_characters.include?(c)
+
+        menu.choice "#{c.name} - #{c.description}", c
+      end
+    end
+    chosen_characters << character
+  end
+
+  controller = AiController::Standard.new
+  map = Natural20::BattleMap.new(@session, @session.game_properties[:starting_map])
+  battle = Natural20::Battle.new(@session, map, controller)
+  command_line = CommandlineUI.new(battle, map)
+  command_line.battle_ui(chosen_characters)
+end
+
+def continue_game
+  battle = @session.load_save
+  command_line = CommandlineUI.new(battle, battle.map)
+  command_line.game_loop
+end
+
+def settings
+  loop do
+    choice = @prompt.select(t('options.title')) do |menu|
+      menu.choice t('options.dice_roll'), 1
+      menu.choice t(:back)
+    end
+    case choice
+    when 1
+      result = @prompt.select(t('options.dice_roll')) do |q|
+        q.default @session.setting(:manual_dice_roll) ? 1 : 2
+        q.choice t('options.roll_dice_manually'), 1
+        q.choice t('options.automatic_roll'), 2
+      end
+      @session.update_settings(manual_dice_roll: result == 1)
+    else
+      break
+    end
+  end
+end
+
 def start
   loop do
-    answer = @prompt.select('Welcome to Wizards and Goblins (DnD 5e Adventure Engine)') do |menu|
-      # menu.choice 'New Adventure ...', 1
-      menu.choice 'Dice Roller', 1
-      menu.choice 'Battle Simulator', 2
-      menu.choice 'Exit', 3
+    CommandlineUI.clear_screen
+    @session.game_properties[:title]&.each do |title_line|
+      puts title_line
     end
-    exit(1) if answer == 3
-    dice_roller if answer == 1
-    training_dummy if answer == 2
-    break unless true
+    answer = @prompt.select(@session.game_properties[:description] || '') do |menu|
+      menu.choice 'New Adventure ...', 1
+      menu.choice 'Continue Game ...', 2 if @session.has_save_game?
+      menu.choice 'Settings', 3
+      menu.choice t(:exit), 4
+    end
+    case answer
+    when 4
+      exit(0)
+    when 3
+      settings
+    when 2
+      continue_game
+    when 1
+      new_game
+    else
+      break
+    end
   end
 end
 

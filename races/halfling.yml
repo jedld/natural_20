@@ -1,2 +1,5 @@
 base_speed: 25
 size: small
+languages:
+  - common
+  - halfling

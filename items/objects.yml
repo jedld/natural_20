@@ -1,20 +1,73 @@
-wooden_door:
-  name: Wooden Door
-  default_ac: 15
-  max_hp: 18
-  hp_die: 4d8
-  color: brown
-  interactable: true
-  item_class: ItemLibrary::DoorObject
-  token:
-  - =
+---
 barrel:
-  name: Barrel
-  default_ac: 15
-  max_hp: 18
-  hp_die: 4d8
   color: brown
-  interactable: true
   cover: half
+  default_ac: 15
+  hp_die: 4d8
+  interactable: true
+  max_hp: 18
+  name: Barrel
   token:
-  - o
+    - o
+bottomless_pit:
+  color: black
+  jump: true
+  opaque: false
+  passable: true
+  placeable: false
+  token:
+    - ▓
+brazier:
+  color: yellow
+  default_ac: 17
+  max_hp: 27
+  passable: true
+  placeable: false
+  light:
+    bright: 20
+    dim: 10
+  token:
+    - Ý
+chest:
+  color: yellow
+  item_class: 'ItemLibrary::Chest'
+  name: Treasure Chest
+  passable: true
+  placeable: false
+pit_trap:
+  damage_die: 1d10
+  damage_type: piercing
+  item_class: 'ItemLibrary::PitTrap'
+  name: Pit Trap
+  notes:
+    - highlight: true
+      note: Pit Trap
+      perception_dc: 10
+stone_wall:
+  color: light_magenta
+  default_ac: 17
+  item_class: 'ItemLibrary::StoneWall'
+  max_hp: 27
+  name: Stone Wall
+  opaque: true
+  passable: false
+  token:
+    - null
+  wall: true
+water:
+  color: blue
+  movement_cost: 2
+  name: Water
+  passable: true
+  token:
+    - ^
+wooden_door:
+  color: magenta
+  default_ac: 15
+  hp_die: 4d8
+  interactable: true
+  item_class: 'ItemLibrary::DoorObject'
+  max_hp: 18
+  name: Wooden Door
+  token:
+    - '='

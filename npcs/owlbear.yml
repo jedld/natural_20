@@ -10,7 +10,7 @@ max_hp: 59
 hp_die: 7d10+21
 speed: 40
 passive_perception: 13
-dark_vision: 60
+darkvision: 60
 token:
   - \/
   - └┘

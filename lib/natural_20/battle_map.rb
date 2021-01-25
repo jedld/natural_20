@@ -1,22 +1,43 @@
 # typed: false
 module Natural20
   class BattleMap
-    attr_reader :base_map, :spawn_points, :size, :interactable_objects, :unaware_npcs
+    include Natural20::Cover
+    include Natural20::MovementHelper
 
+    attr_reader :properties, :base_map, :spawn_points, :tokens, :entities, :size, :interactable_objects, :session,
+                :unaware_npcs, :size, :area_triggers, :feet_per_grid
+
+    # @param session [Natural20::Session] The current game session
+    # @param map_file [String] Path to map file
     def initialize(session, map_file)
       @session = session
       @map_file = map_file
       @spawn_points = {}
       @entities = {}
+      @area_triggers = {}
       @interactable_objects = {}
       @unaware_npcs = []
 
       @properties = YAML.load_file(File.join(session.root_path, "#{map_file}.yml")).deep_symbolize_keys!
 
+      @feet_per_grid = @properties[:grid_size] || 5
+
       # terrain layer
       @base_map = @properties.dig(:map, :base).map do |lines|
         lines.each_char.map.to_a
       end.transpose
+      @size = [@base_map.size, @base_map.first.size]
+
+      # terrain layer 2
+      @base_map_1 = if @properties.dig(:map, :base_1).blank?
+                      @size[0].times.map do
+                        @size[1].times.map { nil }
+                      end
+                    else
+                      @properties.dig(:map, :base_1).map do |lines|
+                        lines.each_char.map { |c| c == '.' ? nil : c }
+                      end.transpose
+                    end
 
       # meta layer
       if @properties.dig(:map, :meta)
@@ -27,65 +48,77 @@ module Natural20
 
       @legend = @properties[:legend] || {}
 
-      @size = [@base_map.size, @base_map.first.size]
       @tokens = @size[0].times.map do
         @size[1].times.map { nil }
       end
 
-      @objects = @size[0].times.map do |pos_x|
-        @size[1].times.map do |pos_y|
-          token = @base_map[pos_x][pos_y]
-          case token
-          when "#"
-            nil
-          when "."
-            nil
-          else
-            object_meta = @legend[token.to_sym]
-            raise "unknown object token #{token}" if object_meta.nil?
+      @area_notes = @size[0].times.map do
+        @size[1].times.map { nil }
+      end
 
-            object_info = @session.load_object(object_meta[:type])
-            obj = if object_info[:item_class]
-                object_info[:item_class].constantize.new(self, object_meta.merge(object_info))
-              else
-                ItemLibrary::Object.new(self, object_meta.merge(object_info))
-              end
-
-            @interactable_objects[obj] = [pos_x, pos_y]
-            obj
-          end
+      @objects = @size[0].times.map do
+        @size[1].times.map do
+          []
         end
       end
 
-      if @meta_map
-        @meta_map.each_with_index do |meta_row, column_index|
-          meta_row.each_with_index do |token, row_index|
-            token_type = @legend.dig(token.to_sym, :type)
-            case token_type
-            when "npc"
-              npc_meta = @legend.dig(token.to_sym)
-              raise "npc type requires sub_type as well" unless npc_meta[:sub_type]
+      @properties[:notes]&.each_with_index do |note, index|
+        note_object = OpenStruct.new(note.merge(note_id: note[:id] || index))
+        note_positions = case note_object.type
+                         when 'point'
+                           note[:positions]
+                         when 'rectangle'
+                           note[:positions].map do |position|
+                             left_x, left_y, right_x, right_y = position
 
-              entity = session.npc(npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides])
-              @unaware_npcs << entity
-              place(column_index, row_index, entity)
-            when "spawn_point"
-              @spawn_points[@legend.dig(token.to_sym, :name)] = {
-                location: [column_index, row_index],
-              }
-            end
-          end
+                             (left_x..right_x).map do |pos_x|
+                               (left_y..right_y).map do |pos_y|
+                                 [pos_x, pos_y]
+                               end
+                             end
+                           end.flatten(2).uniq
+                         else
+                           raise "invalid note type #{note_object.type}"
+                         end
+
+        note_positions.each do |position|
+          pos_x, pos_y = position
+          @area_notes[pos_x][pos_y] ||= []
+          @area_notes[pos_x][pos_y] << note_object unless @area_notes[pos_x][pos_y].include?(note_object)
+        end
+      end
+
+      @triggers = (@properties[:triggers] || {}).deep_symbolize_keys
+
+      @light_builder = Natural20::StaticLightBuilder.new(self)
+
+      setup_objects
+      setup_npcs
+      compute_lights # compute static lights
+    end
+
+    def activate_map_triggers(trigger_type, source, opt = {})
+      return unless @triggers.key?(trigger_type.to_sym)
+
+      @triggers[trigger_type.to_sym].each do |trigger|
+        next if trigger[:if] && !source&.eval_if(trigger[:if], opt)
+
+        case trigger[:type]
+        when 'message'
+          opt[:ui_controller]&.show_message(trigger[:content])
+        when 'battle_end'
+          return :battle_end
+        else
+          raise "unknown trigger type #{trigger[:type]}"
         end
       end
     end
-
-    attr_reader :size
 
     def wall?(pos_x, pos_y)
       return true if pos_x.negative? || pos_y.negative?
       return true if pos_x >= size[0] || pos_y >= size[1]
 
-      return true if base_map[pos_x][pos_y] == "#"
+      return true if object_at(pos_x, pos_y)&.wall?
 
       false
     end
@@ -95,6 +128,14 @@ module Natural20
     # @param pos_y [Integer]
     # @return [ItemLibrary::Object]
     def object_at(pos_x, pos_y)
+      @objects[pos_x][pos_y].detect { |o| !o.concealed? }
+    end
+
+    # Get object at map location
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @return [ItemLibrary::Object]
+    def objects_at(pos_x, pos_y)
       @objects[pos_x][pos_y]
     end
 
@@ -104,20 +145,49 @@ module Natural20
     # @return [Array]
     def objects_near(entity, battle = nil)
       target_squares = entity.melee_squares(self, @entities[entity])
+      target_squares += battle.map.entity_squares(entity) if battle&.map
       objects = []
-      @interactable_objects.each do |object, position|
-        objects << object if !object.available_interactions(entity, battle).empty? && target_squares.include?(position)
+
+      available_objects = target_squares.map do |square|
+        objects_at(*square)
+      end.flatten.compact
+
+      available_objects.each do |object|
+        objects << object unless object.available_interactions(entity, battle).empty?
       end
+
       @entities.each do |object, position|
-        if !object.available_interactions(entity, battle).empty? && target_squares.include?(position)
-          objects << object
-        end
+        next if object == entity
+
+        objects << object if !object.available_interactions(entity, battle).empty? && target_squares.include?(position)
       end
       objects
     end
 
+    def items_on_the_ground(entity)
+      target_squares = entity.melee_squares(self, @entities[entity])
+      target_squares += entity_squares(entity)
+
+      available_objects = target_squares.map do |square|
+        objects_at(*square)
+      end.flatten.compact
+
+      ground_objects = available_objects.select { |obj| obj.is_a?(ItemLibrary::Ground) }
+      ground_objects.map do |obj|
+        items = obj.inventory.select { |o| o.qty.positive? }
+        next if items.empty?
+
+        [obj, items]
+      end.compact
+    end
+
+    def ground_at(pos_x, pos_y)
+      available_objects = objects_at(pos_x, pos_y).compact
+      available_objects.detect { |obj| obj.is_a?(ItemLibrary::Ground) }
+    end
+
     def place(pos_x, pos_y, entity, token = nil)
-      raise "entity param is required" if entity.nil?
+      raise 'entity param is required' if entity.nil?
 
       entity_data = { entity: entity, token: token || entity.name&.first }
       @tokens[pos_x][pos_y] = entity_data
@@ -132,12 +202,12 @@ module Natural20
 
     def place_at_spawn_point(position, entity, token = nil)
       unless @spawn_points.key?(position.to_s)
-        raise "unknown spawn position #{position}. should be any of #{@spawn_points.keys.join(",")}"
+        raise "unknown spawn position #{position}. should be any of #{@spawn_points.keys.join(',')}"
       end
 
       pos_x, pos_y = @spawn_points[position.to_s][:location]
       place(pos_x, pos_y, entity, token)
-      puts "place #{entity.name} at #{pos_x}, #{pos_y}"
+      EventManager.logger.debug "place #{entity.name} at #{pos_x}, #{pos_y}"
     end
 
     # Computes the distance between two entities
@@ -145,8 +215,8 @@ module Natural20
     # @param entity2 [Natural20::Entity]
     # @result [Integer]
     def distance(entity1, entity2)
-      raise "entity 1 param cannot be nil" if entity1.nil?
-      raise "entity 2 param cannot be nil" if entity2.nil?
+      raise 'entity 1 param cannot be nil' if entity1.nil?
+      raise 'entity 2 param cannot be nil' if entity2.nil?
 
       # entity 1 squares
       entity_1_sq = entity_squares(entity1)
@@ -156,7 +226,7 @@ module Natural20
         entity_2_sq.map do |ent2_pos|
           pos1_x, pos1_y = ent1_pos
           pos2_x, pos2_y = ent2_pos
-          Math.sqrt((pos1_x - pos2_x) ** 2 + (pos1_y - pos2_y) ** 2).floor
+          Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
         end
       end.flatten.min
     end
@@ -199,7 +269,7 @@ module Natural20
         next if k == entity
 
         pos1_x, pos1_y = v
-        next unless line_of_sight_for_ex?(entity, k, distance)
+        next unless can_see?(entity, k, distance: distance)
 
         [k, [pos1_x, pos1_y]]
       end.compact.to_h
@@ -212,26 +282,80 @@ module Natural20
     # @param distance [Integer]
     # @return [TrueClass, FalseClass]
     def line_of_sight_for?(entity, pos2_x, pos2_y, distance = nil)
-      raise "cannot find entity" if @entities[entity].nil?
+      raise 'cannot find entity' if @entities[entity].nil?
 
       pos1_x, pos1_y = @entities[entity]
       line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
     end
 
-    def line_of_sight_for_ex?(entity, entity2, distance = nil)
-      raise "cannot find entity" if @entities[entity].nil? && @interactable_objects[entity].nil?
+    # Test to see if an entity can see a square
+    # @param entity [Natural20::Entity]
+    # @param pos2_x [Integer]
+    # @param pos2_y [Integer]
+    # @param allow_dark_vision [Boolean] Allow darkvision
+    # @return [Boolean]
+    def can_see_square?(entity, pos2_x, pos2_y, allow_dark_vision: true)
+      has_line_of_sight = false
+      max_illumniation = 0.0
+      sighting_distance = nil
 
       entity_1_squares = entity_squares(entity)
-      entity_2_squares = entity_squares(entity2)
+      entity_1_squares.each do |pos1|
+        pos1_x, pos1_y = pos1
+        return true if [pos1_x, pos1_y] == [pos2_x, pos2_y]
+        next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, nil, false)
+
+        max_illumniation = light_at(pos2_x, pos2_y) if light_at(pos2_x, pos2_y) > max_illumniation
+        sighting_distance = Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
+        has_line_of_sight = true
+      end
+
+      if has_line_of_sight && max_illumniation < 0.5
+        return allow_dark_vision && entity.darkvision?(sighting_distance * @feet_per_grid)
+      end
+
+      has_line_of_sight
+    end
+
+    # Checks if an entity can see another
+    # @param entity [Natural20::Entity] entity looking
+    # @param entity2 [Natural20::Entity] entity being looked at
+    # @param distance [Integer]
+    # @param entity_2_pos [Array] position override for entity2
+    # @param allow_dark_vision [Boolean] Allow darkvision
+    # @return [Boolean]
+    def can_see?(entity, entity2, distance: nil, entity_2_pos: nil, allow_dark_vision: true)
+      raise 'invalid entity passed' if @entities[entity].nil? && @interactable_objects[entity].nil?
+
+      entity_1_squares = entity_squares(entity)
+      entity_2_squares = entity_2_pos ? entity_squares_at_pos(entity2, *entity_2_pos) : entity_squares(entity2)
+
+      has_line_of_sight = false
+      max_illumniation = 0.0
+      sighting_distance = nil
 
       entity_1_squares.each do |pos1|
         entity_2_squares.each do |pos2|
           pos1_x, pos1_y = pos1
           pos2_x, pos2_y = pos2
-          return true if line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
+
+          next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
+
+          max_illumniation = light_at(pos2_x, pos2_y) if light_at(pos2_x, pos2_y) > max_illumniation
+          sighting_distance = Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
+          has_line_of_sight = true
         end
       end
-      false
+
+      if has_line_of_sight && max_illumniation < 0.5
+        return allow_dark_vision && entity.darkvision?(sighting_distance * @feet_per_grid)
+      end
+
+      has_line_of_sight
+    end
+
+    def light_at(pos_x, pos_y)
+      @light_map[pos_x][pos_y] + @light_builder.light_at(pos_x, pos_y)
     end
 
     def position_of(entity)
@@ -241,6 +365,7 @@ module Natural20
     # Get entity at map location
     # @param pos_x [Integer]
     # @param pos_y [Integer]
+    # @return [Natural20::Entity]
     def entity_at(pos_x, pos_y)
       entity_data = @tokens[pos_x][pos_y]
       return nil if entity_data.nil?
@@ -251,8 +376,12 @@ module Natural20
     # Get entity or object at map location
     # @param pos_x [Integer]
     # @param pos_y [Integer]
+    # @return [Array<Nautral20::Entity>]
     def thing_at(pos_x, pos_y)
-      [entity_at(pos_x, pos_y), object_at(pos_x, pos_y)].compact
+      things = []
+      things << entity_at(pos_x, pos_y)
+      things << object_at(pos_x, pos_y)
+      things.compact
     end
 
     def move_to!(entity, pos_x, pos_y)
@@ -263,11 +392,6 @@ module Natural20
       (0...entity.token_size).each do |ofs_x|
         (0...entity.token_size).each do |ofs_y|
           @tokens[cur_x + ofs_x][cur_y + ofs_y] = nil
-        end
-      end
-
-      (0...entity.token_size).each do |ofs_x|
-        (0...entity.token_size).each do |ofs_y|
           @tokens[pos_x + ofs_x][pos_y + ofs_y] = entity_data
         end
       end
@@ -276,32 +400,33 @@ module Natural20
     end
 
     def valid_position?(pos_x, pos_y)
-      if pos_x >= @base_map.size || pos_x < 0 || pos_y >= @base_map[0].size || pos_y < 0
-        return false
-      end # check for out of bounds
+      return false if pos_x >= @base_map.size || pos_x.negative? || pos_y >= @base_map[0].size || pos_y < 0
 
-      return false if @base_map[pos_x][pos_y] == "#"
+      return false if @base_map[pos_x][pos_y] == '#'
       return false unless @tokens[pos_x][pos_y].nil?
 
       true
     end
 
-    def movement_cost(entity, path, battle = nil)
-      return 0 if path.empty?
+    # @param entity [Natural20::Entity]
+    # @param path [Array]
+    # @param battle [Natural20::Battle]
+    # @param manual_jump [Array]
+    # @return [Natural20::MovementHelper::Movement]
+    def movement_cost(entity, path, battle = nil, manual_jump = [])
+      return Natural20::MovementHelper::Movement.empty if path.empty?
 
-      cost = 0
-      path.each_with_index do |position, index|
-        next unless index > 0
-
-        cost += if difficult_terrain?(entity, *position, battle)
-            2
-          else
-            1
-          end
-      end
-      cost * 5
+      budget = entity.available_movement(battle) / @feet_per_grid
+      compute_actual_moves(entity, path, self, battle, budget, test_placement: false,
+                                                               manual_jump: manual_jump)
     end
 
+    # Describes if terrain is passable or not
+    # @param entity [Natural20::Entity]
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param battle [Natural20::Battle]
+    # @return [Boolean]
     def passable?(entity, pos_x, pos_y, battle = nil)
       (0...entity.token_size).each do |ofs_x|
         (0...entity.token_size).each do |ofs_y|
@@ -311,22 +436,17 @@ module Natural20
           return false if relative_x >= @size[0]
           return false if relative_y >= @size[1]
 
-          return false if @base_map[relative_x][relative_y] == "#"
+          return false if @base_map[relative_x][relative_y] == '#'
           return false if object_at(relative_x, relative_y) && !object_at(relative_x, relative_y).passable?
 
           next unless battle && @tokens[relative_x][relative_y]
 
           location_entity = @tokens[relative_x][relative_y][:entity]
 
-          source_state = battle.entity_state_for(entity)
-          source_group = source_state[:group]
-          location_state = battle.entity_state_for(location_entity)
           next if @tokens[relative_x][relative_y][:entity] == entity
-
-          location_group = location_state[:group]
-          next if location_group.nil?
-          next if location_group == source_group
-          if location_group != source_group && (location_entity.size_identifier - entity.size_identifier).abs < 2
+          next unless battle.opposing?(location_entity, entity)
+          if battle.opposing?(location_entity,
+                              entity) && (location_entity.size_identifier - entity.size_identifier).abs < 2
             return false
           end
         end
@@ -335,6 +455,55 @@ module Natural20
       true
     end
 
+    def squares_in_path(pos1_x, pos1_y, pos2_x, pos2_y, distance: nil, inclusive: true)
+      if [pos1_x, pos1_y] == [pos2_x, pos2_y]
+        return inclusive ? [[pos1_x, pos1_y]] : []
+      end
+
+      arrs = []
+      if pos2_x == pos1_x
+        scanner = pos2_y > pos1_y ? (pos1_y...pos2_y) : (pos2_y...pos1_y)
+
+        scanner.each_with_index do |y, index|
+          break if !distance.nil? && index >= distance
+          next if !inclusive && ((y == pos1_y) || (y == pos2_y))
+
+          arrs << [pos1_x, y]
+        end
+      else
+        m = (pos2_y - pos1_y).to_f / (pos2_x - pos1_x)
+        scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
+        if m.zero?
+          scanner.each_with_index do |x, index|
+            break if !distance.nil? && index >= distance
+            next if !inclusive && ((x == pos1_x) || (x == pos2_x))
+
+            arrs << [x, pos2_y]
+          end
+        else
+          b = pos1_y - m * pos1_x
+          step = m.abs > 1 ? 1 / m.abs : m.abs
+
+          scanner.step(step).each_with_index do |x, index|
+            y = (m * x + b).round
+
+            break if !distance.nil? && index >= distance
+            next if !inclusive && ((x.round == pos1_x && y == pos1_y) || (x.round == pos2_x && y == pos2_y))
+
+            arrs << [x.round, y]
+          end
+        end
+      end
+
+      arrs.uniq
+    end
+
+    # Determines if it is possible to place a token in this location
+    # @param entity [Natural20::Entity]
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param battle [Natural20::Battle]
+    # @return [Boolean]
     def placeable?(entity, pos_x, pos_y, battle = nil)
       return false unless passable?(entity, pos_x, pos_y, battle)
 
@@ -343,14 +512,35 @@ module Natural20
         next if @tokens[p_x][p_y] && @tokens[p_x][p_y][:entity] == entity
         return false if @tokens[p_x][p_y] && !@tokens[p_x][p_y][:entity].dead?
         return false if object_at(p_x, p_y) && !object_at(p_x, p_y)&.passable?
+        return false if object_at(p_x, p_y) && !object_at(p_x, p_y)&.placeable?
       end
 
       true
     end
 
+    # Determines if terrain is a difficult terrain
+    # @param entity [Natural20::Entity]
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param battle [Natural20::Battle]
+    # @return [Boolean] Returns if difficult terrain or not
     def difficult_terrain?(entity, pos_x, pos_y, _battle = nil)
-      return false if @tokens[pos_x][pos_y] && @tokens[pos_x][pos_y][:entity] == entity
-      return true if @tokens[pos_x][pos_y] && !@tokens[pos_x][pos_y][:entity].dead?
+      entity_squares_at_pos(entity, pos_x, pos_y).each do |pos|
+        r_x, r_y = pos
+        next if @tokens[r_x][r_y] && @tokens[r_x][r_y][:entity] == entity
+        return true if @tokens[r_x][r_y] && !@tokens[r_x][r_y][:entity].dead?
+        return true if object_at(r_x, r_y) && object_at(r_x, r_y)&.movement_cost > 1
+      end
+
+      false
+    end
+
+    def jump_required?(entity, pos_x, pos_y)
+      entity_squares_at_pos(entity, pos_x, pos_y).each do |pos|
+        r_x, r_y = pos
+        next if @tokens[r_x][r_y] && @tokens[r_x][r_y][:entity] == entity
+        return true if object_at(r_x, r_y) && object_at(r_x, r_y)&.jump_required?
+      end
 
       false
     end
@@ -358,126 +548,206 @@ module Natural20
     # check if this interrupts line of sight (not necessarily movement)
     def opaque?(pos_x, pos_y)
       case (@base_map[pos_x][pos_y])
-      when "#"
+      when '#'
         true
-      when "."
+      when '.'
         false
       else
-        object_at(pos_x, pos_y).opaque?
+        object_at(pos_x, pos_y)&.opaque?
       end
     end
 
-    def line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance = nil)
-      return true if [pos1_x, pos1_y] == [pos2_x, pos2_y]
+    # Computes one of sight between two points
+    # @param pos1_x [Integer]
+    # @param pos1_y [Integer]
+    # @param pos2_x [Integer]
+    # @param pos2_y [Integer]
+    # @param distance [Integer]
+    # @return [Array] Cover characteristics if there is LOS
+    def line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance = nil, inclusive = false)
+      squares = squares_in_path(pos1_x, pos1_y, pos2_x, pos2_y, inclusive: inclusive)
+      squares.each_with_index.map do |s, index|
+        return nil if distance && index == (distance - 1)
+        return nil if opaque?(*s)
+        return nil if cover_at(*s) == :total
 
-      if pos2_x == pos1_x
-        scanner = pos2_y > pos1_y ? (pos1_y...pos2_y) : (pos2_y...pos1_y)
-
-        scanner.each_with_index do |y, index|
-          return false if !distance.nil? && index > distance
-          next if (y == pos1_y) || (y == pos2_y)
-          return false if opaque?(pos1_x, y)
-        end
-        true
-      else
-        m = (pos2_y - pos1_y).to_f / (pos2_x - pos1_x).to_f
-        if m == 0
-          scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
-
-          scanner.each_with_index do |x, index|
-            return false if !distance.nil? && index > distance
-            next if (x == pos1_x) || (x == pos2_x)
-            return false if opaque?(x, pos2_y)
-          end
-
-          true
-        else
-          scanner = pos2_x > pos1_x ? (pos1_x...pos2_x) : (pos2_x...pos1_x)
-
-          b = pos1_y - m * pos1_x
-          step = m.abs > 1 ? 1 / m.abs : m.abs
-
-          scanner.step(step).each_with_index do |x, index|
-            y = (m * x + b).round
-
-            return false if !distance.nil? && index > distance
-            next if (x.round == pos1_x && y == pos1_y) || (x.round == pos2_x && y == pos2_y)
-            return false if opaque?(x.round, y)
-          end
-          true
-        end
+        [cover_at(*s), s]
       end
     end
 
-    def npc_token(pos_x, pos_y)
-      entity = @tokens[pos_x][pos_y]
-      color = (entity[:entity]&.color.presence || :white).to_sym
-      token = if entity[:entity].token
-          m_x, m_y = @entities[entity[:entity]]
-          entity[:entity].token[pos_y - m_y][pos_x - m_x]
-        else
-          @tokens[pos_x][pos_y][:token]
-        end
-      token.colorize(color)
+    def cover_at(pos_x, pos_y)
+      return :half if object_at(pos_x, pos_y)&.half_cover?
+      return :three_quarter if object_at(pos_x, pos_y)&.three_quarter_cover?
+      return :total if object_at(pos_x, pos_y)&.total_cover?
+
+      :none
     end
 
-    def object_token(pos_x, pos_y)
-      object_meta = object_at(pos_x, pos_y)
-      m_x, m_y = @interactable_objects[object_meta]
-      color = (object_meta.color.presence || :white).to_sym
+    # highlights objects of interest if enabled on object
+    # @param source [Natural20::Entity] entity that is observing
+    # @param perception_check [Integer] Perception value
+    # @returns [Hash] objects of interest with notes
+    def highlight(source, perception_check)
+      (@entities.keys + interactable_objects.keys).map do |entity|
+        next if source == entity
+        next unless can_see?(source, entity)
 
-      return nil unless object_meta.token
+        perception_key = "#{source.entity_uid}_#{entity.entity_uid}"
+        perception_check = @session.load_state(:perception).fetch(perception_key, perception_check)
+        @session.save_state(:perception, { perception_key => perception_check })
+        highlighted_notes = entity.try(:list_notes, source, perception_check, highlight: true) || []
 
-      object_meta.token[pos_y - m_y][pos_x - m_x].colorize(color)
+        next if highlighted_notes.empty?
+
+        [entity, highlighted_notes]
+      end.compact.to_h
     end
 
-    def render_position(c, col_index, row_index, path: [], line_of_sight: nil)
-      c = case c
-        when "."
-          "\u00B7".encode("utf-8").colorize(:light_black)
-        when "#"
-          "#"
-        else
-          object_token(col_index, row_index) || c
-        end
-
-      if !path.empty?
-        return "X" if path[0] == [col_index, row_index]
-        return "+" if path.include?([col_index, row_index])
-        return " " if line_of_sight && !line_of_sight?(path.last[0], path.last[1], col_index, row_index)
-      else
-        has_line_of_sight = if line_of_sight.is_a?(Array)
-            line_of_sight.detect { |l| line_of_sight_for?(l, col_index, row_index) }
-          elsif line_of_sight
-            line_of_sight_for?(line_of_sight, col_index, row_index)
-          end
-        return " " if line_of_sight && !has_line_of_sight
-      end
-
-      # render map layer
-      return "`" if @tokens[col_index][row_index]&.fetch(:entity)&.dead?
-
-      token = @tokens[col_index][row_index] ? npc_token(col_index, row_index) : nil
-      token || c
+    # Reads perception related notes on an entity
+    # @param entity [Object] The target to percive on
+    # @param source [Natural20::Entity] Entity perceiving
+    # @param perception_check [Integer] Perception roll of source
+    # @return [Array] Array of notes
+    def perception_on(entity, source, perception_check)
+      perception_key = "#{source.entity_uid}_#{entity.entity_uid}"
+      perception_check = @session.load_state(:perception).fetch(perception_key, perception_check)
+      @session.save_state(:perception, { perception_key => perception_check })
+      entity.try(:list_notes, source, perception_check) || []
     end
 
-    def render(line_of_sight: nil, path: [], select_pos: nil)
-      @base_map.transpose.each_with_index.map do |row, row_index|
-        row.each_with_index.map do |c, col_index|
-          display = render_position(c, col_index, row_index, path: path, line_of_sight: line_of_sight)
-          if select_pos && select_pos == [col_index, row_index]
-            display.colorize(color: :black, background: :white)
+    # Reads perception related notes on an area
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param source [Natural20::Entity]
+    # @param perception_check [Integer] Perception roll of source
+    # @return [Array] Array of notes
+    def perception_on_area(pos_x, pos_y, source, perception_check)
+      notes = @area_notes[pos_x][pos_y] || []
+
+      notes.map do |note_object|
+        note_object.notes.each_with_index.map do |note, index|
+          perception_key = "#{source.entity_uid}_#{note_object.note_id}_#{index}"
+          perception_check = @session.load_state(:perception).fetch(perception_key, perception_check)
+          @session.save_state(:perception, { perception_key => perception_check })
+          next if note[:perception_dc] && perception_check <= note[:perception_dc]
+
+          if note[:perception_dc] && note[:perception_dc] != 0
+            t('perception.passed', note: note[:note])
           else
-            display
+            note[:note]
           end
-        end.join
-      end.join("\n") + "\n"
+        end
+      end.flatten.compact
+    end
+
+    def area_trigger!(entity, position, is_flying)
+      trigger_results = @area_triggers.map do |k, _prop|
+        next if k.dead?
+
+        k.area_trigger_handler(entity, position, is_flying)
+      end.flatten.compact
+
+      trigger_results.uniq
+    end
+
+    def entity_or_object_pos(thing)
+      thing.is_a?(ItemLibrary::Object) ? @interactable_objects[thing] : @entities[thing]
+    end
+
+    # Places an object onto the map
+    # @param object_info [Hash]
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param object_meta [Hash]
+    # @return [ItemLibrary::Object]
+    def place_object(object_info, pos_x, pos_y, object_meta = {})
+      return if object_info.nil?
+
+      obj = if object_info.is_a?(ItemLibrary::Object)
+              object_info
+            elsif object_info[:item_class]
+              item_klass = object_info[:item_class].constantize
+
+              item_obj = item_klass.new(self, object_info.merge(object_meta))
+              @area_triggers[item_obj] = {} if item_klass.included_modules.include?(ItemLibrary::AreaTrigger)
+
+              item_obj
+            else
+              ItemLibrary::Object.new(self, object_meta.merge(object_info))
+            end
+
+      @interactable_objects[obj] = [pos_x, pos_y]
+
+      if obj.token.is_a?(Array)
+        obj.token.each_with_index do |line, y|
+          line.each_char.map.to_a.each_with_index do |t, x|
+            next if t == '.' # ignore mask
+
+            @objects[pos_x + x][pos_y + y] << obj
+          end
+        end
+      else
+        @objects[pos_x][pos_y] << obj
+      end
+
+      obj
     end
 
     protected
 
-    def entity_or_object_pos(thing)
-      thing.is_a?(ItemLibrary::Object) ? @interactable_objects[thing] : @entities[thing]
+    def compute_lights
+      @light_map = @light_builder.build_map
+    end
+
+    def setup_objects
+      @size[0].times do |pos_x|
+        @size[1].times do |pos_y|
+          tokens = [@base_map_1[pos_x][pos_y], @base_map[pos_x][pos_y]].compact
+          tokens.map do |token|
+            case token
+            when '#'
+              object_info = @session.load_object('stone_wall')
+              obj = ItemLibrary::StoneWall.new(self, object_info)
+              @interactable_objects[obj] = [pos_x, pos_y]
+              place_object(obj, pos_x, pos_y)
+            when '?'
+              nil
+            when '.'
+              place_object(ItemLibrary::Ground.new(self, name: 'ground'), pos_x, pos_y)
+            else
+              object_meta = @legend[token.to_sym]
+              raise "unknown object token #{token}" if object_meta.nil?
+              next nil if object_meta[:type] == 'mask' # this is a mask terrain so ignore
+
+              object_info = @session.load_object(object_meta[:type])
+              place_object(object_info, pos_x, pos_y, object_meta)
+            end
+          end
+        end
+      end
+    end
+
+    def setup_npcs
+      @meta_map&.each_with_index do |meta_row, column_index|
+        meta_row.each_with_index do |token, row_index|
+          token_type = @legend.dig(token.to_sym, :type)
+          case token_type
+          when 'npc'
+            npc_meta = @legend[token.to_sym]
+            raise 'npc type requires sub_type as well' unless npc_meta[:sub_type]
+
+            entity = session.npc(npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides],
+                                                             rand_life: true)
+            @unaware_npcs << { group: npc_meta[:group]&.to_sym || :b, entity: entity }
+            @entities[entity] = [column_index, row_index]
+            place(column_index, row_index, entity)
+          when 'spawn_point'
+            @spawn_points[@legend.dig(token.to_sym, :name)] = {
+              location: [column_index, row_index]
+            }
+          end
+        end
+      end
     end
   end
 end
