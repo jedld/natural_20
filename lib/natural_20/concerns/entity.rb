@@ -296,7 +296,8 @@ module Natural20
                             bonus_action: 1,
                             reaction: 1,
                             movement: speed,
-                            free_object_interaction: 1
+                            free_object_interaction: 1,
+                            two_weapon: nil
                           })
       entity_state[:statuses].delete(:dodge)
       entity_state[:statuses].delete(:disengage)
@@ -699,6 +700,12 @@ module Natural20
       end.inject(0.0) do |slot, item|
         slot + (item.light ? 0.5 : 1.0)
       end
+    end
+
+    def equipped_weapons
+      equipped_items.select do |item|
+        item.subtype == 'weapon'
+      end.map(&:name)
     end
 
     def proficient?(prof)

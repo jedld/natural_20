@@ -42,9 +42,12 @@ module Natural20::Weapons
   # Calculates weapon damage roll
   # @param entity [Natural20::Entity]
   # @param weapon [Hash] weapon descriptor
+  # @param second_hand [Boolran] Second hand to be used for two weapon fighting
   # @return [String]
-  def damage_modifier(entity, weapon)
+  def damage_modifier(entity, weapon, second_hand: false)
     damage_mod = entity.attack_ability_mod(weapon)
+
+    damage_mod = [damage_mod, 0].min if second_hand # if second hand was used don't add modifier
 
     # compute damage roll using versatile weapon property
     damage_roll = if weapon[:properties]&.include?('versatile') && entity.used_hand_slots <= 1.0

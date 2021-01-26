@@ -121,6 +121,9 @@ class MoveAction < Natural20::Action
     self
   end
 
+  # @param entity [Natural20::Entity]
+  # @param move_list [Array<Array<Integer,Integer>>]
+  # @param battle [Natural20::Battle]
   def check_opportunity_attacks(entity, move_list, battle, grappled: false)
     if battle && !@source.disengage?(battle)
       opportunity_attacks = opportunity_attack_list(entity, move_list, battle, battle.map)

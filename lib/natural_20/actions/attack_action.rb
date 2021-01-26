@@ -3,7 +3,7 @@ class AttackAction < Natural20::Action
   include Natural20::Cover
   include Natural20::Weapons
 
-  attr_accessor :target, :using, :npc_action, :as_reaction, :thrown
+  attr_accessor :target, :using, :npc_action, :as_reaction, :thrown, :second_hand
   attr_reader :advantage_mod
 
   def self.can?(entity, battle, options = {})
@@ -22,8 +22,9 @@ class AttackAction < Natural20::Action
       attack_mod = @source.attack_roll_mod(weapon)
 
       i18n_token = thrown ? 'action.attack_action_throw' : 'action.attack_action'
+
       t(i18n_token, name: @action_type.to_s.humanize, weapon_name: weapon[:name], mod: attack_mod,
-                    dmg: damage_modifier(@source, weapon))
+                    dmg: damage_modifier(@source, weapon, second_hand: second_hand))
     end
   end
 
@@ -101,11 +102,22 @@ class AttackAction < Natural20::Action
 
       if as_reaction
         battle.entity_state_for(item[:source])[:reaction] -= 1
+      elsif item[:second_hand]
+        battle.entity_state_for(item[:source])[:bonus_action] -= 1
       else
         battle.entity_state_for(item[:source])[:action] -= 1
       end
 
       item[:source].break_stealth!(battle)
+
+      # handle two-weapon fighting
+      weapon = session.load_weapon(item[:weapon]) if item[:weapon]
+
+      if weapon && weapon[:properties]&.include?('light') && !battle.two_weapon_attack?(item[:source]) && !result[:second_hand]
+        battle.entity_state_for(item[:source])[:two_weapon] = item[:weapon]
+      else
+        battle.entity_state_for(item[:source])[:two_weapon] = nil
+      end
 
       # handle multiattacks
       battle.entity_state_for(item[:source])[:multiattack]&.each do |_group, attacks|
@@ -158,7 +170,7 @@ class AttackAction < Natural20::Action
       attack_name = weapon[:name]
       ammo_type = weapon[:ammo]
       attack_mod = @source.attack_roll_mod(weapon)
-      damage_roll = damage_modifier(@source, weapon)
+      damage_roll = damage_modifier(@source, weapon, second_hand: second_hand)
     end
 
     # DnD 5e advantage/disadvantage checks
@@ -210,6 +222,7 @@ class AttackAction < Natural20::Action
                   damage_type: weapon[:damage_type],
                   damage: damage,
                   ammo: ammo_type,
+                  second_hand: second_hand,
                   npc_action: npc_action
                 }]
               else
@@ -221,6 +234,7 @@ class AttackAction < Natural20::Action
                   battle: battle,
                   thrown: thrown,
                   type: :miss,
+                  second_hand: second_hand,
                   damage_roll: damage_roll,
                   attack_roll: attack_roll,
                   target_ac: target.armor_class,
@@ -250,5 +264,23 @@ class AttackAction < Natural20::Action
     end
 
     damage_roll
+  end
+end
+
+class TwoWeaponAttackAction < AttackAction
+  # @param entity [Natural20::Entity]
+  # @param battle [Natural20::Battle]
+  def self.can?(entity, battle, options = {})
+    battle.nil? || (entity.total_bonus_actions(battle).positive? && battle.two_weapon_attack?(entity) && options[:weapon] != battle.first_hand_weapon(entity) || entity.equipped_weapons.select do |a|
+      a == battle.first_hand_weapon(entity)
+    end.size >= 2)
+  end
+
+  def second_hand
+    true
+  end
+
+  def label
+    "Bonus Action -> #{super}"
   end
 end

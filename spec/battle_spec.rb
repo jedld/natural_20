@@ -42,6 +42,7 @@ RSpec.describe Natural20::Battle do
                                     thrown: nil,
                                     attack_roll: Natural20::DieRoll.new([2], 8, 20),
                                     target: @npc,
+                                    second_hand: nil,
                                     weapon: 'vicious_rapier',
                                     npc_action: nil
                                   })
@@ -63,6 +64,7 @@ RSpec.describe Natural20::Battle do
                                     weapon: 'vicious_rapier',
                                     thrown: nil,
                                     sneak_attack: nil,
+                                    second_hand: nil,
                                     npc_action: nil
                                   }])
 

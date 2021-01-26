@@ -229,6 +229,7 @@ RSpec.describe Natural20::BattleMap do
                                                       reaction: 1,
                                                       statuses: Set[:hiding],
                                                       stealth: 7,
+                                                      two_weapon: nil,
                                                       target_effect: {}
                                                     })
       end

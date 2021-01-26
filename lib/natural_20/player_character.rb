@@ -177,6 +177,14 @@ module Natural20
               action.thrown = true
               attacks << action
             end
+
+            if weapon_detail[:properties] && weapon_detail[:properties].include?('light') && TwoWeaponAttackAction.can?(
+              self, battle, weapon: weapon_detail[:name]
+            )
+              action = TwoWeaponAttackAction.new(session, self, :attack_second)
+              action.using = item
+              attacks << action
+            end
             attacks
           end.compact
 

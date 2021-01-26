@@ -54,6 +54,14 @@ module Natural20
       @battle_field_events[event.to_sym] << [object, handler]
     end
 
+    def two_weapon_attack?(entity)
+      !!entity_state_for(entity)[:two_weapon]
+    end
+
+    def first_hand_weapon(entity)
+      entity_state_for(entity)[:two_weapon]
+    end
+
     # Adds an entity to the battle
     # @param entity [Natural20::Entity] The entity to add to the battle
     # @param group [Symbol] A symbol denoting which group this entity belongs to
@@ -75,6 +83,7 @@ module Natural20
         statuses: Set.new,
         free_object_interaction: 0,
         target_effect: {},
+        two_weapon: nil,
         controller: controller || @standard_controller
       }
 
@@ -311,6 +320,7 @@ module Natural20
       end
 
       @started = true
+      @current_turn_index = 0
       @combat_order = @combat_order.sort_by { |a| @entities[a][:initiative] || a.name }.reverse
     end
 
