@@ -1,3 +1,3 @@
 echo off
 
-ruby nat20
+ruby bin\nat20
