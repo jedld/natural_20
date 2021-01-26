@@ -136,8 +136,12 @@ module Natural20
                                                        end
                                                      },
 
-                         start_of_combat: lambda { |_event|
+                         start_of_combat: lambda { |event|
                            puts t('event.combat_start')
+                           event[:combat_order].each_with_index do |entity_and_initiative, index|
+                             entity, initiative = entity_and_initiative
+                             puts "#{index + 1}. #{decorate_name(entity)} #{initiative}"
+                           end
                          },
 
                          end_of_combat: lambda { |_event|
@@ -183,15 +187,20 @@ module Natural20
 
     # @param event [Hash]
     def self.show_name(event)
-      if @battle && @current_entity_context && event[:source]
+      decorate_name(event[:source])
+    end
+
+    # @param event [Hash]
+    def self.decorate_name(entity)
+      if @battle && @current_entity_context && entity
 
         seen_attacker = @current_entity_context.detect do |c|
-          c == event[:source] || @battle.map.can_see?(c, event[:source])
+          c == entity || @battle.map.can_see?(c, entity)
         end
-        color = @battle.entity_group_for(seen_attacker) != @battle.entity_group_for(event[:source]) ? :red : :blue
-        seen_attacker ? event[:source].name&.colorize(color) : I18n.t('event.something')
+        color = @battle.entity_group_for(seen_attacker) != @battle.entity_group_for(entity) ? :red : :blue
+        seen_attacker ? entity.name&.colorize(color) : I18n.t('event.something')
       else
-        event[:source].name&.colorize(:blue)
+        entity.name&.colorize(:blue)
       end
     end
 

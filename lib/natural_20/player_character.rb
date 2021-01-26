@@ -10,7 +10,7 @@ module Natural20
 
     attr_accessor :hp, :other_counters, :resistances, :experience_points
 
-    ACTION_LIST = %i[look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
+    ACTION_LIST = %i[first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
                      dash_bonus hide_bonus grapple escape_grapple drop_grapple prone stand].freeze
 
     # @param session [Natural20::Session]
@@ -236,6 +236,8 @@ module Natural20
           GroundInteractAction.new(session, self, type)
         when :inventory
           InventoryAction.new(session, self, type)
+        when :first_aid
+          FirstAidAction.new(session, self, type)
         else
           Natural20::Action.new(session, self, type)
         end

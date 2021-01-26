@@ -48,6 +48,7 @@ module Natural20
       @hp -= dmg
 
       if unconscious?
+        @statuses.delete(:stable)
         @death_fails += if damage_params[:attack_roll].nat_20?
                           2
                         else
@@ -167,10 +168,13 @@ module Natural20
       0
     end
 
-    def melee_squares(map, target_position, adjacent_only: false)
+    # @param map [Natural20::BattleMap]
+    # @param target_position [Array<Integer,Integer>]
+    # @param adjacent_only [Boolean] If false uses melee distance otherwise uses fixed 1 square away
+    def melee_squares(map, target_position: nil, adjacent_only: false)
       result = []
       step = adjacent_only ? 1 : melee_distance / map.feet_per_grid
-      cur_x, cur_y = target_position
+      cur_x, cur_y = target_position || map.entity_or_object_pos(self)
       (-step..step).each do |x_off|
         (-step..step).each do |y_off|
           next if x_off.zero? && y_off.zero?
@@ -179,8 +183,8 @@ module Natural20
           adjusted_x_off = x_off
           adjusted_y_off = y_off
 
-          adjusted_x_off -= token_size - 1 if x_off < 0
-          adjusted_y_off -= token_size - 1 if y_off < 0
+          adjusted_x_off -= token_size - 1 if x_off.negative?
+          adjusted_y_off -= token_size - 1 if y_off.negative?
 
           position = [cur_x + adjusted_x_off, cur_y + adjusted_y_off]
 
@@ -496,8 +500,9 @@ module Natural20
                                         battle: battle)
     end
 
-    def stealth_check!(battle = nil)
-      dexterity_check!(stealth_proficient? ? proficiency_bonus : 0, battle: battle)
+    def stealth_check!(battle = nil, description: nil)
+      dexterity_check!(stealth_proficient? ? proficiency_bonus : 0, battle: battle,
+                                                                    description: description || t('dice_roll.stealth'))
     end
 
     def acrobatics_check!(battle = nil, description: nil)
@@ -518,6 +523,16 @@ module Natural20
     def strength_check!(bonus = 0, battle: nil, description: nil)
       DieRoll.roll("1d20+#{str_mod + bonus}", description: description || t('dice_roll.stength_check'), entity: self,
                                               battle: battle)
+    end
+
+    def wisdom_check!(bonus = 0, battle: nil, description: nil)
+      DieRoll.roll("1d20+#{wis_mod + bonus}", description: description || t('dice_roll.wisdom_check'), entity: self,
+                                              battle: battle)
+    end
+
+    def medicine_check!(battle = nil, description: nil)
+      wisdom_check!(medicine_proficient? ? proficiency_bonus : 0, battle: battle,
+                                                                  description: description || t('dice_roll.medicine'))
     end
 
     def int_mod
@@ -792,6 +807,10 @@ module Natural20
 
     def athletics_proficient?
       proficient?('athletics')
+    end
+
+    def medicine_proficient?
+      proficient?('medicine')
     end
 
     def lockpick!(battle = nil)

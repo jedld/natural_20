@@ -50,7 +50,7 @@ class CommandlineUI < Natural20::Controller
     weapon_details = options[:weapon] ? session.load_weapon(options[:weapon]) : nil
     selected_targets = []
     valid_targets = options[:targets] || battle.valid_targets_for(entity, action, target_types: options[:target_types],
-                                                                                  range: options[:range])
+                                                                                  range: options[:range], filter: options[:filter])
     target = prompt.select("#{entity.name} targets") do |menu|
       valid_targets.each do |target|
         menu.choice target_name(entity, target, weapon: weapon_details), target
@@ -63,7 +63,9 @@ class CommandlineUI < Natural20::Controller
 
     if target == :manual
       valid_targets = options[:targets] || battle.valid_targets_for(entity, action,
-                                                                    target_types: options[:target_types], range: options[:range], include_objects: true)
+                                                                    target_types: options[:target_types], range: options[:range],
+                                                                    filter: options[:filter],
+                                                                    include_objects: true)
       targets = target_ui(entity, weapon: weapon_details, validation: lambda { |selected|
                                                                         selected_entities = map.thing_at(*selected)
 
@@ -479,10 +481,12 @@ class CommandlineUI < Natural20::Controller
     Natural20::EventManager.set_context(battle, battle.current_party)
 
     battle.while_active do |entity|
+      start_combat = false
       if battle.has_controller_for?(entity)
         cycles = 0
         loop do
           cycles += 1
+          session.save_game(battle)
           action = battle.move_for(entity)
           if action.nil?
             prompt.keypress(t(:end_turn, name: entity.name)) unless battle.current_party.include? entity
@@ -491,11 +495,16 @@ class CommandlineUI < Natural20::Controller
 
           battle.action!(action)
           battle.commit(action)
-          session.save_game(battle)
-          break if battle.check_combat
+
+          if battle.check_combat
+            start_combat = true
+            break
+          end
           break if action.nil?
         end
       end
+
+      start_combat
     end
 
     puts '------------'

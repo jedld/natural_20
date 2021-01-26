@@ -210,9 +210,10 @@ module Natural20
     # Generates targets that make sense for a given action
     # @param entity [Natural20::Entity]
     # @param action [Natural20::Action]
+    # @param filter [String]
     # @option target_types [Array<Symbol>]
     # @return [Natural20::Entity]
-    def valid_targets_for(entity, action, target_types: [:enemies], range: nil, active_perception: nil, include_objects: false)
+    def valid_targets_for(entity, action, target_types: [:enemies], range: nil, active_perception: nil, include_objects: false, filter: nil)
       raise 'not an action' unless action.is_a?(Natural20::Action)
 
       target_types = target_types&.map(&:to_sym) || [:enemies]
@@ -228,6 +229,7 @@ module Natural20
         next if k.dead?
         next if !target_types.include?(:ignore_los) && !can_see?(entity, k, active_perception: active_perception)
         next if @map.distance(k, entity) * @map.feet_per_grid > attack_range
+        next if filter && !k.eval_if(filter)
 
         k
       end.compact
@@ -237,6 +239,7 @@ module Natural20
           next if object.dead?
           next if !target_types.include?(:ignore_los) && !can_see?(entity, object, active_perception: active_perception)
           next if @map.distance(object, entity) * @map.feet_per_grid > attack_range
+          next if filter && !k.eval_if(filter)
 
           object
         end.compact
@@ -314,10 +317,12 @@ module Natural20
 
       # roll for initiative
       @combat_order = @entities.map do |entity, v|
+        next if entity.dead?
+
         v[:initiative] = entity.initiative!(self)
 
         entity
-      end
+      end.compact
 
       @started = true
       @current_turn_index = 0
@@ -331,8 +336,9 @@ module Natural20
 
     def check_combat
       if !@started && !battle_ends?
-        Natural20::EventManager.received_event(source: self, event: :start_of_combat, target: current_turn)
         start
+        Natural20::EventManager.received_event(source: self, event: :start_of_combat, target: current_turn,
+                                               combat_order: @combat_order.map { |e| [e, @entities[e][:initiative]] })
         return true
       end
       false
@@ -346,7 +352,7 @@ module Natural20
 
         if current_turn.conscious?
           current_turn.reset_turn!(self)
-          block.call(current_turn)
+          next if block.call(current_turn)
         end
 
         trigger_event!(:end_of_round, self, target: current_turn)
@@ -363,9 +369,11 @@ module Natural20
         @round += 1
 
         # top of the round
-        @combat_order += @late_comers
-        @late_comers.clear
-        @combat_order = @combat_order.sort_by { |a| @entities[a][:initiative] || a.name }.reverse
+        unless @late_comers.empty?
+          @combat_order += @late_comers
+          @late_comers.clear
+          @combat_order = @combat_order.sort_by { |a| @entities[a][:initiative] || a.name }.reverse
+        end
         session.increment_game_time!
 
         Natural20::EventManager.received_event({ source: self, event: :top_of_the_round, round: @round,

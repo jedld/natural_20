@@ -144,7 +144,7 @@ module Natural20
     # @param battle [Natural20::Battle]
     # @return [Array]
     def objects_near(entity, battle = nil)
-      target_squares = entity.melee_squares(self, @entities[entity])
+      target_squares = entity.melee_squares(self)
       target_squares += battle.map.entity_squares(entity) if battle&.map
       objects = []
 
@@ -165,7 +165,7 @@ module Natural20
     end
 
     def items_on_the_ground(entity)
-      target_squares = entity.melee_squares(self, @entities[entity])
+      target_squares = entity.melee_squares(self)
       target_squares += entity_squares(entity)
 
       available_objects = target_squares.map do |square|
@@ -650,6 +650,8 @@ module Natural20
       trigger_results.uniq
     end
 
+    # @param thing [Natural20::Entity]
+    # @return [Array<Integer,Integer>]
     def entity_or_object_pos(thing)
       thing.is_a?(ItemLibrary::Object) ? @interactable_objects[thing] : @entities[thing]
     end

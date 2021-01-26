@@ -7,7 +7,7 @@ module Natural20::Cover
     source_squares = map.entity_squares(source)
     target_squares = map.entity_squares(target)
     source_position = map.position_of(source)
-    source_melee_square = source.melee_squares(map, source_position, adjacent_only: true)
+    source_melee_square = source.melee_squares(map, target_position: source_position, adjacent_only: true)
 
     source_squares.map do |source_pos|
       target_squares.map do |target_pos|

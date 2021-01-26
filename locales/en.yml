@@ -55,6 +55,7 @@ en:
     dexterity: Roll for dexterity (skill check)
     healing_potion: Roll for healing potion (heal amount)
     initiative: Roll for initiative
+    medicine: Roll for medicine check
     perception: Roll for a perception check
     prompt: '%{name} - %{description}'
     roll_attempt: 'roll %{number}/%{total}. Please roll a d%{die_type} [1-%{die_type}]:'
@@ -66,6 +67,7 @@ en:
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
     thieves_tools: Roll for thieves tools (skill check)
+    wisdom_check: Roll for wisdom check
   dice_roller: Dice Roller
   drop: Drop Item
   end_turn: '%{name}: End turn.'
@@ -73,12 +75,12 @@ en:
   entity:
     health_flavor:
       almost_dead: 'barely hanging on, one more solid blow may take them down'
+      dead: appears to be dead
       max: looks to be in good condition
       over_10: 'looking in bad condition, unable to fight or survive much longer'
       over_25: starting to look more ragged or visibly slowing down
       over_50: 'visibly wounded with some injuries, but still fighting strong'
       over_75: 'doesn''t show any signs of slowing, just a few minor inconveniencing injuries'
-      dead: appears to be dead
       unconscious: appears to be unconscious
   event:
     acrobatics:

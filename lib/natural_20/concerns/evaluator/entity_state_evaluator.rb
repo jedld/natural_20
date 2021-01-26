@@ -10,6 +10,8 @@ module Natural20
         and_groups = g.split('&')
         and_groups.detect do |and_g|
           cmd, test_expression = and_g.strip.split(':')
+          invert = test_expression[0] == '!'
+          test_expression = test_expression[1..test_expression.size - 1] if test_expression[0] == '!'
           result = case cmd.to_sym
                    when :inventory
                      item_count(test_expression).positive?
@@ -20,11 +22,22 @@ module Natural20
                    when :entity
                      (test_expression == 'pc' && pc?) ||
                      (test_expression == 'npc' && npc?)
+                   when :state
+                     case test_expression
+                     when 'unconscious'
+                       unconscious?
+                     when 'stable'
+                       stable?
+                     when 'dead'
+                       dead?
+                     when 'conscious'
+                       conscious?
+                     end
                    else
                      raise "Invalid expression #{cmd} #{test_expression}"
                    end
 
-          !result
+          invert ? result : !result
         end.nil?
       end
     end
