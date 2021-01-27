@@ -21,6 +21,7 @@ en:
     move: Move
     npc_action: '%{name} with %{action_name}'
     prone: Go Prone
+    short_rest: Short Rest
     stand: Stand Up
     use_item: Use Item
   attack_status:
@@ -38,7 +39,7 @@ en:
   character_sheet:
     ac: 'AC: %{ac}'
     hp: 'HP: %{current}/%{max}'
-    inventory: 'Inventory %{weight}/%{carry_capacity} lbs'
+    inventory: Inventory %{weight}/%{carry_capacity} lbs
     languages: 'Languages:'
     level: 'Level: %{level}'
     name: 'Name: %{name}'
@@ -75,13 +76,13 @@ en:
   engine_title: Welcome to Wizards and Goblins (DnD 5e Adventure Engine)
   entity:
     health_flavor:
-      almost_dead: 'barely hanging on, one more solid blow may take them down'
+      almost_dead: barely hanging on, one more solid blow may take them down
       dead: appears to be dead
       max: looks to be in good condition
-      over_10: 'looking in bad condition, unable to fight or survive much longer'
+      over_10: looking in bad condition, unable to fight or survive much longer
       over_25: starting to look more ragged or visibly slowing down
-      over_50: 'visibly wounded with some injuries, but still fighting strong'
-      over_75: 'doesn''t show any signs of slowing, just a few minor inconveniencing injuries'
+      over_50: visibly wounded with some injuries, but still fighting strong
+      over_75: doesn't show any signs of slowing, just a few minor inconveniencing injuries
       unconscious: appears to be unconscious
   event:
     acrobatics:
@@ -134,7 +135,7 @@ en:
   'no': 'No'
   object:
     Arrows: Arrows
-    'ItemLibrary::Chest':
+    ItemLibrary::Chest:
       loot: Retreive Contents
     Wooden door key: Wooden Door Key
     door:
@@ -146,9 +147,9 @@ en:
     ground: Ground
     properties:
       ammunition: Ammunition - You make a ranged attack only if you have ammunition to fire from the weapon
-      finesse: 'Finesse - When making an attack with a finesse weapon, your Strength or Dexterity modifier can be used for the attack and damage roll (Best mod will be automatically be used)'
+      finesse: Finesse - When making an attack with a finesse weapon, your Strength or Dexterity modifier can be used for the attack and damage roll (Best mod will be automatically be used)
       heavy: Heavy - Small creatures have disadvantage on attack rolls with heavy weapons
-      light: 'Light - A light weapon  is small and easy to handle, making it ideal for use when fighting with  two weapons'
+      light: Light - A light weapon  is small and easy to handle, making it ideal for use when fighting with  two weapons
       ranged: Ranged - This weapon can be used to make a ranged attack
       thrown: Thrown - You can throw the weapon to make a ranged attack
       versatile: Versatile - This weapon can be used with one or two hands
@@ -159,18 +160,18 @@ en:
     title: Game Options
   perception:
     dark: Dark and hard to make out
-    hide_success: '(You are hidden from %{label})'
-    looking_around: 'Looking around using Perception %{perception}'
-    navigation: 'ESC- back, (wsad) - inspect square, x, space - select'
-    navigation_look: 'ESC- back, (wsad) - inspect square'
-    note_with_language: '(in %{note_language}) %{note}'
-    passed: '(perception) %{note}'
+    hide_success: (You are hidden from %{label})
+    looking_around: Looking around using Perception %{perception}
+    navigation: ESC- back, (wsad) - inspect square, x, space - select
+    navigation_look: ESC- back, (wsad) - inspect square
+    note_with_language: (in %{note_language}) %{note}
+    passed: (perception) %{note}
     terrain_and_surroundings: Terrain and Surroundings
     using_darkvision: 'Using darkvision:'
-  prompt_dice_roller: 'Dice Roll (ex. d20, d8+1) (a) >'
+  prompt_dice_roller: Dice Roll (ex. d20, d8+1) (a) >
   save_already_present: A save game is already present. This will overwrite your game. Are you sure?
   select_npcs: Select NPCs
-  select_party_member: 'Select Party Member %{index}'
+  select_party_member: Select Party Member %{index}
   unequip: Unequip
   with_advantage: advantage
   with_disadvantage: disadvantage

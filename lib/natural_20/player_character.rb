@@ -11,7 +11,7 @@ module Natural20
     attr_accessor :hp, :other_counters, :resistances, :experience_points
 
     ACTION_LIST = %i[first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
-                     dash_bonus hide_bonus grapple escape_grapple drop_grapple prone stand].freeze
+                     dash_bonus hide_bonus grapple escape_grapple drop_grapple prone stand short_rest].freeze
 
     # @param session [Natural20::Session]
     def initialize(session, properties)
@@ -231,6 +231,8 @@ module Natural20
           ProneAction.new(session, self, type)
         when :stand
           StandAction.new(session, self, type)
+        when :short_rest
+          ShortRestAction.new(session, self, type)
         when :dash_bonus
           action = DashBonusAction.new(session, self, :dash_bonus)
           action.as_bonus_action = true
