@@ -102,6 +102,7 @@ RSpec.describe Natural20::Battle do
       expect(@fighter.unconscious?).to be
       expect(@battle.ongoing?).to be
       @battle.while_active(3) do |entity|
+        false
       end
       expect(@battle.ongoing?).to_not be
       expect(@fighter.dead?).to be
@@ -114,6 +115,7 @@ RSpec.describe Natural20::Battle do
       @fighter.take_damage!(damage: Natural20::DieRoll.new([20], 80))
       expect(@fighter.unconscious?).to be
       @battle.while_active(3) do |entity|
+        false
       end
       expect(@fighter.stable?).to be
     end
@@ -126,6 +128,7 @@ RSpec.describe Natural20::Battle do
       @fighter.take_damage!(damage: Natural20::DieRoll.new([20], 80))
       expect(@fighter.unconscious?).to be
       @battle.while_active(3) do |entity|
+        false
       end
 
       expect(@fighter.conscious?).to be

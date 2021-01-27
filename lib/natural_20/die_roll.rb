@@ -50,7 +50,7 @@ module Natural20
     # This represents a dice roll
     # @param rolls [Array] Integer dice roll representations
     # @param modifier [Integer] a constant value to add to the roll
-    def initialize(rolls, modifier, die_sides = 20, advantage: false, disadvantage: false, description: nil, entity: entity, battle: battle)
+    def initialize(rolls, modifier, die_sides = 20, advantage: false, disadvantage: false, description: nil)
       @rolls = rolls
       @modifier = modifier
       @die_sides = die_sides

@@ -53,6 +53,7 @@ RSpec.describe AiController::Standard do
           @battle.action!(action)
           @battle.commit(action)
         end
+        false
       end
       expect(@fighter.hp).to eq 36
       expect(@npc1.hp).to eq 0
@@ -115,6 +116,7 @@ RSpec.describe AiController::Standard do
           @battle.commit(action)
           break
         end
+        false
       end
       expect(@battle.battle_log.map(&:action_type)).to eq(%i[attack move])
     end
