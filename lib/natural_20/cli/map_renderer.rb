@@ -44,7 +44,7 @@ module Natural20
       elsif intensity >= 0.5
         :black
       else
-        :default
+        :black
       end
     end
 

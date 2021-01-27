@@ -111,7 +111,7 @@ class CommandlineUI < Natural20::Controller
       CommandlineUI.clear_screen
       highlights = map.highlight(entity, perception)
       prompt.say(t('perception.looking_around', perception: perception))
-      describe_map(battle.map)
+      describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(line_of_sight: entity, select_pos: initial_pos, highlight: highlights)
       puts "\n"
       things = map.thing_at(*initial_pos)
@@ -213,7 +213,7 @@ class CommandlineUI < Natural20::Controller
       else
         puts "movement #{movement_cost}"
       end
-      describe_map(battle.map)
+      describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(entity: entity, line_of_sight: entity, path: path, update_on_drop: true,
                             acrobatics_checks: movement.acrobatics_check_locations, athletics_checks: movement.athletics_check_locations)
       prompt.say('(warning) token cannot end its movement in this square') unless @map.placeable?(entity, *path.last,
@@ -433,8 +433,10 @@ class CommandlineUI < Natural20::Controller
     @action = cont
   end
 
-  def describe_map(map)
-    puts "Battle Map (#{map.size[0]}x#{map.size[1]}) #{map.feet_per_grid}ft per square:"
+  def describe_map(map, line_of_sight: [])
+    line_of_sight = [line_of_sight] unless line_of_sight.is_a?(Array)
+    pov = line_of_sight.map(&:name).join(',')
+    puts "Battle Map (#{map.size[0]}x#{map.size[1]}) #{map.feet_per_grid}ft per square, pov #{pov}:"
   end
 
   # Return moves by a player using the commandline UI
@@ -446,7 +448,7 @@ class CommandlineUI < Natural20::Controller
     puts "#{entity.name}'s turn"
     puts '==============================='
     loop do
-      describe_map(battle.map)
+      describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(line_of_sight: entity)
       puts t(:character_status_line, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
                                      available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(','))
@@ -489,6 +491,10 @@ class CommandlineUI < Natural20::Controller
           session.save_game(battle)
           action = battle.move_for(entity)
           if action.nil?
+            unless battle.current_party.include?(entity)
+              describe_map(battle.map, line_of_sight: battle.current_party)
+              puts @renderer.render(line_of_sight: battle.current_party)
+            end
             prompt.keypress(t(:end_turn, name: entity.name)) unless battle.current_party.include? entity
             break
           end
