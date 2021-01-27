@@ -56,6 +56,17 @@ RSpec.describe Natural20::Npc do
     specify '#hit_die' do
       expect(@npc.hit_die).to eq(6 => 2)
     end
+
+    specify "#short_rest!" do
+      srand(1000)
+      Natural20::EventManager.standard_cli
+      @npc.take_damage!(damage: 4)
+      expect(@npc.hit_die).to eq(6 => 2)
+      expect {
+        @npc.short_rest!(@battle)
+      }.to change(@npc, :hp).from(3).to(7)
+      expect(@npc.hit_die).to eq(6 => 1)
+    end
   end
 
   context 'owlbear npc' do
