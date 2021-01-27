@@ -407,6 +407,10 @@ module Natural20
       @started
     end
 
+    def combat?
+      ongoing?
+    end
+
     def battle_ends?
       groups_present = @entities.keys.reject do |a|
                          a.dead? || a.unconscious?

@@ -52,6 +52,10 @@ RSpec.describe Natural20::Npc do
       expect(@npc.available_actions(session).size).to eq 5
       expect(@npc.available_actions(session).map(&:name)).to eq %w[attack attack look move grapple]
     end
+
+    specify '#hit_die' do
+      expect(@npc.hit_die).to eq(6 => 2)
+    end
   end
 
   context 'owlbear npc' do

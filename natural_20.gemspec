@@ -40,5 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pqueue"
   spec.add_dependency "i18n"
   spec.add_dependency "bond"
-  spec.add_dependency "pry-byebug"
+  if RUBY_ENGINE == "ruby"
+    spec.add_dependency "pry-byebug"
+  end
 end

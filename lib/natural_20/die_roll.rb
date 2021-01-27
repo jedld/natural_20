@@ -1,6 +1,31 @@
 # typed: true
 module Natural20
+  class DieRollDetail
+    attr_writer :die_count, :die_type, :modifier, :modifier_op
+
+    # @return [Integer]
+    def die_count
+      @die_count
+    end
+
+    # @return [String]
+    def die_type
+      @die_type
+    end
+
+    # @return [Integer]
+    def modifier
+      @modifier
+    end
+
+    # @return [Symbol]
+    def modifier_op
+      @modifier_op
+    end
+  end
   class DieRoll
+
+
     class DieRolls
       attr_accessor :rolls
 
@@ -156,22 +181,15 @@ module Natural20
       end
     end
 
-    # Rolls the dice, details on dice rolls and its values are preserved
-    # @param roll_str [String] A dice roll expression
-    # @param entity [Natural20::Entity]
-    # @param crit [Boolean] A critial hit damage roll - double dice rolls
-    # @param advantage [Boolean] Roll with advantage, roll twice and select the highest
-    # @param disadvantage [Boolean] Roll with disadvantage, roll twice and select the lowest
-    # @param battle [Natural20::Battle]
-    # @return [Natural20::DieRoll]
-    def self.roll(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
-      state = :initial
-      die_sides = 20
-
+    # @param die_roll_str [String]
+    # @return [Natural20::DieRollDetail]
+    def self.parse(roll_str)
       die_count_str = ''
       die_type_str = ''
       modifier_str = ''
       modifier_op = ''
+      state = :initial
+
       roll_str.strip.each_char do |c|
         case state
         when :initial
@@ -206,6 +224,32 @@ module Natural20
       end
 
       number_of_die = die_count_str.blank? ? 1 : die_count_str.to_i
+
+      detail = Natural20::DieRollDetail.new
+      detail.die_count = number_of_die
+      detail.die_type = die_type_str
+      detail.modifier = modifier_str
+      detail.modifier_op = modifier_op
+      detail
+    end
+
+    # Rolls the dice, details on dice rolls and its values are preserved
+    # @param roll_str [String] A dice roll expression
+    # @param entity [Natural20::Entity]
+    # @param crit [Boolean] A critial hit damage roll - double dice rolls
+    # @param advantage [Boolean] Roll with advantage, roll twice and select the highest
+    # @param disadvantage [Boolean] Roll with disadvantage, roll twice and select the lowest
+    # @param battle [Natural20::Battle]
+    # @return [Natural20::DieRoll]
+    def self.roll(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
+
+      die_sides = 20
+
+      detail = parse(roll_str)
+      number_of_die = detail.die_count
+      die_type_str = detail.die_type
+      modifier_str = detail.modifier
+      modifier_op = detail.modifier_op
 
       return Natural20::DieRoll.new([number_of_die], "#{modifier_op}#{modifier_str}".to_i, 0) if die_type_str.blank?
 

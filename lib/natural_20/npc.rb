@@ -9,7 +9,7 @@ module Natural20
     include Natural20::HealthFlavor
     include Multiattack
 
-    attr_accessor :hp, :resistances, :npc_actions, :battle_defaults
+    attr_accessor :hp, :resistances, :npc_actions, :battle_defaults, :npc_type
 
     # @param session [Session]
     # @param type [String,Symbol]
@@ -20,7 +20,7 @@ module Natural20
       @ability_scores = @properties[:ability]
       @color = @properties[:color]
       @session = session
-
+      @npc_type = type
       @inventory = @properties[:default_inventory].map do |inventory|
         [inventory[:type].to_sym, OpenStruct.new({ qty: inventory[:qty] })]
       end.to_h
@@ -149,6 +149,13 @@ module Natural20
 
       @max_hp = @opt[:rand_life] ? Natural20::DieRoll.roll(@properties[:hp_die]).result : @properties[:max_hp]
       @hp = [@properties.fetch(:override_hp, @max_hp), @max_hp].min
+
+      # parse hit die details
+      hp_details = Natural20::DieRoll.parse(@properties[:hp_die] || "1d6")
+      @max_hit_die = {}
+      @current_hit_die = {}
+      @max_hit_die[npc_type] = hp_details.die_count
+      @current_hit_die[hp_details.die_type.to_i] = hp_details.die_count
     end
   end
 end

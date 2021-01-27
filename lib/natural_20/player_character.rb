@@ -32,11 +32,21 @@ module Natural20
       @resistances = []
       entity_uid = SecureRandom.uuid
       setup_attributes
+      @max_hit_die = {}
+      @current_hit_die = {}
+
       @class_properties = @properties[:classes].map do |klass, level|
         send(:"#{klass}_level=", level)
         send(:"initialize_#{klass}")
-        [klass.to_sym,
-         YAML.load_file(File.join(session.root_path, 'char_classes', "#{klass}.yml")).deep_symbolize_keys!]
+
+        @max_hit_die[klass] = level
+
+        character_class_properties =
+          YAML.load_file(File.join(session.root_path, 'char_classes', "#{klass}.yml")).deep_symbolize_keys!
+        hit_die_details = DieRoll.parse(character_class_properties[:hit_die])
+        @current_hit_die[hit_die_details.die_type.to_i] = level
+
+        [klass.to_sym, character_class_properties]
       end.to_h
     end
 

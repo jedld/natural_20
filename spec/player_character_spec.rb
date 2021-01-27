@@ -139,6 +139,21 @@ RSpec.describe Natural20::PlayerCharacter do
         expect(@player.dead?).to be
       end
     end
+
+    specify '#hit_die' do
+      expect(@player.hit_die).to eq(10 => 1)
+    end
+
+    specify "#short_rest!" do
+      srand(1000)
+      Natural20::EventManager.standard_cli
+      @player.take_damage!(damage: 4)
+      expect(@player.hit_die).to eq(10 => 1)
+      expect {
+        @player.short_rest!(@battle)
+      }.to change(@player, :hp).from(63).to(67)
+      expect(@player.hit_die).to eq(10 => 0)
+    end
   end
 
   context 'rogue' do

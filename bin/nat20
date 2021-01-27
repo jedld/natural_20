@@ -5,7 +5,9 @@ require 'natural_20'
 
 require 'tty-prompt'
 require 'json'
-require 'pry-byebug'
+if RUBY_ENGINE == "ruby"
+  require 'pry-byebug'
+end
 require 'natural_20/cli/commandline_ui'
 require 'irb/completion'
 

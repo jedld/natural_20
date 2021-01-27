@@ -92,6 +92,10 @@ module Natural20
                          heal: lambda { |event|
                                  puts "#{show_name(event)} heals for #{event[:value]}hp"
                                },
+                         hit_die: lambda { |event|
+                           puts t('event.hit_die', source: show_name(event), roll: event[:roll].to_s,
+                                                   value: event[:roll].result)
+                         },
                          object_interaction: lambda { |event|
                                                if event[:roll]
                                                  puts "#{event[:roll]} = #{event[:roll].result} -> #{event[:reason]}"

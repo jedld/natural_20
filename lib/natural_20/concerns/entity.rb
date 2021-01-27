@@ -3,7 +3,8 @@ module Natural20
   module Entity
     include EntityStateEvaluator
 
-    attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :death_fails
+    attr_accessor :entity_uid, :statuses, :color, :session, :death_saves,
+                  :death_fails, :current_hit_die, :max_hit_die
 
     def label
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
@@ -41,7 +42,7 @@ module Natural20
     # @option damage_params sneak_attack [Natural20::DieRoll]
     # @param battle [Natural20::Battle]
     def take_damage!(damage_params, battle = nil)
-      dmg = damage_params[:damage].result
+      dmg = damage_params[:damage].is_a?(Natural20::DieRoll) ? damage_params[:damage].result : damage_params[:damage]
       dmg += damage_params[:sneak_attack].result unless damage_params[:sneak_attack].nil?
 
       dmg = (dmg / 2.to_f).floor if resistant_to?(damage_params[:damage_type])
@@ -86,6 +87,8 @@ module Natural20
     def dead!
       Natural20::EventManager.received_event({ source: self, event: :died })
       @statuses.add(:dead)
+      @statuses.delete(:stable)
+      @statuses.delete(:unconscious)
     end
 
     def prone!
@@ -860,6 +863,46 @@ module Natural20
       @properties[:weapon_proficiencies]&.detect do |prof|
         weapon[:proficiency_type]&.include?(prof)
       end
+    end
+
+    # Returns the character hit die
+    # @return [String]
+    def hit_die
+      @current_hit_die
+    end
+
+    # @param hit_die_num [Integer] number of hit die to use
+    def short_rest!(battle, hit_die_num: nil)
+      if hit_die_num.nil? # automatic hit die usage
+        while @hp < max_hp
+          available_die = @current_hit_die.map do |die, num|
+            next unless num.positive?
+
+            die
+          end.compact.sort
+
+          break if available_die.empty?
+
+          old_hp = @hp
+
+          use_hit_die!(available_die.first, battle: battle)
+
+          break if @hp == old_hp # break if unable to heal
+        end
+      end
+    end
+
+    def use_hit_die!(die_type, battle: nil)
+      return unless @current_hit_die.key? die_type
+      return unless @current_hit_die[die_type].positive?
+
+      @current_hit_die[die_type] -= 1
+
+      hit_die_roll = DieRoll.roll("d#{die_type}", battle: battle, description: t('dice_roll.hit_die'))
+
+      EventManager.received_event({source: self, event: :hit_die, roll: hit_die_roll})
+
+      heal!(hit_die_roll.result)
     end
 
     protected

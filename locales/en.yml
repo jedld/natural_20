@@ -54,6 +54,7 @@ en:
     description: '%{description} (%{roll_str})'
     dexterity: Roll for dexterity (skill check)
     healing_potion: Roll for healing potion (heal amount)
+    hit_die: Roll for hit die
     initiative: Roll for initiative
     medicine: Roll for medicine check
     perception: Roll for a perception check
@@ -101,6 +102,7 @@ en:
     grapple_failure: '%{source} failed to grapple %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success_no_roll: '%{source} successfully grappled %{target}'
+    hit_die: '%{source} rolls hit die %{roll} = %{value}'
     something: (something)
     status:
       prone: '%{name} is now prone.'
