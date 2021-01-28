@@ -111,7 +111,7 @@ module Natural20
       return if position.nil?
       return if @map.nil?
 
-      position.is_a?(Array) ? @map.place(*position, entity, token) : @map.place_at_spawn_point(position, entity, token)
+      position.is_a?(Array) ? @map.place(*position, entity, token, self) : @map.place_at_spawn_point(position, entity, token)
     end
 
     def in_battle?(entity)

@@ -136,7 +136,7 @@ RSpec.describe MoveAction do
     end
 
     specify 'handle acrobatics during jumps' do
-      map.move_to!(@fighter, 1, 6)
+      map.move_to!(@fighter, 1, 6, @battle)
       puts Natural20::MapRenderer.new(map).render
       expect(@fighter.available_movement(@battle)).to eq(30)
       action = @battle.action(@fighter, :move,

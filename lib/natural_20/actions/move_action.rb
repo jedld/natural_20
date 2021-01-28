@@ -190,7 +190,7 @@ class MoveAction < Natural20::Action
                                                target_roll: item[:target_roll])
 
       when :move
-        item[:map].move_to!(item[:source], *item[:position])
+        item[:map].move_to!(item[:source], *item[:position], battle)
         if as_dash && as_bonus_action
           battle.entity_state_for(item[:source])[:bonus_action] -= 1
         elsif as_dash

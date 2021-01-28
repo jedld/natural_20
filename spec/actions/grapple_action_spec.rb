@@ -13,8 +13,8 @@ RSpec.describe GrappleAction do
     @npc.reset_turn!(@battle)
     @fighter.reset_turn!(@battle)
     Natural20::EventManager.standard_cli
-    map.move_to!(@fighter, 1, 2)
-    map.move_to!(@npc,1, 1)
+    map.move_to!(@fighter, 1, 2, @battle)
+    map.move_to!(@npc,1, 1, @battle)
   end
 
   specify 'grappling' do

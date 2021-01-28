@@ -866,14 +866,43 @@ module Natural20
     end
 
     # Returns the character hit die
-    # @return [String]
+    # @return [Hash<Integer,Integer>]
     def hit_die
       @current_hit_die
     end
 
+    def squeezed!
+      @statuses.add(:squeezed)
+    end
+
+    def unsqueeze
+      @statuses.delete(:squeezed)
+    end
+
+    def squeezed?
+      @statuses.include?(:squeezed)
+    end
+
     # @param hit_die_num [Integer] number of hit die to use
-    def short_rest!(battle, hit_die_num: nil)
-      if hit_die_num.nil? # automatic hit die usage
+    def short_rest!(battle, prompt: false)
+      controller = battle&.controller_for(self)
+
+      # hit die management
+      if prompt && controller && controller.respond_to?(:prompt_hit_die_roll)
+        loop do
+          break unless @current_hit_die.values.inject(0) { |sum, d| sum + d }.positive?
+
+          ans = battle.controller_for(self)&.try(:prompt_hit_die_roll, self, @current_hit_die.select do |_k, v|
+                                                                         v.positive?
+                                                                       end.keys)
+
+          if ans == :skip
+            break
+          else
+            use_hit_die!(ans, battle: battle)
+          end
+        end
+      else
         while @hp < max_hp
           available_die = @current_hit_die.map do |die, num|
             next unless num.positive?
@@ -890,6 +919,10 @@ module Natural20
           break if @hp == old_hp # break if unable to heal
         end
       end
+
+      if unconscious? && stable?
+        heal!(1)
+      end
     end
 
     def use_hit_die!(die_type, battle: nil)
@@ -898,9 +931,9 @@ module Natural20
 
       @current_hit_die[die_type] -= 1
 
-      hit_die_roll = DieRoll.roll("d#{die_type}", battle: battle, description: t('dice_roll.hit_die'))
+      hit_die_roll = DieRoll.roll("d#{die_type}", battle: battle, entity: self, description: t('dice_roll.hit_die'))
 
-      EventManager.received_event({source: self, event: :hit_die, roll: hit_die_roll})
+      EventManager.received_event({ source: self, event: :hit_die, roll: hit_die_roll })
 
       heal!(hit_die_roll.result)
     end

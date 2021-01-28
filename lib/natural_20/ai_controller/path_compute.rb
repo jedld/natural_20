@@ -4,7 +4,6 @@ module AiController
   MAX_DISTANCE = 4_000_000
   # Path finding algorithm
   class PathCompute
-
     # Creates a path finder
     # @param battle [Natural20::Battle]
     # @param map [Natural20::BattleMap]
@@ -18,7 +17,7 @@ module AiController
 
     # compute path using Djikstras shortest path
     def compute_path(source_x, source_y, destination_x, destination_y)
-      pq = PQueue.new([]){ |a, b| a[1] < b[1] }
+      pq = PQueue.new([]) { |a, b| a[1] < b[1] }
       visited_nodes = Set.new
 
       distances = @max_x.times.map do
@@ -34,11 +33,16 @@ module AiController
         distance = distances[current_node[0]][current_node[1]]
 
         adjacent_squares = get_adjacent_from(*current_node)
-        adjacent_squares.reject { |n| visited_nodes.include?(n) }.each do |node|
-          move_cost = @map.difficult_terrain?(@entity, node[0], node[1], @battle) ? 2 : 1
-          current_distance = distance + move_cost
-          distances[node[0]][node[1]] = current_distance if distances[node[0]][node[1]] > current_distance
-          pq << [node, distances[node[0]][node[1]]]
+        visit_squares(pq, adjacent_squares, visited_nodes, distances, distance)
+
+        # with squeezing into terrain
+        squeeze_adjacent_squares = get_adjacent_from(*current_node, squeeze: true)
+
+        squeeze_adjacent_squares -= adjacent_squares
+
+        unless squeeze_adjacent_squares.empty?
+          visit_squares(pq, squeeze_adjacent_squares, visited_nodes, distances, distance,
+                        2)
         end
 
         break if current_node == [destination_x, destination_y]
@@ -53,7 +57,7 @@ module AiController
 
       path = []
       current_node = [destination_x, destination_y]
-      return nil if distances[destination_x][destination_y] == MAX_DISTANCE  # no route!
+      return nil if distances[destination_x][destination_y] == MAX_DISTANCE # no route!
 
       path << current_node
       cycles = 0
@@ -62,11 +66,13 @@ module AiController
       Kernel.loop do
         cycles += 1
         adjacent_squares = get_adjacent_from(*current_node)
+        adjacent_squares += get_adjacent_from(*current_node, squeeze: true)
+
         min_node = nil
         min_distance = nil
 
         adjacent_squares.reject { |n| visited_nodes.include?(n) }.each do |node|
-          line_distance = Math.sqrt((destination_x - node[0]) ** 2 + (destination_y - node[1]) ** 2)
+          line_distance = Math.sqrt((destination_x - node[0])**2 + (destination_y - node[1])**2)
           current_distance = distances[node[0]][node[1]].to_f + line_distance / MAX_DISTANCE.to_f
           if min_node.nil? || current_distance < min_distance
             min_distance = current_distance
@@ -85,7 +91,18 @@ module AiController
       path.reverse
     end
 
-    def get_adjacent_from(pos_x, pos_y)
+    # @param pq [PQueue]
+    # @param adjacent_squares [Array<Array<Integer,Integer>>]
+    def visit_squares(pq, adjacent_squares, visited_nodes, distances, distance, override_move_cost = nil)
+      adjacent_squares.reject { |n| visited_nodes.include?(n) }.each do |node|
+        move_cost = override_move_cost || @map.difficult_terrain?(@entity, node[0], node[1], @battle) ? 2 : 1
+        current_distance = distance + move_cost
+        distances[node[0]][node[1]] = current_distance if distances[node[0]][node[1]] > current_distance
+        pq << [node, distances[node[0]][node[1]]]
+      end
+    end
+
+    def get_adjacent_from(pos_x, pos_y, squeeze: false)
       valid_paths = Set.new
       [-1, 0, 1].each do |x_op|
         [-1, 0, 1].each do |y_op|
@@ -94,7 +111,7 @@ module AiController
 
           next if cur_x < 0 || cur_y < 0 || cur_x >= @max_x || cur_y >= @max_y
           next if x_op.zero? && y_op.zero?
-          next if !@map.passable?(@entity, cur_x, cur_y, @battle)
+          next unless @map.passable?(@entity, cur_x, cur_y, @battle, squeeze)
 
           valid_paths.add([cur_x, cur_y])
         end

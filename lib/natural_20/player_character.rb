@@ -285,6 +285,15 @@ module Natural20
       true
     end
 
+    # @param hit_die_num [Integer] number of hit die to use
+    def short_rest!(battle, prompt: false)
+      super
+
+      @class_properties.keys do |klass|
+        send(:"short_rest_for_#{klass}") if respond_to?(:"short_rest_for_#{klass}")
+      end
+    end
+
     private
 
     def proficiency_bonus_table

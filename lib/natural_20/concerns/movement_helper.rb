@@ -65,6 +65,17 @@ module Natural20::MovementHelper
                                  test_placement: test_placement, manual_jump: manual_jump).movement
   end
 
+  # Determine if entity needs to squeeze to get through terrain
+  # @param entity [Natural20::Entity]
+  # @param pos_x [Integer]
+  # @param pos_y [Integer]
+  # @param map [Natural20::BattleMap]
+  # @param battle [Natural20::Battle]
+  # @return [Boolean]
+  def requires_squeeze?(entity, pos_x, pos_y, map, battle = nil)
+    !map.passable?(entity, pos_x, pos_y, battle, false) && map.passable?(entity, pos_x, pos_y, battle, true)
+  end
+
   # @param entity [Natural20::Entity]
   # @param current_moves [Array]
   # @param map [Natural20::BattleMap]
@@ -107,6 +118,7 @@ module Natural20::MovementHelper
                            else
                              1
                            end
+        movement_budget -= 1 if requires_squeeze?(entity, *m, map, battle)
         movement_budget -= 1 if entity.prone?
         movement_budget -= 1 if entity.grappling?
       end

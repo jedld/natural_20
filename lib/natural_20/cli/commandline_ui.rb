@@ -75,8 +75,8 @@ class CommandlineUI < Natural20::Controller
                                                                           valid_targets.include?(selected_entity)
                                                                         end
                                                                       })
-
-      if targets.flatten.uniq.size > (options[:num_select].presence || 1)
+      expected_targets = options.fetch(:num_select, 1)
+      if targets.flatten.uniq.size > expected_targets
         loop do
           target = prompt.select('multiple targets at location(s) please select specific targets') do |menu|
             targets.flatten.uniq.each do |t|
@@ -84,7 +84,7 @@ class CommandlineUI < Natural20::Controller
             end
           end
           selected_targets << target
-          break unless selected_targets.size < options[:num_select]
+          break unless selected_targets.size < expected_targets
         end
       else
         selected_targets = targets
@@ -299,6 +299,15 @@ class CommandlineUI < Natural20::Controller
           q.in("1-#{die_type}")
         end.to_i
       end
+    end
+  end
+
+  def prompt_hit_die_roll(entity, die_types)
+    prompt.select(t('dice_roll.hit_die_selection', name: entity.name)) do |menu|
+      die_types.each do |t|
+        menu.choice "d#{t}", t
+      end
+      menu.choice t('skip_hit_die'), :skip
     end
   end
 

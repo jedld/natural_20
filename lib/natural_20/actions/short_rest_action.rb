@@ -8,7 +8,7 @@ class ShortRestAction < Natural20::Action
   end
 
   def build_map
-    ShortRestAction.new({
+    OpenStruct.new({
                      param: nil,
                      next: -> { self }
                    })
@@ -38,20 +38,15 @@ class ShortRestAction < Natural20::Action
     self
   end
 
+  # @param battle [Natural20::Battle]
   def apply!(battle)
     @result.each do |item|
       case (item[:type])
       when :short_rest
         Natural20::EventManager.received_event({ source: item[:source], event: :short_rest, targets: item[:targets] })
         item[:targets].each do |entity|
-          entity.short_rest!
+          entity.short_rest!(battle, prompt: true)
         end
-      end
-
-      if as_bonus_action
-        battle.entity_state_for(item[:source])[:bonus_action] -= 1
-      else
-        battle.entity_state_for(item[:source])[:action] -= 1
       end
     end
   end

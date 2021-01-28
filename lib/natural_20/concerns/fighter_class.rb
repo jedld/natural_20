@@ -27,4 +27,9 @@ module Natural20::FighterClass
       end
     end.compact
   end
+
+  # hooks for the fighter class during a short rest
+  def short_rest_for_fighter
+    @second_wind_count = 1
+  end
 end

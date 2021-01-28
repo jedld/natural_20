@@ -128,7 +128,7 @@ module Natural20
     # @param pos_y [Integer]
     # @return [ItemLibrary::Object]
     def object_at(pos_x, pos_y)
-      @objects[pos_x][pos_y].detect { |o| !o.concealed? }
+      @objects[pos_x][pos_y]&.detect { |o| !o.concealed? }
     end
 
     # Get object at map location
@@ -186,27 +186,40 @@ module Natural20
       available_objects.detect { |obj| obj.is_a?(ItemLibrary::Ground) }
     end
 
-    def place(pos_x, pos_y, entity, token = nil)
+    # Place token here if it is not already present on the board
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param entity [Natural20::Entity]
+    # @param token [String]
+    # @param battle [Natural20::Battle]
+    def place(pos_x, pos_y, entity, token = nil, battle = nil)
       raise 'entity param is required' if entity.nil?
 
       entity_data = { entity: entity, token: token || entity.name&.first }
       @tokens[pos_x][pos_y] = entity_data
       @entities[entity] = [pos_x, pos_y]
 
-      (0...entity.token_size).each do |ofs_x|
-        (0...entity.token_size).each do |ofs_y|
+      source_token_size = if requires_squeeze?(entity, pos_x, pos_y, self, battle)
+                            entity.squeezed!
+                            [entity.token_size - 1, 1].max
+                          else
+                            entity.token_size
+                          end
+
+      (0...source_token_size).each do |ofs_x|
+        (0...source_token_size).each do |ofs_y|
           @tokens[pos_x + ofs_x][pos_y + ofs_y] = entity_data
         end
       end
     end
 
-    def place_at_spawn_point(position, entity, token = nil)
+    def place_at_spawn_point(position, entity, token = nil, battle = nil)
       unless @spawn_points.key?(position.to_s)
         raise "unknown spawn position #{position}. should be any of #{@spawn_points.keys.join(',')}"
       end
 
       pos_x, pos_y = @spawn_points[position.to_s][:location]
-      place(pos_x, pos_y, entity, token)
+      place(pos_x, pos_y, entity, token, battle)
       EventManager.logger.debug "place #{entity.name} at #{pos_x}, #{pos_y}"
     end
 
@@ -234,11 +247,16 @@ module Natural20
     # Get all the location of the squares occupied by said entity (e.g. for large, huge creatures)
     # @param entity [Natural20::Entity]
     # @return [Array]
-    def entity_squares(entity)
+    def entity_squares(entity, squeeze = false)
       pos1_x, pos1_y = entity_or_object_pos(entity)
       entity_1_squares = []
-      (0...entity.token_size).each do |ofs_x|
-        (0...entity.token_size).each do |ofs_y|
+      token_size = if squeeze
+                     [entity.token_size - 1, 1].max
+                   else
+                     entity.token_size
+                   end
+      (0...token_size).each do |ofs_x|
+        (0...token_size).each do |ofs_y|
           entity_1_squares << [pos1_x + ofs_x, pos1_y + ofs_y]
         end
       end
@@ -251,10 +269,15 @@ module Natural20
     # @param pos1_x [Integer]
     # @param pos1_y [Integer]
     # @return [Array]
-    def entity_squares_at_pos(entity, pos1_x, pos1_y)
+    def entity_squares_at_pos(entity, pos1_x, pos1_y, squeeze = false)
       entity_1_squares = []
-      (0...entity.token_size).each do |ofs_x|
-        (0...entity.token_size).each do |ofs_y|
+      token_size = if squeeze
+                     [entity.token_size - 1, 1].max
+                   else
+                     entity.token_size
+                   end
+      (0...token_size).each do |ofs_x|
+        (0...token_size).each do |ofs_y|
           entity_1_squares << [pos1_x + ofs_x, pos1_y + ofs_y]
         end
       end
@@ -384,14 +407,38 @@ module Natural20
       things.compact
     end
 
-    def move_to!(entity, pos_x, pos_y)
+    # Moves an entity to a specified location on the board
+    # @param entity [Natural20::Entity]
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param battle [Natural20::Battle]
+    def move_to!(entity, pos_x, pos_y, battle)
       cur_x, cur_y = @entities[entity]
 
       entity_data = @tokens[cur_x][cur_y]
 
-      (0...entity.token_size).each do |ofs_x|
-        (0...entity.token_size).each do |ofs_y|
+      source_token_size = if requires_squeeze?(entity, cur_x, cur_y, self, battle)
+                            [entity.token_size - 1, 1].max
+                          else
+                            entity.token_size
+                          end
+
+      destination_token_size = if requires_squeeze?(entity, pos_x, pos_y, self, battle)
+                                 entity.squeezed!
+                                 [entity.token_size - 1, 1].max
+                               else
+                                 entity.unsqueeze
+                                 entity.token_size
+                               end
+
+      (0...source_token_size).each do |ofs_x|
+        (0...source_token_size).each do |ofs_y|
           @tokens[cur_x + ofs_x][cur_y + ofs_y] = nil
+        end
+      end
+
+      (0...destination_token_size).each do |ofs_x|
+        (0...destination_token_size).each do |ofs_y|
           @tokens[pos_x + ofs_x][pos_y + ofs_y] = entity_data
         end
       end
@@ -426,10 +473,17 @@ module Natural20
     # @param pos_x [Integer]
     # @param pos_y [Integer]
     # @param battle [Natural20::Battle]
+    # @param allow_squeeze [Boolean] Allow entity to squeeze inside a space (PHB )
     # @return [Boolean]
-    def passable?(entity, pos_x, pos_y, battle = nil)
-      (0...entity.token_size).each do |ofs_x|
-        (0...entity.token_size).each do |ofs_y|
+    def passable?(entity, pos_x, pos_y, battle = nil, allow_squeeze = true)
+      effective_token_size = if allow_squeeze
+                               [entity.token_size - 1, 1].max
+                             else
+                               entity.token_size
+                             end
+
+      (0...effective_token_size).each do |ofs_x|
+        (0...effective_token_size).each do |ofs_y|
           relative_x = pos_x + ofs_x
           relative_y = pos_y + ofs_y
 
@@ -504,10 +558,10 @@ module Natural20
     # @param pos_y [Integer]
     # @param battle [Natural20::Battle]
     # @return [Boolean]
-    def placeable?(entity, pos_x, pos_y, battle = nil)
-      return false unless passable?(entity, pos_x, pos_y, battle)
+    def placeable?(entity, pos_x, pos_y, battle = nil, squeeze = true)
+      return false unless passable?(entity, pos_x, pos_y, battle, squeeze)
 
-      entity_squares_at_pos(entity, pos_x, pos_y).each do |pos|
+      entity_squares_at_pos(entity, pos_x, pos_y, squeeze).each do |pos|
         p_x, p_y = pos
         next if @tokens[p_x][p_y] && @tokens[p_x][p_y][:entity] == entity
         return false if @tokens[p_x][p_y] && !@tokens[p_x][p_y][:entity].dead?
@@ -742,7 +796,7 @@ module Natural20
                                                              rand_life: true)
             @unaware_npcs << { group: npc_meta[:group]&.to_sym || :b, entity: entity }
             @entities[entity] = [column_index, row_index]
-            place(column_index, row_index, entity)
+            place(column_index, row_index, entity, nil)
           when 'spawn_point'
             @spawn_points[@legend.dig(token.to_sym, :name)] = {
               location: [column_index, row_index]

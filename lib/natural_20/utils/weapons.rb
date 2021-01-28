@@ -23,7 +23,9 @@ module Natural20::Weapons
     disadvantage = []
 
     disadvantage << :prone if source.prone?
+    disadvantage << :squeezed if source.squeezed?
     disadvantage << :target_dodge if target.dodge?(battle)
+    advantage << :squeezed if target.squeezed?
     advantage << :being_helped if battle.help_with?(target)
     disadvantage << :target_long_range if battle.map && battle.map.distance(source, target) > weapon[:range]
 

@@ -56,6 +56,7 @@ en:
     dexterity: Roll for dexterity (skill check)
     healing_potion: Roll for healing potion (heal amount)
     hit_die: Roll for hit die
+    hit_die_selection: Use a hit die to regain HP for %{name}?
     initiative: Roll for initiative
     medicine: Roll for medicine check
     perception: Roll for a perception check
@@ -172,6 +173,7 @@ en:
   save_already_present: A save game is already present. This will overwrite your game. Are you sure?
   select_npcs: Select NPCs
   select_party_member: Select Party Member %{index}
+  skip_hit_die: Skip Hit Die
   unequip: Unequip
   with_advantage: advantage
   with_disadvantage: disadvantage

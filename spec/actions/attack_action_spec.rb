@@ -44,7 +44,7 @@ RSpec.describe AttackAction do
 
       specify 'unarmed attack' do
         Natural20::EventManager.standard_cli
-        @battle_map.move_to!(@character, 0, 5)
+        @battle_map.move_to!(@character, 0, 5, @battle)
         puts Natural20::MapRenderer.new(@battle_map).render
         action = AttackAction.build(session, @character).next.call(@npc).next.call('unarmed_attack').next.call
         expect do
@@ -107,7 +107,7 @@ RSpec.describe AttackAction do
 
       context 'when target is prone' do
         before do
-          @battle_map.move_to!(@character, 2, 3)
+          @battle_map.move_to!(@character, 2, 3, @battle)
           @guard.prone!
         end
 
@@ -131,7 +131,7 @@ RSpec.describe AttackAction do
 
       context 'when attacker is prone' do
         before do
-          @battle_map.move_to!(@character, 2, 3)
+          @battle_map.move_to!(@character, 2, 3, @battle)
           @character.prone!
         end
 
@@ -156,7 +156,7 @@ RSpec.describe AttackAction do
       context 'attack while hiding' do
         let(:weapon) { session.load_weapon('longbow') }
         before do
-          @battle_map.move_to!(@character, 2, 3)
+          @battle_map.move_to!(@character, 2, 3, @battle)
           @character.hiding!(@battle, 20)
         end
 

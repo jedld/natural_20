@@ -119,7 +119,7 @@ RSpec.describe Natural20::BattleMap do
       @battle.add(@goblin, :b)
       @battle_map.place(1, 5, @goblin, 'g')
       puts @map_renderer.render
-      expect(@battle_map.placeable?(@npc, 1, 4)).to_not be
+      expect(@battle_map.placeable?(@npc, 1, 4)).to be
     end
   end
 
