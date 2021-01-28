@@ -30,7 +30,7 @@ weapon_proficiencies:
 - simple
 equipped:
 - dagger
-- shortbow
+- torch
 - studded_leather
 inventory:
 - type: arrows

@@ -70,19 +70,20 @@ class MoveAction < Natural20::Action
     # calculate for area based triggers
     cutoff = false
 
-    actual_moves = actual_moves.each_with_index.map do |move, _index|
+    safe_moves = []
+    actual_moves.each_with_index do |move, _index|
       is_flying_or_jumping = movement.jump_locations.include?(move)
       trigger_results = map.area_trigger!(@source, move, is_flying_or_jumping)
       if trigger_results.empty?
-        cutoff ? nil : move
+        safe_moves << move
       else
-        cutoff = true
+        safe_moves << move
         additional_effects += trigger_results
-        move
+        break
       end
-    end.compact
+    end
 
-    movement = compute_actual_moves(@source, actual_moves, map, battle, movement_budget, manual_jump: jumps)
+    movement = compute_actual_moves(@source, safe_moves, map, battle, movement_budget, manual_jump: jumps)
 
     # compute grappled entity movement
     if @source.grappling?
@@ -130,8 +131,9 @@ class MoveAction < Natural20::Action
       opportunity_attacks.each do |enemy_opporunity|
         next unless enemy_opporunity[:source].has_reaction?(battle)
 
-        original_location = move_list[enemy_opporunity[:path] - 1]
-        battle.trigger_opportunity_attack(enemy_opporunity[:source], entity, *original_location)
+        original_location = move_list[0...enemy_opporunity[:path]]
+        attack_location = original_location.last
+        battle.trigger_opportunity_attack(enemy_opporunity[:source], entity, *attack_location)
 
         if !grappled && !entity.conscious?
           move_list = original_location

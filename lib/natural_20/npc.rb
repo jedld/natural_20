@@ -82,8 +82,14 @@ module Natural20
       @properties[:speed]
     end
 
-    def available_actions(session, battle = nil)
+    def available_actions(session, battle, opportunity_attack: false)
       return %i[end] if unconscious?
+
+      if opportunity_attack
+        return generate_npc_attack_actions(battle, opportunity_attack: true).select do |s|
+          s.action_type == :attack && s.npc_action[:type] == 'melee_attack'
+        end
+      end
 
       %i[attack hide dodge look stand move dash grapple escape_grapple].map do |type|
         next unless "#{type.to_s.camelize}Action".constantize.can?(self, battle)
@@ -91,20 +97,7 @@ module Natural20
         case type
         when :attack
           # check all equipped and create attack for each
-          actions = []
-
-          actions += npc_actions.map do |npc_action|
-            next if npc_action[:ammo] && item_count(npc_action[:ammo]) <= 0
-            next if npc_action[:if] && !eval_if(npc_action[:if])
-            next unless AttackAction.can?(self, battle, npc_action: npc_action)
-
-            action = AttackAction.new(session, self, :attack)
-
-            action.npc_action = npc_action
-            action
-          end.compact
-
-          actions
+          generate_npc_attack_actions(battle)
         when :dodge
           DodgeAction.new(session, self, :dodge)
         when :hide
@@ -143,6 +136,23 @@ module Natural20
     end
 
     private
+
+    def generate_npc_attack_actions(battle, opportunity_attack: false)
+      actions = []
+
+      actions += npc_actions.map do |npc_action|
+        next if npc_action[:ammo] && item_count(npc_action[:ammo]) <= 0
+        next if npc_action[:if] && !eval_if(npc_action[:if])
+        next unless AttackAction.can?(self, battle, npc_action: npc_action, opportunity_attack: opportunity_attack)
+
+        action = AttackAction.new(session, self, :attack)
+
+        action.npc_action = npc_action
+        action
+      end.compact
+
+      actions
+    end
 
     def setup_attributes
       super

@@ -41,7 +41,7 @@ module Natural20::InventoryUI
         puts "Damage Stats: to Hit +#{entity.attack_roll_mod(weapon_details)}. #{damage_modifier(entity, weapon_details)} #{weapon_details[:damage_type]} Damage"
         puts "Proficiency: #{entity.proficient_with_weapon?(weapon_details) ? t(:yes) : t(:no)}"
         puts "Properties:"
-        weapon_details[:properties].each do |p|
+        weapon_details[:properties]&.each do |p|
           puts "  #{t("object.properties.#{p}")}"
         end
         puts weapon_details[:description] || ''

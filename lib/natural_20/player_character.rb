@@ -59,7 +59,7 @@ module Natural20
     end
 
     def armor_class
-      equipped_ac + dex_mod
+      equipped_ac
     end
 
     def level
@@ -158,7 +158,7 @@ module Natural20
       !!(@race_properties[:darkvision] && @race_properties[:darkvision] >= distance)
     end
 
-    def available_actions(session, battle = nil)
+    def available_actions(session, battle, opportunity_attack: false)
       return [] if unconscious?
 
       ACTION_LIST.map do |type|
@@ -263,6 +263,7 @@ module Natural20
     def class_feature?(feature)
       return true if @properties[:class_features]&.include?(feature)
       return true if @properties[:attributes]&.include?(feature)
+      return true if @race_properties[:race_features]&.include?(feature)
 
       @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
     end
@@ -315,7 +316,13 @@ module Natural20
 
       shield = equipped_meta.detect { |e| e[:type] == 'shield' }
 
-      (armor.nil? ? 10 : armor[:ac]) + (shield.nil? ? 0 : shield[:bonus_ac])
+      armor_ac = if armor.nil?
+                   10 + dex_mod
+                 else
+                   armor[:ac] + (armor[:mod_cap] ? [dex_mod, armor[:mod_cap]].min : dex_mod)
+                 end
+
+      armor_ac + (shield.nil? ? 0 : shield[:bonus_ac])
     end
   end
 end

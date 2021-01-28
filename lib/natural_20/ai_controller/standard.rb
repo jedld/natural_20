@@ -77,8 +77,8 @@ module AiController
 
       distance = Math.sqrt((target_x - entity_x)**2 + (target_y - entity_y)**2).ceil
 
-      action = entity.available_actions(session, battle).select do |s|
-        s.action_type == :attack && s.npc_action[:type] == 'melee_attack' && distance <= s.npc_action[:range]
+      action = entity.available_actions(session, battle, opportunity_attack: true).select do |s|
+         distance <= s.npc_action[:range]
       end.first
 
       if action

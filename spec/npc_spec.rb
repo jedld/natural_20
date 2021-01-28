@@ -49,8 +49,8 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#available_actions' do
-      expect(@npc.available_actions(session).size).to eq 5
-      expect(@npc.available_actions(session).map(&:name)).to eq %w[attack attack look move grapple]
+      expect(@npc.available_actions(session, nil).size).to eq 5
+      expect(@npc.available_actions(session, nil).map(&:name)).to eq %w[attack attack look move grapple]
     end
 
     specify '#hit_die' do
@@ -86,8 +86,8 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#available actions' do
-      expect(@npc.available_actions(session).size).to eq 5
-      expect(@npc.available_actions(session).map(&:name)).to eq %w[attack attack look move grapple]
+      expect(@npc.available_actions(session, nil).size).to eq 5
+      expect(@npc.available_actions(session, nil).map(&:name)).to eq %w[attack attack look move grapple]
       first_attack = @npc.available_actions(session, @battle).select { |a| a.name == 'attack' }.first
       first_attack.target = @fighter
       @battle.action!(first_attack)

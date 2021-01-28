@@ -152,13 +152,13 @@ module ItemLibrary
 
         unlock!
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
-                                               sub_type: :unlock, result: :success, reason: 'Door unlocked.')
+                                               sub_type: :unlock, result: :success, reason: t('object.door.unlock'))
       when :lock
         return unless unlocked?
 
         lock!
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
-                                               sub_type: :lock, result: :success, reason: 'Door locked.')
+                                               sub_type: :lock, result: :success, reason: t('object.door.lock'))
       when :door_locked
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
                                                sub_type: :open_failed, result: :failed, reason: 'Cannot open door since door is locked.')

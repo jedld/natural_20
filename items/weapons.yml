@@ -172,6 +172,26 @@ unarmed_attack:
   subtype: weapon
   type: melee_attack
   weight: 0
+torch:
+  cost: 0
+  damage: 1
+  damage_type: fire
+  description: Provides bright light in a 20-foot radius and dim light for an additional 20 feet. If you make a melee attack with a burning torch and hit, it deals 1 fire damage
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Torch
+  proficiency_type:
+    - martial
+  properties: null
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 0
+  light:
+    bright: 20
+    dim: 20
 vicious_rapier:
   bonus:
     additional:

@@ -499,8 +499,8 @@ module Natural20
                   else
                     wis_mod
                   end
-      DieRoll.roll("1d20+#{modifiers}", description: description || t('dice_roll.perception'), entity: self,
-                                        battle: battle)
+      DieRoll.roll_with_lucky(self, "1d20+#{modifiers}", description: description || t('dice_roll.perception'),
+                                                         battle: battle)
     end
 
     def stealth_check!(battle = nil, description: nil)
@@ -519,18 +519,18 @@ module Natural20
     end
 
     def dexterity_check!(bonus = 0, battle: nil, description: nil)
-      DieRoll.roll("1d20+#{dex_mod + bonus}", description: description || t('dice_roll.dexterity'), entity: self,
-                                              battle: battle)
+      DieRoll.roll_with_lucky(self, "1d20+#{dex_mod + bonus}", description: description || t('dice_roll.dexterity'),
+                                                               battle: battle)
     end
 
     def strength_check!(bonus = 0, battle: nil, description: nil)
-      DieRoll.roll("1d20+#{str_mod + bonus}", description: description || t('dice_roll.stength_check'), entity: self,
-                                              battle: battle)
+      DieRoll.roll_with_lucky(self, "1d20+#{str_mod + bonus}", description: description || t('dice_roll.stength_check'),
+                                                               battle: battle)
     end
 
     def wisdom_check!(bonus = 0, battle: nil, description: nil)
-      DieRoll.roll("1d20+#{wis_mod + bonus}", description: description || t('dice_roll.wisdom_check'), entity: self,
-                                              battle: battle)
+      DieRoll.roll_with_lucky(self, "1d20+#{wis_mod + bonus}", description: description || t('dice_roll.wisdom_check'),
+                                                               battle: battle)
     end
 
     def medicine_check!(battle = nil, description: nil)
@@ -651,7 +651,7 @@ module Natural20
     # @return [Array]
     def inventory
       @inventory.map do |k, v|
-        item = @session.load_weapon(k) || @session.load_equipment(k) || @session.load_object(k)
+        item = @session.load_thing k
         raise "unable to load unknown item #{k}" if item.nil?
         next unless v[:qty].positive?
 
@@ -697,7 +697,7 @@ module Natural20
     # @return [Symbol]
     def check_equip(item_name)
       item_name = item_name.to_sym
-      weapon = @session.load_weapon(item_name) || @session.load_equipment(item_name)
+      weapon = @session.load_thing(item_name)
       return :unequippable unless weapon && weapon[:subtype] == 'weapon' || %w[shield armor].include?(weapon[:type])
 
       hand_slots = used_hand_slots
@@ -758,11 +758,11 @@ module Natural20
     end
 
     # returns equipped items
-    # @return [Array] A List of items
+    # @return [Array<OpenStruct>] A List of items
     def equipped_items
       equipped_arr = @properties[:equipped] || []
       equipped_arr.map do |k|
-        item = @session.load_weapon(k) || @session.load_equipment(k) || @session.load_object(k)
+        item = @session.load_thing(k)
         raise "unknown item #{k}" unless item
 
         OpenStruct.new(
@@ -771,6 +771,7 @@ module Natural20
           type: item[:type],
           subtype: item[:subtype],
           light: item[:properties].try(:include?, :light),
+          light_properties: item[:light],
           qty: 1,
           equipped: true,
           weight: item[:weight]
@@ -834,7 +835,27 @@ module Natural20
       !features.select { |f| class_feature?(f) }.empty?
     end
 
-    def light_properties; end
+    def light_properties
+      return nil if equipped_items.blank?
+
+      bright = [0]
+      dim = [0]
+
+      equipped_items.map do |item|
+        next unless item.light_properties
+
+        bright << item.light_properties.fetch(:bright, 0)
+        dim << item.light_properties.fetch(:dim, 0)
+      end
+
+      bright = bright.max
+      dim = dim.max
+
+      return nil unless [dim, bright].sum.positive?
+
+      { dim: dim,
+        bright: bright }
+    end
 
     def attack_roll_mod(weapon)
       modifier = attack_ability_mod(weapon)
@@ -893,8 +914,8 @@ module Natural20
           break unless @current_hit_die.values.inject(0) { |sum, d| sum + d }.positive?
 
           ans = battle.controller_for(self)&.try(:prompt_hit_die_roll, self, @current_hit_die.select do |_k, v|
-                                                                         v.positive?
-                                                                       end.keys)
+                                                                               v.positive?
+                                                                             end.keys)
 
           if ans == :skip
             break
@@ -920,9 +941,7 @@ module Natural20
         end
       end
 
-      if unconscious? && stable?
-        heal!(1)
-      end
+      heal!(1) if unconscious? && stable?
     end
 
     def use_hit_die!(die_type, battle: nil)

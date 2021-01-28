@@ -49,7 +49,7 @@ RSpec.describe Natural20::PlayerCharacter do
     end
 
     specify '#available_actions' do
-      expect(@player.available_actions(session).map(&:to_s)).to eq ['Look', 'Attack', 'Attack', 'Attack', 'Move',
+      expect(@player.available_actions(session, nil).map(&:to_s)).to eq ['Look', 'Attack', 'Attack', 'Attack', 'Move',
                                                                     'Use item', 'Interact', 'Ground interact', 'Inventory', 'Grapple', 'Drop grapple', 'Second wind']
     end
 
@@ -144,14 +144,14 @@ RSpec.describe Natural20::PlayerCharacter do
       expect(@player.hit_die).to eq(10 => 1)
     end
 
-    specify "#short_rest!" do
+    specify '#short_rest!' do
       srand(1000)
       Natural20::EventManager.standard_cli
       @player.take_damage!(damage: 4)
       expect(@player.hit_die).to eq(10 => 1)
-      expect {
+      expect do
         @player.short_rest!(@battle)
-      }.to change(@player, :hp).from(63).to(67)
+      end.to change(@player, :hp).from(63).to(67)
       expect(@player.hit_die).to eq(10 => 0)
     end
   end
@@ -163,6 +163,14 @@ RSpec.describe Natural20::PlayerCharacter do
 
     specify '#languages' do
       expect(@player.languages).to eq(%w[common halfling thieves_cant])
+    end
+
+    # test to see if character is "glowing" because of equipment
+    specify '#light_properties' do
+      expect(@player.light_properties).to eq({
+                                               bright: 20.0,
+                                               dim: 20.0
+                                             })
     end
   end
 end

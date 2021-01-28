@@ -3,3 +3,6 @@ size: small
 languages:
   - common
   - halfling
+race_features:
+  - brave
+  - lucky

@@ -173,7 +173,7 @@ module Natural20
     end
 
     def action(source, action_type, opts = {})
-      action = source.available_actions(@session).detect { |act| act.action_type == action_type }
+      action = source.available_actions(@session, self).detect { |act| act.action_type == action_type }
       opts[:battle] = self
       return action.resolve(@session, @map, opts) if action
 
@@ -227,6 +227,7 @@ module Natural20
         next if !target_types.include?(:allies) && prop[:group] == entity_group && k != entity
         next if !target_types.include?(:enemies) && opposing?(entity, k)
         next if k.dead?
+        next if k.hp.nil?
         next if !target_types.include?(:ignore_los) && !can_see?(entity, k, active_perception: active_perception)
         next if @map.distance(k, entity) * @map.feet_per_grid > attack_range
         next if filter && !k.eval_if(filter)
@@ -355,6 +356,8 @@ module Natural20
           next if block.call(current_turn)
         end
 
+        return :tpk if tpk?
+
         trigger_event!(:end_of_round, self, target: current_turn)
 
         if @started && battle_ends?
@@ -409,6 +412,10 @@ module Natural20
 
     def combat?
       ongoing?
+    end
+
+    def tpk?
+      !@current_party.detect(&:conscious?)
     end
 
     def battle_ends?

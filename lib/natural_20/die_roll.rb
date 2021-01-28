@@ -1,31 +1,76 @@
 # typed: true
 module Natural20
   class DieRollDetail
-    attr_writer :die_count, :die_type, :modifier, :modifier_op
-
     # @return [Integer]
-    def die_count
-      @die_count
-    end
+    attr_accessor :die_count
 
     # @return [String]
-    def die_type
-      @die_type
-    end
+    attr_accessor :die_type
 
     # @return [Integer]
-    def modifier
-      @modifier
-    end
+    attr_accessor :modifier
 
     # @return [Symbol]
-    def modifier_op
-      @modifier_op
+    attr_accessor :modifier_op
+  end
+
+  class Roller
+    attr_reader :roll_str, :crit, :advantage, :disadvantage, :description, :entity, :battle
+
+    def initialize(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
+      @roll_str = roll_str
+      @crit = crit
+      @advantage = advantage
+      @disadvantage = disadvantage
+      @description = description
+      @entity = entity
+      @battle = battle
+    end
+
+    # @param lucky [Boolean] This is a lucky feat reroll
+    def roll(lucky: false)
+      die_sides = 20
+
+      detail = DieRoll.parse(roll_str)
+      number_of_die = detail.die_count
+      die_type_str = detail.die_type
+      modifier_str = detail.modifier
+      modifier_op = detail.modifier_op
+
+      if die_type_str.blank?
+        return Natural20::DieRoll.new([number_of_die], "#{modifier_op}#{modifier_str}".to_i, 0,
+                                      roller: self)
+      end
+
+      die_sides = die_type_str.to_i
+
+      number_of_die *= 2 if crit
+
+      description = t('dice_roll.description', description: description, roll_str: roll_str)
+      description = lucky ? "(lucky) #{description}" : description
+
+      rolls = if advantage || disadvantage
+                if battle
+                  battle.roll_for(entity, die_sides, number_of_die, description, advantage: advantage,
+                                                                                 disadvantage: disadvantage)
+                else
+                  number_of_die.times.map { [(1..die_sides).to_a.sample, (1..die_sides).to_a.sample] }
+                end
+              elsif battle
+                battle.roll_for(entity, die_sides, number_of_die, description)
+              else
+                number_of_die.times.map { (1..die_sides).to_a.sample }
+              end
+      Natural20::DieRoll.new(rolls, modifier_str.blank? ? 0 : "#{modifier_op}#{modifier_str}".to_i, die_sides,
+                             advantage: advantage, disadvantage: disadvantage, roller: self)
+    end
+
+    def t(key, options = {})
+      I18n.t(key, options)
     end
   end
+
   class DieRoll
-
-
     class DieRolls
       attr_accessor :rolls
 
@@ -75,13 +120,14 @@ module Natural20
     # This represents a dice roll
     # @param rolls [Array] Integer dice roll representations
     # @param modifier [Integer] a constant value to add to the roll
-    def initialize(rolls, modifier, die_sides = 20, advantage: false, disadvantage: false, description: nil)
+    def initialize(rolls, modifier, die_sides = 20, advantage: false, disadvantage: false, description: nil, roller: nil)
       @rolls = rolls
       @modifier = modifier
       @die_sides = die_sides
       @advantage = advantage
       @disadvantage = disadvantage
       @description = description
+      @roller = roller
     end
 
     # This is a natural 20 or critical roll
@@ -104,6 +150,10 @@ module Natural20
       else
         @rolls.include?(1)
       end
+    end
+
+    def reroll(lucky: false)
+      @roller.roll(lucky: lucky)
     end
 
     # computes the integer result of the dice roll
@@ -242,35 +292,29 @@ module Natural20
     # @param battle [Natural20::Battle]
     # @return [Natural20::DieRoll]
     def self.roll(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
+      roller = Roller.new(roll_str, crit: crit, disadvantage: disadvantage, advantage: advantage,
+                                    description: description, entity: entity, battle: battle)
+      roller.roll
+    end
 
-      die_sides = 20
-
-      detail = parse(roll_str)
-      number_of_die = detail.die_count
-      die_type_str = detail.die_type
-      modifier_str = detail.modifier
-      modifier_op = detail.modifier_op
-
-      return Natural20::DieRoll.new([number_of_die], "#{modifier_op}#{modifier_str}".to_i, 0) if die_type_str.blank?
-
-      die_sides = die_type_str.to_i
-
-      number_of_die *= 2 if crit
-      description = t('dice_roll.description', description: description, roll_str: roll_str)
-      rolls = if advantage || disadvantage
-                if battle
-                  battle.roll_for(entity, die_sides, number_of_die, description, advantage: advantage,
-                                                                                 disadvantage: disadvantage)
-                else
-                  number_of_die.times.map { [(1..die_sides).to_a.sample, (1..die_sides).to_a.sample] }
-                end
-              elsif battle
-                battle.roll_for(entity, die_sides, number_of_die, description)
-              else
-                number_of_die.times.map { (1..die_sides).to_a.sample }
-              end
-      Natural20::DieRoll.new(rolls, modifier_str.blank? ? 0 : "#{modifier_op}#{modifier_str}".to_i, die_sides,
-                             advantage: advantage, disadvantage: disadvantage)
+    # Rolls the dice checking lucky feat, details on dice rolls and its values are preserved
+    # @param entity [Natural20::Entity]
+    # @param roll_str [String] A dice roll expression
+    # @param entity [Natural20::Entity]
+    # @param crit [Boolean] A critial hit damage roll - double dice rolls
+    # @param advantage [Boolean] Roll with advantage, roll twice and select the highest
+    # @param disadvantage [Boolean] Roll with disadvantage, roll twice and select the lowest
+    # @param battle [Natural20::Battle]
+    # @return [Natural20::DieRoll]
+    def self.roll_with_lucky(entity, roll_str, crit: false, disadvantage: false, advantage: false, description: nil, battle: nil)
+      roller = Roller.new(roll_str, crit: crit, disadvantage: disadvantage, advantage: advantage,
+                                    description: description, entity: entity, battle: battle)
+      result = roller.roll
+      if result.nat_1? && entity.class_feature?('lucky')
+        roller.roll(lucky: true)
+      else
+        result
+      end
     end
 
     def self.t(key, options = {})

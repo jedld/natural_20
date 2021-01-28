@@ -184,26 +184,26 @@ module ItemLibrary
 
         unlock!
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
-                                               sub_type: :unlock, result: :success, lockpick: true, roll: result[:roll], reason: 'Door unlocked using lockpick.')
+                                               sub_type: :unlock, result: :success, lockpick: true, roll: result[:roll], reason: t(:"object.chest.unlock"))
       when :lockpick_fail
         return unless locked?
 
         entity.deduct_item('thieves_tools')
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
-                                               sub_type: :unlock, result: :failed, roll: result[:roll], reason: 'Lockpicking failed and the theives tools are now broken')
+                                               sub_type: :unlock, result: :failed, roll: result[:roll], reason: t('object.lockpick_failed'))
 
       when :unlock
         return unless locked?
 
         unlock!
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
-                                               sub_type: :unlock, result: :success, reason: 'Chest unlocked.')
+                                               sub_type: :unlock, result: :success, reason: t(:"object.chest.unlock"))
       when :lock
         return unless unlocked?
 
         lock!
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
-                                               sub_type: :lock, result: :success, reason: 'Chest locked.')
+                                               sub_type: :lock, result: :success, reason: t(:"object.chest.lock"))
       when :door_locked
         Natural20::EventManager.received_event(source: self, user: entity, event: :object_interaction,
                                                sub_type: :open_failed, result: :failed, reason: 'Cannot open chest since chest is locked.')

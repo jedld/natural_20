@@ -7,7 +7,7 @@ class AttackAction < Natural20::Action
   attr_reader :advantage_mod
 
   def self.can?(entity, battle, options = {})
-    battle.nil? || entity.total_actions(battle).positive? || entity.multiattack?(battle, options[:npc_action])
+    battle.nil? || entity.total_actions(battle).positive? || options[:opportunity_attack] || entity.multiattack?(battle, options[:npc_action])
   end
 
   def to_s
@@ -61,6 +61,7 @@ class AttackAction < Natural20::Action
     action.build_map
   end
 
+  # @param battle [Natural20::Battle]
   def apply!(battle)
     @result.each do |item|
       case (item[:type])
@@ -113,7 +114,7 @@ class AttackAction < Natural20::Action
       # handle two-weapon fighting
       weapon = session.load_weapon(item[:weapon]) if item[:weapon]
 
-      if weapon && weapon[:properties]&.include?('light') && !battle.two_weapon_attack?(item[:source]) && !result[:second_hand]
+      if weapon && weapon[:properties]&.include?('light') && !battle.two_weapon_attack?(item[:source]) && !item[:second_hand]
         battle.entity_state_for(item[:source])[:two_weapon] = item[:weapon]
       else
         battle.entity_state_for(item[:source])[:two_weapon] = nil
@@ -180,6 +181,9 @@ class AttackAction < Natural20::Action
     attack_roll = Natural20::DieRoll.roll("1d20+#{attack_mod}", disadvantage: with_disadvantage?,
                                                                 advantage: with_advantage?,
                                                                 description: t('dice_roll.attack'), entity: @source, battle: battle)
+
+    # handle the lucky feat
+    attack_roll = attack_roll.reroll(lucky: true) if @source.class_feature?('lucky') && attack_roll.nat_1?
 
     if @source.class_feature?('sneak_attack') && (weapon[:properties]&.include?('finesse') || weapon[:type] == 'ranged_attack') && (with_advantage? || battle.enemy_in_melee_range?(
       target, [@source]

@@ -10,6 +10,7 @@ en:
     dodge: Dodge
     drop_grapple: Drop Grapple
     escape_grapple: Escape a Grapple
+    first_aid: Perform First Aid
     grapple: Grapple
     ground_interact: Pickup items
     help: Help
@@ -139,13 +140,19 @@ en:
     ItemLibrary::Chest:
       loot: Retreive Contents
     Wooden door key: Wooden Door Key
+    chest:
+      lock: clink. chest is now locked
+      unlock: Ka-chink! chest is now unlocked
     door:
       door_blocked: (door is blocked)
       key_required: (missing key)
+      lock: clink. door is now locked
+      unlock: Ka-chink! door is now unlocked
     equip_problem:
       armor_equipped: You already have an armor on (please unequip armor)
       hands_full: Hand Slots are full (please unequip a weapon/shield)
     ground: Ground
+    lockpick_failed: Lockpicking failed and the theives tools are now broken
     properties:
       ammunition: Ammunition - You make a ranged attack only if you have ammunition to fire from the weapon
       finesse: Finesse - When making an attack with a finesse weapon, your Strength or Dexterity modifier can be used for the attack and damage roll (Best mod will be automatically be used)
@@ -177,4 +184,6 @@ en:
   unequip: Unequip
   with_advantage: advantage
   with_disadvantage: disadvantage
+  tpk: The entire party has fallen. Game Over!
+  battle_end: Battle ended in %{num} rounds
   'yes': 'Yes'

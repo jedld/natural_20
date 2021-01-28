@@ -16,6 +16,7 @@ class FirstAidAction < Natural20::Action
       entity_pos = battle.map.entity_at(*pos)
       next unless entity_pos
       next if entity_pos == entity
+      next unless battle.map.can_see?(entity, entity_pos)
 
       entities << entity_pos if entity_pos.unconscious? && !entity_pos.stable? && !entity_pos.dead?
     end

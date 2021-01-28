@@ -32,10 +32,12 @@ weapon_proficiencies:
 - simple
 equipped:
 - dagger
-- dagger
+- torch
 - studded_leather
 inventory:
 - type: shortbow
+  qty: 1
+- type: dagger
   qty: 1
 - type: arrows
   qty: 20

@@ -49,11 +49,14 @@ module Natural20
     # @return [Float]
     def light_at(pos_x, pos_y)
       (@map.entities.keys + @map.interactable_objects.keys).inject(0.0) do |intensity, entity|
-        next 0.0 if entity.light_properties.nil?
+        next intensity if entity.light_properties.nil?
 
         light = entity.light_properties
-        bright_light = light.fetch(:bright, 10) / @map.feet_per_grid
-        dim_light = light.fetch(:dim, 5) / @map.feet_per_grid
+        bright_light = light.fetch(:bright, 0.0) / @map.feet_per_grid
+        dim_light = light.fetch(:dim, 0.0) / @map.feet_per_grid
+
+        next intensity if (bright_light + dim_light) <= 0.0
+
         light_pos_x, light_pos_y = @map.entity_or_object_pos(entity)
 
         intensity + if @map.line_of_sight?(pos_x, pos_y, light_pos_x, light_pos_y, bright_light, false)

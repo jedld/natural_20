@@ -21,6 +21,7 @@ module Natural20
       @weapons = {}
       @equipment = {}
       @objects = {}
+      @thing = {}
       @settings = {
         manual_dice_roll: false
       }
@@ -110,7 +111,9 @@ module Natural20
     end
 
     def load_thing(item)
-      load_weapon(item) || load_equipment(item)
+      @thing[item.to_sym] ||= begin
+        load_weapon(item) || load_equipment(item) || load_object(item)
+      end
     end
 
     def load_equipment(item)

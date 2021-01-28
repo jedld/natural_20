@@ -328,7 +328,8 @@ module Natural20
         return true if [pos1_x, pos1_y] == [pos2_x, pos2_y]
         next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, nil, false)
 
-        max_illumniation = light_at(pos2_x, pos2_y) if light_at(pos2_x, pos2_y) > max_illumniation
+        location_illumnination = light_at(pos2_x, pos2_y)
+        max_illumniation = [location_illumnination, max_illumniation].max
         sighting_distance = Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
         has_line_of_sight = true
       end
@@ -364,7 +365,8 @@ module Natural20
 
           next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
 
-          max_illumniation = light_at(pos2_x, pos2_y) if light_at(pos2_x, pos2_y) > max_illumniation
+          location_illumnination = light_at(pos2_x, pos2_y)
+          max_illumniation = [location_illumnination, max_illumniation].max
           sighting_distance = Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
           has_line_of_sight = true
         end
@@ -499,6 +501,7 @@ module Natural20
 
           next if @tokens[relative_x][relative_y][:entity] == entity
           next unless battle.opposing?(location_entity, entity)
+          next if location_entity.dead? || location_entity.unconscious?
           if battle.opposing?(location_entity,
                               entity) && (location_entity.size_identifier - entity.size_identifier).abs < 2
             return false

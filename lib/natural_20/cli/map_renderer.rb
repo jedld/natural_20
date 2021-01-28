@@ -40,9 +40,9 @@ module Natural20
     def render_light(pos_x, pos_y)
       intensity = @map.light_at(pos_x, pos_y)
       if intensity >= 1.0
-        :light_black
+        :light_yellow
       elsif intensity >= 0.5
-        :black
+        :light_black
       else
         :black
       end

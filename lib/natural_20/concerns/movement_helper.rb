@@ -100,6 +100,8 @@ module Natural20::MovementHelper
     original_budget = movement_budget
 
     current_moves.each_with_index do |m, index|
+      raise "invalid move coordinate" unless m.size == 2 # assert move correctness
+
       unless index.positive?
         actual_moves << m
         next

@@ -75,8 +75,9 @@ class CommandlineUI < Natural20::Controller
                                                                           valid_targets.include?(selected_entity)
                                                                         end
                                                                       })
+      targets = targets.flatten.select { |t| t.hp && t.hp.positive? }.flatten.uniq
       expected_targets = options.fetch(:num_select, 1)
-      if targets.flatten.uniq.size > expected_targets
+      if targets.size > expected_targets
         loop do
           target = prompt.select('multiple targets at location(s) please select specific targets') do |menu|
             targets.flatten.uniq.each do |t|
@@ -491,7 +492,7 @@ class CommandlineUI < Natural20::Controller
   def game_loop
     Natural20::EventManager.set_context(battle, battle.current_party)
 
-    battle.while_active do |entity|
+    result = battle.while_active do |entity|
       start_combat = false
       if battle.has_controller_for?(entity)
         cycles = 0
@@ -521,9 +522,9 @@ class CommandlineUI < Natural20::Controller
 
       start_combat
     end
-
+    prompt.keypress(t(:tpk)) if result == :tpk
     puts '------------'
-    puts "battle ended in #{battle.round + 1} rounds."
+    puts t(:battle_end, num: battle.round + 1)
   end
 
   # Starts a battle

@@ -69,6 +69,14 @@ studded_leather:
   subtype: light
   type: armor
   weight: 13
+chain_shirt:
+  ac: 13
+  mod_cap: 2
+  cost: 50
+  name: Chain Shirt
+  subtype: light
+  type: armor
+  weight: 13
 thieves_tools:
   cost: 25
   name: Thieves Tools
