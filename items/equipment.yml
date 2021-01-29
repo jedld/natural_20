@@ -37,7 +37,7 @@ padded:
   ac: 11
   cost: 5
   disadvantage:
-    - stealh
+    - stealth
   name: Padded Armor
   subtype: light
   type: armor

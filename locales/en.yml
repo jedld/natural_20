@@ -36,6 +36,7 @@ en:
     target_long_range: Long range penalty
     unseen_attacker: Attacker is unseen
   back: Back
+  battle_end: Battle ended in %{num} rounds
   battle_simulator: Battle Simulator
   character_sheet:
     ac: 'AC: %{ac}'
@@ -112,6 +113,7 @@ en:
       stand: '%{name} stands up.'
   exit: Exit
   inventory:
+    cannot_change_armor_combat: Cannot change armor during combat
     equiped_items: '%{name} (equipped)'
     how_many: 'How many %{item_label} (1-%{item_count})? '
     inventory_items: '%{name} x %{qty}'
@@ -181,9 +183,8 @@ en:
   select_npcs: Select NPCs
   select_party_member: Select Party Member %{index}
   skip_hit_die: Skip Hit Die
+  tpk: The entire party has fallen. Game Over!
   unequip: Unequip
   with_advantage: advantage
   with_disadvantage: disadvantage
-  tpk: The entire party has fallen. Game Over!
-  battle_end: Battle ended in %{num} rounds
   'yes': 'Yes'

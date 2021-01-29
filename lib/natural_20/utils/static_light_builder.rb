@@ -10,7 +10,7 @@ module Natural20
       @light_map = @properties.dig(:map, :light)
       @base_illumniation = @properties.dig(:map, :illumination) || 1.0
       @lights = []
-      if @light_map
+      if @light_map && @light_properties
         @light_map.each_with_index do |row, cur_y|
           row.each_char.map(&:to_sym).each_with_index do |key, cur_x|
             next unless @light_properties[key]

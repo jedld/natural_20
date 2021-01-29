@@ -90,14 +90,12 @@ module Natural20
           s.action_type == :attack && s.npc_action[:type] == 'melee_attack'
         end
       end
+      
+      [ generate_npc_attack_actions(battle) +
 
-      %i[attack hide dodge look stand move dash grapple escape_grapple].map do |type|
+      %i[hide dodge look stand move dash grapple escape_grapple].map do |type|
         next unless "#{type.to_s.camelize}Action".constantize.can?(self, battle)
-
         case type
-        when :attack
-          # check all equipped and create attack for each
-          generate_npc_attack_actions(battle)
         when :dodge
           DodgeAction.new(session, self, :dodge)
         when :hide
@@ -118,7 +116,7 @@ module Natural20
         else
           Natural20::Action.new(session, self, type)
         end
-      end.compact.flatten
+      end.compact].flatten
     end
 
     def melee_distance

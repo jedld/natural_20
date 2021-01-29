@@ -92,7 +92,9 @@ RSpec.describe Natural20::Npc do
       first_attack.target = @fighter
       @battle.action!(first_attack)
       @battle.commit(first_attack)
-      expect(@npc.available_actions(session, @battle).map(&:name)).to eq %w[look move]
+
+      # multiattack should still allow for one more attack
+      expect(@npc.available_actions(session, @battle).map(&:name)).to eq %w[attack look move]
     end
   end
 end

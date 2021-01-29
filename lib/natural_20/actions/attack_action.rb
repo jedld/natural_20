@@ -6,6 +6,9 @@ class AttackAction < Natural20::Action
   attr_accessor :target, :using, :npc_action, :as_reaction, :thrown, :second_hand
   attr_reader :advantage_mod
 
+  # @param entity [Natural20::Entity]
+  # @param battle [Natural20::Battle]
+  # @return [Boolean]
   def self.can?(entity, battle, options = {})
     battle.nil? || entity.total_actions(battle).positive? || options[:opportunity_attack] || entity.multiattack?(battle, options[:npc_action])
   end

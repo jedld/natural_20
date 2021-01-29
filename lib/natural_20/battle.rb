@@ -415,7 +415,7 @@ module Natural20
     end
 
     def tpk?
-      !@current_party.detect(&:conscious?)
+      @current_party && !@current_party.detect(&:conscious?)
     end
 
     def battle_ends?

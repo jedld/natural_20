@@ -87,6 +87,18 @@ RSpec.describe Natural20::BattleMap do
                                                'spawn_point_4' => { location: [5, 3] }
                                              })
     end
+
+    # context "line of sight corridors test" do
+    #   before do
+    #     @battle_map = Natural20::BattleMap.new(session, 'fixtures/corridors')
+    #     @map_renderer = Natural20::MapRenderer.new(@battle_map)
+    #   end
+
+    #   it "handles corrideros properly" do
+    #     @battle_map.place(0, 5, @npc, 'g')
+    #     expect(@map_renderer.render(line_of_sight: @npc)).to eq ""
+    #   end
+    # end
   end
 
   context 'other sizes test' do
@@ -228,7 +240,7 @@ RSpec.describe Natural20::BattleMap do
                                                       movement: 30,
                                                       reaction: 1,
                                                       statuses: Set[:hiding],
-                                                      stealth: 7,
+                                                      stealth: 14,
                                                       two_weapon: nil,
                                                       target_effect: {}
                                                     })

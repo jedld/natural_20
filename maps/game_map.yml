@@ -33,10 +33,6 @@ map:
     - ?????????
     - ABg......
     - .........
-lights:
-  A:
-    bright: 5
-    dim: 5
 notes:
   - type: point
     positions:
@@ -68,6 +64,8 @@ legend:
     name: Treasure Chest
     type: chest
     inventory:
+      - type: studded_leather
+        qty: 2
       - type: gold_piece
         label: Gold Pieces
         qty: 10

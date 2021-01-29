@@ -35,12 +35,13 @@ module Natural20::InventoryUI
 
       weapon_details = session.load_weapon(item_inventory_choice.name)
       if weapon_details
-        puts " "
-        puts "-------"
+        puts ' '
+        puts '-------'
         puts (weapon_details[:label] || weapon_details[:name]).colorize(:blue)
-        puts "Damage Stats: to Hit +#{entity.attack_roll_mod(weapon_details)}. #{damage_modifier(entity, weapon_details)} #{weapon_details[:damage_type]} Damage"
+        puts "Damage Stats: to Hit +#{entity.attack_roll_mod(weapon_details)}. #{damage_modifier(entity,
+                                                                                                 weapon_details)} #{weapon_details[:damage_type]} Damage"
         puts "Proficiency: #{entity.proficient_with_weapon?(weapon_details) ? t(:yes) : t(:no)}"
-        puts "Properties:"
+        puts 'Properties:'
         weapon_details[:properties]&.each do |p|
           puts "  #{t("object.properties.#{p}")}"
         end
@@ -52,8 +53,13 @@ module Natural20::InventoryUI
           menu.choice t(:unequip), :unequip
           menu.choice t(:back), :back
         end
+
         next if choice == :back
 
+        if battle.combat? && weapon_details[:type] == 'armor'
+          puts t('inventory.cannot_change_armor_combat')
+          next
+        end
         entity.unequip(item_inventory_choice.name)
       else
         choice = prompt.select(item_inventory_choice.label) do |menu|
@@ -76,6 +82,10 @@ module Natural20::InventoryUI
           qty = how_many?(item_inventory_choice)
           entity.drop_items!(battle, [[item_inventory_choice, qty]])
         when :equip
+          if battle.combat? && weapon_details[:type] == 'armor'
+            puts t('inventory.cannot_change_armor_combat')
+            next
+          end
           entity.equip(item_inventory_choice.name)
         end
       end

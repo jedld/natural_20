@@ -33,7 +33,7 @@ weapon_proficiencies:
 equipped:
 - dagger
 - torch
-- studded_leather
+- leather
 inventory:
 - type: shortbow
   qty: 1

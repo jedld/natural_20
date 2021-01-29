@@ -362,7 +362,8 @@ module Natural20
         entity_2_squares.each do |pos2|
           pos1_x, pos1_y = pos1
           pos2_x, pos2_y = pos2
-
+          next if pos1_x >= size[0] || pos1_x < 0 || pos1_y >= size[1] || pos1_y < 0
+          next if pos2_x >= size[0] || pos2_x < 0 || pos2_y >= size[1] || pos2_y < 0
           next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
 
           location_illumnination = light_at(pos2_x, pos2_y)
@@ -380,7 +381,11 @@ module Natural20
     end
 
     def light_at(pos_x, pos_y)
-      @light_map[pos_x][pos_y] + @light_builder.light_at(pos_x, pos_y)
+      if @light_map
+        @light_map[pos_x][pos_y] + @light_builder.light_at(pos_x, pos_y)
+      else
+        @light_builder.light_at(pos_x, pos_y)
+      end
     end
 
     def position_of(entity)
@@ -449,7 +454,7 @@ module Natural20
     end
 
     def valid_position?(pos_x, pos_y)
-      return false if pos_x >= @base_map.size || pos_x.negative? || pos_y >= @base_map[0].size || pos_y < 0
+      return false if pos_x >= @base_map.size || pos_x.negative? || pos_y >= @base_map[0].size || pos_y.negative?
 
       return false if @base_map[pos_x][pos_y] == '#'
       return false unless @tokens[pos_x][pos_y].nil?
@@ -502,6 +507,9 @@ module Natural20
           next if @tokens[relative_x][relative_y][:entity] == entity
           next unless battle.opposing?(location_entity, entity)
           next if location_entity.dead? || location_entity.unconscious?
+          if entity.class_feature?('halfling_nimbleness') && (location_entity.size_identifier - entity.size_identifier) >= 1
+            next
+          end
           if battle.opposing?(location_entity,
                               entity) && (location_entity.size_identifier - entity.size_identifier).abs < 2
             return false
