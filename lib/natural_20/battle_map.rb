@@ -248,6 +248,8 @@ module Natural20
     # @param entity [Natural20::Entity]
     # @return [Array]
     def entity_squares(entity, squeeze = false)
+      raise 'invalid entity' unless entity
+
       pos1_x, pos1_y = entity_or_object_pos(entity)
       entity_1_squares = []
       token_size = if squeeze
@@ -257,6 +259,8 @@ module Natural20
                    end
       (0...token_size).each do |ofs_x|
         (0...token_size).each do |ofs_y|
+          next if (pos1_x + ofs_x >= size[0]) || (pos1_y + ofs_y >= size[1])
+
           entity_1_squares << [pos1_x + ofs_x, pos1_y + ofs_y]
         end
       end
@@ -278,6 +282,8 @@ module Natural20
                    end
       (0...token_size).each do |ofs_x|
         (0...token_size).each do |ofs_y|
+          next if (pos1_x + ofs_x >= size[0]) || (pos1_y + ofs_y >= size[1])
+
           entity_1_squares << [pos1_x + ofs_x, pos1_y + ofs_y]
         end
       end

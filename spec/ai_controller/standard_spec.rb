@@ -27,8 +27,8 @@ RSpec.describe AiController::Standard do
       @battle.add(@npc2, :b, position: :spawn_point_3, token: 'g')
       Natural20::EventManager.register_event_listener([:died], ->(event) { puts "#{event[:source].name} died." })
       Natural20::EventManager.register_event_listener([:unconscious], lambda { |event|
-                                                                       puts "#{event[:source].name} unconscious."
-                                                                     })
+                                                                        puts "#{event[:source].name} unconscious."
+                                                                      })
       Natural20::EventManager.register_event_listener([:initiative], lambda { |event|
                                                                        puts "#{event[:source].name} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative."
                                                                      })
@@ -55,7 +55,7 @@ RSpec.describe AiController::Standard do
         end
         false
       end
-      expect(@fighter.hp).to eq 36
+      expect(@fighter.hp).to eq 67
       expect(@npc1.hp).to eq 0
       expect(@npc2.hp).to eq 0
     end
@@ -75,13 +75,59 @@ RSpec.describe AiController::Standard do
       srand(7000)
     end
 
-    specify "evalute movement options" do
+    specify 'evalute movement options' do
       puts Natural20::MapRenderer.new(@map).render
       @npc1.reset_turn!(@battle)
       state = @battle.entity_state_for(@npc1)
       state[:action] = 0 # force movement only
       action = controller.move_for(@npc1, @battle)
-      expect(action.move_path).to eq([[5, 1], [4, 2], [3, 2], [2, 1]])
+      expect(action.move_path).to eq([[5, 1], [6, 2], [6, 3]])
+    end
+
+    context '#candidate_squares' do
+      specify 'Return all valid destination squares' do
+        puts Natural20::MapRenderer.new(@map).render
+        expect(controller.candidate_squares(@map, @battle, @npc1)).to eq({ [0, 2] => 8,
+                                                                           [1, 1] => 7,
+                                                                           [1, 2] => 7,
+                                                                           [2, 1] => 6,
+                                                                           [3, 1] => 4,
+                                                                           [3, 2] => 4,
+                                                                           [3, 3] => 4,
+                                                                           [4, 1] => 2,
+                                                                           [4, 2] => 2,
+                                                                           [4, 3] => 4,
+                                                                           [5, 1] => 0,
+                                                                           [5, 2] => 2,
+                                                                           [5, 3] => 3,
+                                                                           [6, 1] => 1,
+                                                                           [6, 2] => 1,
+                                                                           [6, 3] => 2 })
+      end
+    end
+
+    context '#evaluate_squares' do
+      it 'gives a weight to a destination square' do
+        puts Natural20::MapRenderer.new(@map).render
+        expect(controller.evaluate_square(@map, @battle, @npc1, [@fighter])).to eq(
+          { [0, 2] => [0.1, 0.0, 0.0, 0.0, 0.0],
+            [1, 1] => [0.1, 0.0, 0.0, 0.0, 0.0],
+            [1, 2] => [0.1, 0.0, 0.0, 0.0, 0.0],
+            [2, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [3, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [3, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
+            [3, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+            [4, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [4, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
+            [4, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+            [5, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [5, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [5, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+            [6, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [6, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
+            [6, 3] => [0.0, 0.1, 2.0, 0.0, 0.0] }
+        )
+      end
     end
   end
 

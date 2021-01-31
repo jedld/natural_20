@@ -3,6 +3,7 @@ module AiController
   # Class used for handling "Standard" NPC AI
   class Standard < Natural20::Controller
     include Natural20::MovementHelper
+    include Natural20::Navigation
 
     attr_reader :battle_data
 
@@ -78,7 +79,7 @@ module AiController
       distance = Math.sqrt((target_x - entity_x)**2 + (target_y - entity_y)**2).ceil
 
       action = entity.available_actions(session, battle, opportunity_attack: true).select do |s|
-         distance <= s.npc_action[:range]
+        distance <= s.npc_action[:range]
       end.first
 
       if action
@@ -151,8 +152,8 @@ module AiController
           group = battle.entity_group_for(enemy)
           next if my_group == group
 
-          position
-        end.compact
+          [enemy, position]
+        end.compact.to_h
 
         valid_actions += generate_moves_for_positions(battle, entity, investigate_location)
       end
@@ -186,15 +187,28 @@ module AiController
       shortest_path = nil
       shortest_length = 1_000_000
 
-      compute_target_squares.each do |positions|
-        path = path_compute.compute_path(start_x, start_y, *positions)
+      target_squares = evaluate_square(battle.map, battle, entity, enemy_positions.keys)
+
+      squares_priority = target_squares.map do |square, static_eval|
+        range_weight = 1.0
+        melee_weight = 1.0
+        defence_weight = 1.0
+        melee, ranged, defence, _mobility, _support = static_eval
+        range_wieght = 2.0 if has_ranged_weapon?(entity)
+
+        defence_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
+
+        [square, melee_weight * melee + range_weight * ranged + defence_weight * defence]
+      end
+
+      squares_priority.sort_by! { |a| a[1] }.reverse!.each do |t|
+        return [] if t[0] == [start_x, start_y] # AI thinks its best to not move
+
+        path = path_compute.compute_path(start_x, start_y, *t[0])
         next if path.nil?
 
-        movement_cost = battle.map.movement_cost(entity, path, battle)
-        if movement_cost.cost * battle.map.feet_per_grid < shortest_length
-          shortest_path = path
-          shortest_length = path.size
-        end
+        shortest_path = path
+        break
       end
 
       return [] if shortest_path.nil? || shortest_path.empty?
@@ -235,6 +249,19 @@ module AiController
         next unless object.conscious?
 
         enemy_positions[object] = location if group != my_group
+      end
+    end
+
+    def has_ranged_weapon?(entity)
+      if entity.npc?
+        entity.npc_actions.detect do |npc_action|
+          next if npc_action[:ammo] && entity.item_count(npc_action[:ammo]) <= 0
+          next if npc_action[:if] && !entity.eval_if(npc_action[:if])
+
+          npc_action[:type] == 'ranged_attack'
+        end
+      else
+        # TODO: Player character
       end
     end
 

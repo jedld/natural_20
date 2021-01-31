@@ -240,7 +240,7 @@ RSpec.describe Natural20::BattleMap do
                                                       movement: 30,
                                                       reaction: 1,
                                                       statuses: Set[:hiding],
-                                                      stealth: 14,
+                                                      stealth: 7,
                                                       two_weapon: nil,
                                                       target_effect: {}
                                                     })

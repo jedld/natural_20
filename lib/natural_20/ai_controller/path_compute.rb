@@ -15,56 +15,31 @@ module AiController
       @max_x, @max_y = @map.size
     end
 
-    # compute path using Djikstras shortest path
-    def compute_path(source_x, source_y, destination_x, destination_y)
-      pq = PQueue.new([]) { |a, b| a[1] < b[1] }
-      visited_nodes = Set.new
+    def build_structures(source_x, source_y)
+      @pq = PQueue.new([]) { |a, b| a[1] < b[1] }
+      @visited_nodes = Set.new
 
-      distances = @max_x.times.map do
+      @distances = @max_x.times.map do
         @max_y.times.map do
           MAX_DISTANCE
         end
       end
 
-      current_node = [source_x, source_y]
-      distances[source_x][source_y] = 0
-      visited_nodes.add(current_node)
-      Kernel.loop do
-        distance = distances[current_node[0]][current_node[1]]
+      @current_node = [source_x, source_y]
+      @distances[source_x][source_y] = 0
+      @visited_nodes.add(@current_node)
+    end
 
-        adjacent_squares = get_adjacent_from(*current_node)
-        visit_squares(pq, adjacent_squares, visited_nodes, distances, distance)
-
-        # with squeezing into terrain
-        squeeze_adjacent_squares = get_adjacent_from(*current_node, squeeze: true)
-
-        squeeze_adjacent_squares -= adjacent_squares
-
-        unless squeeze_adjacent_squares.empty?
-          visit_squares(pq, squeeze_adjacent_squares, visited_nodes, distances, distance,
-                        2)
-        end
-
-        break if current_node == [destination_x, destination_y]
-
-        visited_nodes.add(current_node)
-
-        current_node, node_d = pq.pop
-        break if current_node.nil?
-
-        return nil if node_d == MAX_DISTANCE
-      end
-
+    def backtrace(source_x, source_y, destination_x, destination_y, show_cost: false)
       path = []
       current_node = [destination_x, destination_y]
-      return nil if distances[destination_x][destination_y] == MAX_DISTANCE # no route!
+      return nil if @distances[destination_x][destination_y] == MAX_DISTANCE # no route!
 
       path << current_node
-      cycles = 0
+      cost = @distances[destination_x][destination_y]
       visited_nodes = Set.new
       visited_nodes.add(current_node)
       Kernel.loop do
-        cycles += 1
         adjacent_squares = get_adjacent_from(*current_node)
         adjacent_squares += get_adjacent_from(*current_node, squeeze: true)
 
@@ -73,7 +48,7 @@ module AiController
 
         adjacent_squares.reject { |n| visited_nodes.include?(n) }.each do |node|
           line_distance = Math.sqrt((destination_x - node[0])**2 + (destination_y - node[1])**2)
-          current_distance = distances[node[0]][node[1]].to_f + line_distance / MAX_DISTANCE.to_f
+          current_distance = @distances[node[0]][node[1]].to_f + line_distance / MAX_DISTANCE.to_f
           if min_node.nil? || current_distance < min_distance
             min_distance = current_distance
             min_node = node
@@ -88,7 +63,49 @@ module AiController
         break if current_node == [source_x, source_y]
       end
 
-      path.reverse
+      show_cost ? [path.reverse, cost] : path.reverse
+    end
+
+    def path(destination = nil)
+      Kernel.loop do
+        distance = @distances[@current_node[0]][@current_node[1]]
+
+        adjacent_squares = get_adjacent_from(*@current_node)
+        visit_squares(@pq, adjacent_squares, @visited_nodes, @distances, distance)
+
+        # with squeezing into terrain
+        squeeze_adjacent_squares = get_adjacent_from(*@current_node, squeeze: true)
+
+        squeeze_adjacent_squares -= adjacent_squares
+
+        unless squeeze_adjacent_squares.empty?
+          visit_squares(@pq, squeeze_adjacent_squares, @visited_nodes, @distances, distance,
+                        2)
+        end
+
+        break if destination && @current_node == destination
+
+        @visited_nodes.add(@current_node)
+
+        @current_node, node_d = @pq.pop
+        break if @current_node.nil?
+
+        return nil if node_d == MAX_DISTANCE
+      end
+    end
+
+    # compute path using Djikstras shortest path
+    def compute_path(source_x, source_y, destination_x, destination_y)
+      build_structures(source_x, source_y)
+      path([destination_x, destination_y])
+      backtrace(source_x, source_y, destination_x, destination_y)
+    end
+
+    def incremental_path(source_x, source_y, destination_x, destination_y)
+      rpath = backtrace(source_x, source_y, destination_x, destination_y, show_cost: true)
+      return rpath if rpath && rpath.size > 1
+
+      nil
     end
 
     # @param pq [PQueue]
