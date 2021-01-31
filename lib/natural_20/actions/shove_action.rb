@@ -1,17 +1,17 @@
-class GrappleAction < Natural20::Action
-  attr_accessor :target
+class ShoveAction < Natural20::Action
+  attr_accessor :target, :knock_prone
 
   def self.can?(entity, battle, _options = {})
-    (battle.nil? || entity.total_actions(battle).positive?) && !entity.grappling?
-  end
-
-  def to_s
-    @action_type.to_s.humanize
+    (battle.nil? || entity.total_actions(battle).positive?)
   end
 
   def validate
     @errors << 'target is a required option for :attack' if target.nil?
     @errors << t('validation.shove.invalid_target_size') if (target.size_identifier - @source.size_identifier) > 1
+  end
+
+  def to_s
+    @action_type.to_s.humanize
   end
 
   def build_map
@@ -21,7 +21,7 @@ class GrappleAction < Natural20::Action
                        {
                          type: :select_target,
                          range: 5,
-                         target_types: %i[enemies allies],
+                         target_types: %i[enemies],
                          num: 1
                        }
                      ],
@@ -36,7 +36,7 @@ class GrappleAction < Natural20::Action
   end
 
   def self.build(session, source)
-    action = GrappleAction.new(session, source, :grapple)
+    action = ShoveAction.new(session, source, :shove)
     action.build_map
   end
 
@@ -56,9 +56,9 @@ class GrappleAction < Natural20::Action
     athletics_stats = (@target.athletics_proficient? ? @target.proficiency_bonus : 0) + @target.str_mod
     acrobatics_stats = (@target.acrobatics_proficient? ? @target.proficiency_bonus : 0) + @target.dex_mod
 
-    grapple_success = false
-    if @target.incapacitated? || !battle.opposing?(@source, target)
-      grapple_success = true
+    shove_success = false
+    if @target.incapacitated?
+      shove_success = true
     else
       contested_roll = if athletics_stats > acrobatics_stats
                          @target.athletics_check!(battle,
@@ -68,16 +68,17 @@ class GrappleAction < Natural20::Action
                            opts[:battle], description: t('die_roll.contest')
                          )
                        end
-      grapple_success = strength_roll.result >= contested_roll.result
+      shove_success = strength_roll.result >= contested_roll.result
     end
 
-    @result = if grapple_success
+    @result = if shove_success
                 [{
                   source: @source,
                   target: target,
-                  type: :grapple,
+                  type: :shove,
                   success: true,
                   battle: battle,
+                  knock_prone: knock_prone,
                   source_roll: strength_roll,
                   target_roll: contested_roll
                 }]
@@ -85,9 +86,10 @@ class GrappleAction < Natural20::Action
                 [{
                   source: @source,
                   target: target,
-                  type: :grapple,
+                  type: :shove,
                   success: false,
                   battle: battle,
+                  knock_prone: knock_prone,
                   source_roll: strength_roll,
                   target_roll: contested_roll
                 }]
@@ -97,16 +99,21 @@ class GrappleAction < Natural20::Action
   def apply!(battle)
     @result.each do |item|
       case (item[:type])
-      when :grapple
+      when :shove
         if item[:success]
-          item[:target].grappled_by!(@source)
-          Natural20::EventManager.received_event(event: :grapple_success,
-                                                 target: item[:target], source: @source,
+          if item[:knock_prone]
+            item[:target].prone!
+          else
+            item[:target].push_from!(item[:battle].map, *item[:battle].map.entity_or_object_pos(item[:source]))
+          end
+          Natural20::EventManager.received_event(event: :shove_success,
+                                                 knock_prone: item[:knock_prone],
+                                                 target: item[:target], source: item[:source],
                                                  source_roll: item[:source_roll],
                                                  target_roll: item[:target_roll])
         else
-          Natural20::EventManager.received_event(event: :grapple_failure,
-                                                 target: item[:target], source: @source,
+          Natural20::EventManager.received_event(event: :shove_failure,
+                                                 target: item[:target], source: item[:source],
                                                  source_roll: item[:source_roll],
                                                  target_roll: item[:target_roll])
         end
@@ -117,69 +124,5 @@ class GrappleAction < Natural20::Action
   end
 end
 
-class DropGrappleAction < Natural20::Action
-  attr_accessor :target
-
-  def self.can?(entity, battle, _options = {})
-    battle.nil? || entity.grappling?
-  end
-
-  def to_s
-    @action_type.to_s.humanize
-  end
-
-  def build_map
-    OpenStruct.new({
-                     action: self,
-                     param: [
-                       {
-                         type: :select_target,
-                         targets: @source.grappling_targets,
-                         num: 1
-                       }
-                     ],
-                     next: lambda { |target|
-                       self.target = target
-                       OpenStruct.new({
-                                        param: nil,
-                                        next: -> { self }
-                                      })
-                     }
-                   })
-  end
-
-  def self.build(session, source)
-    action = DropGrappleAction.new(session, source, :grapple)
-    action.build_map
-  end
-
-  # @param session [Natural20::Session]
-  # @param map [Natural20::BattleMap]
-  # @option opts battle [Natural20::Battle]
-  # @option opts target [Natural20::Entity]
-  def resolve(_session, _map, opts = {})
-    target = opts[:target] || @target
-    battle = opts[:battle]
-    @result =
-      [{
-        source: @source,
-        target: target,
-        type: :drop_grapple,
-        battle: battle
-      }]
-  end
-
-  def apply!(_battle)
-    @result.each do |item|
-      case (item[:type])
-      when :drop_grapple
-        item[:target].escape_grapple_from!(@source)
-        Natural20::EventManager.received_event(event: :drop_grapple,
-                                               target: item[:target], source: @source,
-                                               source_roll: item[:source_roll],
-                                               target_roll: item[:target_roll])
-
-      end
-    end
-  end
+class PushAction < ShoveAction
 end

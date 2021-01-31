@@ -1,12 +1,13 @@
 # typed: true
 module Natural20
   class Action
-    attr_reader :action_type, :result, :source, :session
+    attr_reader :action_type, :result, :source, :session, :errors
 
     def initialize(session, source, action_type, opts = {})
       @source = source
       @session = session
       @action_type = action_type
+      @errors = []
       @result = []
       @opts = opts
     end
@@ -21,6 +22,9 @@ module Natural20
 
     def label
       I18n.t(:"action.#{action_type}")
+    end
+
+    def validate
     end
 
     def apply!(battle); end

@@ -5,15 +5,16 @@ class CommandlineUI < Natural20::Controller
   include Natural20::Cover
 
   TTY_PROMPT_PER_PAGE = 20
-  attr_reader :battle, :map, :session
+  attr_reader :battle, :map, :session, :test_mode
 
   # Creates an instance of a commandline UI helper
   # @param battle [Natural20::Battle]
   # @param map [Natural20::BattleMap]
-  def initialize(battle, map)
+  def initialize(battle, map, test_mode: false)
     @battle = battle
     @session = battle.session
     @map = map
+    @test_mode = test_mode
     @renderer = Natural20::MapRenderer.new(@map, @battle)
   end
 
@@ -532,7 +533,41 @@ class CommandlineUI < Natural20::Controller
   def battle_ui(chosen_characters)
     battle.map.activate_map_triggers(:on_map_entry, nil, ui_controller: self)
     battle.register_players(chosen_characters, self)
+    chosen_characters.each do |entity|
+      entity.attach_handler(:opportunity_attack, self, :opportunity_attack_listener)
+    end
     game_loop
+  end
+
+  def opportunity_attack_listener(battle, session, entity, map, event)
+    entity_x, entity_y = map.position_of(entity)
+    target_x, target_y = event[:position]
+
+    distance = Math.sqrt((target_x - entity_x)**2 + (target_y - entity_y)**2).ceil
+
+    possible_actions = entity.available_actions(session, battle, opportunity_attack: true).select do |s|
+      weapon_details = session.load_weapon(s.using)
+      distance <= weapon_details[:range]
+    end
+
+    return nil if possible_actions.blank?
+
+    action = prompt.select(t('action.opportunity_attack', name: entity.name)) do |menu|
+      possible_actions.each do |a|
+        menu.item a.label, a
+      end
+      menu.item t(:waive_opportunity_attack), :waive
+    end
+
+    return nil if action == :waive
+
+    if action
+      action.target = event[:target]
+      action.as_reaction = true
+      return action
+    end
+
+    nil
   end
 
   def show_message(message)
@@ -540,10 +575,12 @@ class CommandlineUI < Natural20::Controller
     prompt.keypress(message)
   end
 
-  protected
-
   # @return [TTY::Prompt]
   def prompt
-    @@prompt ||= TTY::Prompt.new
+    @@prompt ||= if test_mode
+                   TTY::Prompt::Test.new
+                 else
+                   TTY::Prompt.new
+                 end
   end
 end

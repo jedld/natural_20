@@ -10,7 +10,9 @@ class AttackAction < Natural20::Action
   # @param battle [Natural20::Battle]
   # @return [Boolean]
   def self.can?(entity, battle, options = {})
-    battle.nil? || entity.total_actions(battle).positive? || options[:opportunity_attack] || entity.multiattack?(battle, options[:npc_action])
+    battle.nil? || entity.total_actions(battle).positive? || (options[:opportunity_attack] && entity.total_reactions(battle).positive?) || entity.multiattack?(
+      battle, options[:npc_action]
+    )
   end
 
   def to_s

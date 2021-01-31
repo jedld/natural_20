@@ -175,18 +175,6 @@ module AiController
       path_compute = PathCompute.new(battle, battle.map, entity)
       start_x, start_y = battle.map.position_of(entity)
 
-      compute_target_squares = if enemy_positions.is_a?(Hash)
-                                 positions = []
-                                 enemy_positions.each do |_k, v|
-                                   positions += entity.locate_melee_positions(battle.map, v, battle)
-                                 end
-                                 positions
-                               else
-                                 enemy_positions
-                               end
-      shortest_path = nil
-      shortest_length = 1_000_000
-
       target_squares = evaluate_square(battle.map, battle, entity, enemy_positions.keys)
 
       squares_priority = target_squares.map do |square, static_eval|
@@ -194,12 +182,14 @@ module AiController
         melee_weight = 1.0
         defence_weight = 1.0
         melee, ranged, defence, _mobility, _support = static_eval
-        range_wieght = 2.0 if has_ranged_weapon?(entity)
+        range_weight = 2.0 if has_ranged_weapon?(entity)
 
         defence_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
 
         [square, melee_weight * melee + range_weight * ranged + defence_weight * defence]
       end
+
+      chosen_path = nil
 
       squares_priority.sort_by! { |a| a[1] }.reverse!.each do |t|
         return [] if t[0] == [start_x, start_y] # AI thinks its best to not move
@@ -207,11 +197,11 @@ module AiController
         path = path_compute.compute_path(start_x, start_y, *t[0])
         next if path.nil?
 
-        shortest_path = path
+        chosen_path = path
         break
       end
 
-      return [] if shortest_path.nil? || shortest_path.empty?
+      return [] if chosen_path.nil? || chosen_path.empty?
 
       if entity.available_movement(battle).zero? && use_dash
         if DashBonusAction.can?(entity, battle)
@@ -224,7 +214,7 @@ module AiController
       elsif MoveAction.can?(entity, battle)
         move_action = MoveAction.new(battle.session, entity, :move)
         move_budget = entity.available_movement(battle) / battle.map.feet_per_grid
-        shortest_path = compute_actual_moves(entity, shortest_path, battle.map, battle, move_budget).movement
+        shortest_path = compute_actual_moves(entity, chosen_path, battle.map, battle, move_budget).movement
         return [] if shortest_path.size.zero? || shortest_path.size == 1
 
         move_action.move_path = shortest_path

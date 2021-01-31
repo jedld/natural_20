@@ -11,7 +11,7 @@ module Natural20
     attr_accessor :hp, :other_counters, :resistances, :experience_points
 
     ACTION_LIST = %i[first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
-                     dash_bonus hide_bonus grapple escape_grapple drop_grapple prone stand short_rest].freeze
+                     dash_bonus hide_bonus grapple escape_grapple drop_grapple shove push prone stand short_rest].freeze
 
     # @param session [Natural20::Session]
     def initialize(session, properties)
@@ -158,8 +158,55 @@ module Natural20
       !!(@race_properties[:darkvision] && @race_properties[:darkvision] >= distance)
     end
 
+    def player_character_attack_actions(battle, opportunity_attack: false)
+      # check all equipped and create attack for each
+      valid_weapon_types = if opportunity_attack
+                             %w[melee_attack]
+                           else
+                             %w[ranged_attack melee_attack]
+                           end
+
+      weapon_attacks = @properties[:equipped].map do |item|
+        weapon_detail = session.load_weapon(item)
+        next if weapon_detail.nil?
+        next unless valid_weapon_types.include?(weapon_detail[:type])
+        next if weapon_detail[:ammo] && !item_count(weapon_detail[:ammo]).positive?
+
+        attacks = []
+
+        action = AttackAction.new(session, self, :attack)
+        action.using = item
+        attacks << action
+
+        if !opportunity_attack && weapon_detail[:properties] && weapon_detail[:properties].include?('thrown')
+          action = AttackAction.new(session, self, :attack)
+          action.using = item
+          action.thrown = true
+          attacks << action
+        end
+
+        if !opportunity_attack && weapon_detail[:properties] && weapon_detail[:properties].include?('light') && TwoWeaponAttackAction.can?(
+          self, battle, weapon: weapon_detail[:name]
+        )
+          action = TwoWeaponAttackAction.new(session, self, :attack_second)
+          action.using = item
+          attacks << action
+        end
+        attacks
+      end.compact
+
+      unarmed_attack = AttackAction.new(session, self, :attack)
+      unarmed_attack.using = 'unarmed_attack'
+
+      weapon_attacks + [unarmed_attack]
+    end
+
     def available_actions(session, battle, opportunity_attack: false)
       return [] if unconscious?
+
+      if opportunity_attack && AttackAction.can?(self, battle, opportunity_attack: true)
+        return player_character_attack_actions(battle, opportunity_attack: true)
+      end
 
       ACTION_LIST.map do |type|
         next unless "#{type.to_s.camelize}Action".constantize.can?(self, battle)
@@ -168,40 +215,7 @@ module Natural20
         when :look
           LookAction.new(session, self, :look)
         when :attack
-          # check all equipped and create attack for each
-          weapon_attacks = @properties[:equipped].map do |item|
-            weapon_detail = session.load_weapon(item)
-            next if weapon_detail.nil?
-            next unless %w[ranged_attack melee_attack].include?(weapon_detail[:type])
-            next if weapon_detail[:ammo] && !item_count(weapon_detail[:ammo]).positive?
-
-            attacks = []
-
-            action = AttackAction.new(session, self, :attack)
-            action.using = item
-            attacks << action
-
-            if weapon_detail[:properties] && weapon_detail[:properties].include?('thrown')
-              action = AttackAction.new(session, self, :attack)
-              action.using = item
-              action.thrown = true
-              attacks << action
-            end
-
-            if weapon_detail[:properties] && weapon_detail[:properties].include?('light') && TwoWeaponAttackAction.can?(
-              self, battle, weapon: weapon_detail[:name]
-            )
-              action = TwoWeaponAttackAction.new(session, self, :attack_second)
-              action.using = item
-              attacks << action
-            end
-            attacks
-          end.compact
-
-          unarmed_attack = AttackAction.new(session, self, :attack)
-          unarmed_attack.using = 'unarmed_attack'
-
-          weapon_attacks + [unarmed_attack]
+          player_character_attack_actions(battle)
         when :dodge
           DodgeAction.new(session, self, :dodge)
         when :help
@@ -250,6 +264,12 @@ module Natural20
           InventoryAction.new(session, self, type)
         when :first_aid
           FirstAidAction.new(session, self, type)
+        when :shove
+          action = ShoveAction.new(session, self, type)
+          action.knock_prone = true
+          action
+        when :push
+          ShoveAction.new(session, self, type)
         else
           Natural20::Action.new(session, self, type)
         end

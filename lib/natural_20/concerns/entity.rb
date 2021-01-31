@@ -172,6 +172,32 @@ module Natural20
     end
 
     # @param map [Natural20::BattleMap]
+    def push_from!(map, pos_x, pos_y, distance = 5)
+      x, y = map.entity_or_object_pos(self)
+      effective_token_size = token_size - 1
+      ofs_x, ofs_y = if pos_x.between?(x, x + effective_token_size) && !pos_y.between?(y, y + effective_token_size)
+                       [0, y - pos_y > 0 ? distance : -distance]
+                     elsif pos_y.between?(y, y + effective_token_size) && !pos_x.between?(x, x + effective_token_size)
+                       [x - pos_x < 0 ? distance : -distance, 0]
+                     elsif [pos_x, pos_y] == [x - 1, y - 1]
+                       [distance, distance]
+                     elsif [pos_x, pos_y] == [x + effective_token_size + 1, y - 1]
+                       [-distance, distance]
+                     elsif [pos_x, pos_y] == [x - 1, y + effective_token_size + 1]
+                       [distance, -distance]
+                     elsif [pos_x, pos_y] == [x + effective_token_size + 1, y + effective_token_size + 1]
+                       [-disance, -distance]
+                     else
+                       raise "invalid source position #{pos_x}, #{pos_y}"
+                     end
+      # convert to squares
+      ofs_x /= map.feet_per_grid
+      ofs_y /= map.feet_per_grid
+
+      map.move_to!(self, x + ofs_x, y + ofs_y, nil) if map.placeable?(self, x + ofs_x, y + ofs_y)
+    end
+
+    # @param map [Natural20::BattleMap]
     # @param target_position [Array<Integer,Integer>]
     # @param adjacent_only [Boolean] If false uses melee distance otherwise uses fixed 1 square away
     def melee_squares(map, target_position: nil, adjacent_only: false)
@@ -409,6 +435,10 @@ module Natural20
 
     def total_actions(battle)
       battle.entity_state_for(self)[:action]
+    end
+
+    def total_reactions(battle)
+      battle.entity_state_for(self)[:reaction]
     end
 
     def free_object_interaction?(battle)

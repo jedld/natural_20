@@ -21,8 +21,11 @@ en:
     look: Look Around (Perception Check)
     move: Move
     npc_action: '%{name} with %{action_name}'
+    opportunity_attack: Opportunity Attack for %{name}
     prone: Go Prone
+    push: Shove (Push Away)
     short_rest: Short Rest
+    shove: Shove (Knock Prone)
     stand: Stand Up
     use_item: Use Item
   attack_status:
@@ -185,6 +188,10 @@ en:
   skip_hit_die: Skip Hit Die
   tpk: The entire party has fallen. Game Over!
   unequip: Unequip
+  validation:
+    shove:
+      invalid_target_size: The target must be no more than one size larger than you
+  waive_opportunity_attack: Waive Opportunity Attack
   with_advantage: advantage
   with_disadvantage: disadvantage
   'yes': 'Yes'
