@@ -50,8 +50,8 @@ RSpec.describe Natural20::PlayerCharacter do
 
     specify '#available_actions' do
       expect(@player.available_actions(session,
-                                       nil).map(&:to_s)).to eq ['Look', 'Attack', 'Attack', 'Attack', 'Move', 'Use item', 'Interact', 'Ground interact',
-                                                                'Inventory', 'Grapple', 'Drop grapple', 'true', 'Push', 'Second wind']
+                                       nil).map(&:to_s)).to eq ['Look', 'Attack', 'Attack', 'Attack', 'Move',
+                                                                'Use item', 'Interact', 'Ground interact', 'Inventory', 'Grapple', 'Drop grapple', 'Shove', 'Push', 'Second wind']
     end
 
     specify '#to_h' do

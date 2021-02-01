@@ -144,6 +144,8 @@ module Natural20
 
     def stable!
       @statuses.add(:stable)
+      @death_fails = 0
+      @death_saves = 0
     end
 
     # convenience method used to determine if a creature

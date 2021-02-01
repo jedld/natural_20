@@ -193,7 +193,7 @@ module Natural20
           attacks << action
         end
         attacks
-      end.compact
+      end.flatten.compact
 
       unarmed_attack = AttackAction.new(session, self, :attack)
       unarmed_attack.using = 'unarmed_attack'

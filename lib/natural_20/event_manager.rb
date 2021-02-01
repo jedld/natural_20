@@ -164,6 +164,14 @@ module Natural20
                                     source: show_name(event), target: event[:target]&.name)
                            end
                          },
+                         first_aid: lambda { |event|
+                           puts t('event.first_aid', name: show_name(event),
+                                                     target: event[:target]&.name, roll: event[:roll], value: event[:roll].result)
+                         },
+                         first_aid_failure: lambda { |event|
+                                              puts t('event.first_aid_failure', name: show_name(event),
+                                                                                target: event[:target]&.name, roll: event[:roll], value: event[:roll].result)
+                                            },
                          grapple_failure: lambda { |event|
                            puts t('event.grapple_failure',
                                   source: show_name(event), target: event[:target]&.name,

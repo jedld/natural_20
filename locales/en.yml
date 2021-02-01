@@ -21,7 +21,7 @@ en:
     look: Look Around (Perception Check)
     move: Move
     npc_action: '%{name} with %{action_name}'
-    opportunity_attack: Opportunity Attack for %{name}
+    opportunity_attack: Opportunity Attack for %{name} on %{target}
     prone: Go Prone
     push: Shove (Push Away)
     short_rest: Short Rest
@@ -97,6 +97,8 @@ en:
     athletics:
       failure: '%{roll} = %{value} (dc 10) %{name} failed on an athletics check'
       success: '%{roll} = %{value} (dc 10) %{name} succeeded on an athletics check'
+    first_aid: '%{roll} = %{value} %{name} (DC 10) successfully applied first aid to %{target}'
+    first_aid_failure: '%{roll} = %{value} %{name} (DC 10) failed to apply first aid to %{target}'
     combat_end: Combat has ended
     combat_start: Combat has started!
     death_fail: 'Death Saving Throw: %{name} rolls a %{roll} = %{value} (fail). Saves: %{saves} Fails: %{fails}'

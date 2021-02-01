@@ -232,6 +232,10 @@ module Natural20
         next if @map.distance(k, entity) * @map.feet_per_grid > attack_range
         next if filter && !k.eval_if(filter)
 
+        action.target = k
+        action.validate
+        next unless action.errors.empty?
+
         k
       end.compact
 

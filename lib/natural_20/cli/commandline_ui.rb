@@ -552,11 +552,11 @@ class CommandlineUI < Natural20::Controller
 
     return nil if possible_actions.blank?
 
-    action = prompt.select(t('action.opportunity_attack', name: entity.name)) do |menu|
+    action = prompt.select(t('action.opportunity_attack', name: entity.name, target: event[:target].name)) do |menu|
       possible_actions.each do |a|
-        menu.item a.label, a
+        menu.choice a.label, a
       end
-      menu.item t(:waive_opportunity_attack), :waive
+      menu.choice t(:waive_opportunity_attack), :waive
     end
 
     return nil if action == :waive
