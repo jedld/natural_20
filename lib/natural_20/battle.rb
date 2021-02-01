@@ -111,7 +111,12 @@ module Natural20
       return if position.nil?
       return if @map.nil?
 
-      position.is_a?(Array) ? @map.place(*position, entity, token, self) : @map.place_at_spawn_point(position, entity, token)
+      if position.is_a?(Array)
+        @map.place(*position, entity, token,
+                   self)
+      else
+        @map.place_at_spawn_point(position, entity, token)
+      end
     end
 
     def in_battle?(entity)
@@ -295,6 +300,21 @@ module Natural20
       @opposing_groups[source_group1]&.include?(source_group2)
     end
 
+    # Determines if two entities are allies of each other
+    # @param entity1 [Natural20::Entity]
+    # @param entity2 [Natural20::Entity]
+    # @return [Boolean]
+    def allies?(entity1, entity2)
+      source_state1 = entity_state_for(entity1)
+      source_state2 = entity_state_for(entity2)
+      return false if source_state1.nil? || source_state2.nil?
+
+      source_group1 = source_state1[:group]
+      source_group2 = source_state2[:group]
+
+      source_group1 == source_group2
+    end
+
     # Checks if this entity is controlled by AI or Person
     # @param entity [Natural20::Entity]
     # @return [Boolean]
@@ -405,6 +425,27 @@ module Natural20
 
         return true if opposing?(source, object) && (map.distance(source,
                                                                   object) <= (object.melee_distance / map.feet_per_grid))
+      end
+
+      false
+    end
+
+    # Determines if there is a conscious ally within melee range of target
+    # @param source [Natural20::Entity]
+    # @return [Boolean]
+    def ally_within_enemey_melee_range?(source, target, exclude = [])
+      objects_around_me = map.look(target)
+
+      objects_around_me.detect do |object, _|
+        next if exclude.include?(object)
+        next if object == source
+
+        state = entity_state_for(object)
+        next unless state
+        next unless object.conscious?
+
+        return true if allies?(source, object) && (map.distance(target,
+                                                                object) <= (object.melee_distance / map.feet_per_grid))
       end
 
       false

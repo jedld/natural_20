@@ -19,6 +19,8 @@ module Natural20
                      equipped_items.map(&:name).include?(test_expression.to_sym)
                    when :object_type
                      context[:item_type].to_s.downcase == test_expression.to_s.downcase
+                   when :target
+                     (test_expression == 'object' && context[:target].object?)
                    when :entity
                      (test_expression == 'pc' && pc?) ||
                      (test_expression == 'npc' && npc?)
@@ -39,6 +41,18 @@ module Natural20
 
           invert ? result : !result
         end.nil?
+      end
+    end
+
+    def apply_effect(expression, context = {})
+      action, value = expression.split(':')
+      case action
+      when 'status'
+        {
+          source: self,
+          type: value.to_sym,
+          battle: context[:battle]
+        }
       end
     end
   end

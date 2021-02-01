@@ -115,7 +115,7 @@ module Natural20
       end
     end
 
-    attr_reader :rolls, :modifier, :die_sides
+    attr_reader :rolls, :modifier, :die_sides, :roller
 
     # This represents a dice roll
     # @param rolls [Array] Integer dice roll representations

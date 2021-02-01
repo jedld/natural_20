@@ -21,9 +21,9 @@ module Natural20
       @color = @properties[:color]
       @session = session
       @npc_type = type
-      @inventory = @properties[:default_inventory].map do |inventory|
+      @inventory = @properties[:default_inventory]&.map do |inventory|
         [inventory[:type].to_sym, OpenStruct.new({ qty: inventory[:qty] })]
-      end.to_h
+      end.to_h || {}
 
       @properties[:inventory]&.each do |inventory|
         @inventory[inventory[:type].to_sym] = OpenStruct.new({ qty: inventory[:qty] })

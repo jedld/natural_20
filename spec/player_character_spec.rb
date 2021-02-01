@@ -155,6 +155,14 @@ RSpec.describe Natural20::PlayerCharacter do
       end.to change(@player, :hp).from(63).to(67)
       expect(@player.hit_die).to eq(10 => 0)
     end
+
+    specify '#saving_throw!' do
+      srand(1000)
+      result = Natural20::Entity::ATTRIBUTE_TYPES.map do |attribute|
+        @player.saving_throw!(attribute)
+      end
+      expect(result.map { |dr| dr.roller.roll_str }).to eq(['d20+4', 'd20+5', 'd20+6', 'd20+3', 'd20+1', 'd20+0'])
+    end
   end
 
   context 'rogue' do

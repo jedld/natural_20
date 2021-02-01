@@ -51,6 +51,12 @@ module Natural20::Navigation
         end
       end
 
+      if map.requires_squeeze?(entity, *d, map, battle)
+        mobility -= 1.0
+        melee_offence -= 0.5
+        ranged_offence -= 0.5
+      end
+
       [d, [melee_offence, ranged_offence, defence, mobility, support]]
     end.to_h
   end

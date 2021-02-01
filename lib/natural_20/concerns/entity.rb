@@ -6,6 +6,7 @@ module Natural20
     attr_accessor :entity_uid, :statuses, :color, :session, :death_saves,
                   :death_fails, :current_hit_die, :max_hit_die
 
+    ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma]
     def label
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
     end
@@ -479,6 +480,24 @@ module Natural20
       modifier_table(@ability_scores.fetch(:wis))
     end
 
+    def ability_mod(type)
+      mod_type = case type.to_sym
+                 when :wisdom, :wis
+                   :wis
+                 when :dexterity, :dex
+                   :dex
+                 when :constitution, :con
+                   :con
+                 when :intelligence, :int
+                   :int
+                 when :charisma, :cha
+                   :cha
+                 when :strength, :str
+                   :str
+                 end
+      modifier_table(@ability_scores.fetch(mod_type))
+    end
+
     def passive_perception
       @properties[:passive_perception] || 10 + wis_mod
     end
@@ -760,7 +779,8 @@ module Natural20
 
     def proficient?(prof)
       @properties[:skills]&.include?(prof.to_s) ||
-        @properties[:tools]&.include?(prof.to_s)
+        @properties[:tools]&.include?(prof.to_s) ||
+        @properties[:saving_throw_proficiencies]&.map { |s| "#{s}_save" }&.include?(prof.to_s)
     end
 
     def opened?
@@ -987,6 +1007,14 @@ module Natural20
       EventManager.received_event({ source: self, event: :hit_die, roll: hit_die_roll })
 
       heal!(hit_die_roll.result)
+    end
+
+    def saving_throw!(save_type, battle: nil)
+      modifier = ability_mod(save_type)
+      modifier += proficiency_bonus if proficient?("#{save_type}_save")
+      op = modifier >= 0 ? '+' : ''
+      DieRoll.roll("d20#{op}#{modifier}", battle: battle, entity: self,
+                                          description: t("dice_roll.#{save_type}_saving_throw"))
     end
 
     protected

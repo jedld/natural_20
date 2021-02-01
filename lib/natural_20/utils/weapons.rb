@@ -34,6 +34,10 @@ module Natural20::Weapons
       disadvantage << :target_is_prone_range if target.prone?
     end
 
+    if source.class_feature?('pack_tactics') && battle.ally_within_enemey_melee_range?(source, target)
+      advantage << :pack_tactics
+    end
+
     disadvantage << :small_creature_using_heavy if weapon[:properties]&.include?('heavy') && source.size == :small
     advantage << :target_is_prone if weapon[:type] == 'melee_attack' && target.prone?
 

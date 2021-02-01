@@ -1,4 +1,6 @@
 require 'natural_20/cli/inventory_ui'
+require 'natural_20/cli/character_builder'
+
 class CommandlineUI < Natural20::Controller
   include Natural20::InventoryUI
   include Natural20::MovementHelper

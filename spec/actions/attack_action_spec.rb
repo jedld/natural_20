@@ -178,6 +178,29 @@ RSpec.describe AttackAction do
           end
         end
       end
+
+      context 'pack_tactics' do
+        before do
+          @npc = session.npc(:wolf)
+          @npc2 = session.npc(:wolf)
+          @battle_map.move_to!(@character, 0, 5, @battle)
+          @battle.add(@npc, :b, position: [1, 5])
+          @battle.add(@npc2, :b, position: [0, 6])
+        end
+
+        specify '#compute_advantages_and_disadvantages' do
+          puts Natural20::MapRenderer.new(@battle_map).render
+          expect(@action.compute_advantages_and_disadvantages(@battle, @npc, @character,
+            @npc.npc_actions.first)).to eq([[:pack_tactics], []])
+        end
+
+        specify 'no pack tactics if no ally' do
+          @battle_map.move_to!(@npc2, 2, 5, @battle)
+          puts Natural20::MapRenderer.new(@battle_map).render
+          expect(@action.compute_advantages_and_disadvantages(@battle, @npc, @character,
+            @npc.npc_actions.first)).to eq([[], []])
+        end
+      end
     end
   end
 

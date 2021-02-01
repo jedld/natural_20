@@ -33,6 +33,7 @@ en:
     prone: Target Prone
     ranged_with_enemy_in_melee: Ranged weapon with enemy in melee range
     small_creature_using_heavy: Heavy weapon used by small creature
+    squeezed: Target is squeezing into a tight location
     target_dodge: Target is Dodging
     target_is_prone: Target is prone in melee
     target_is_prone_range: Ranged attack on prone target
@@ -97,8 +98,6 @@ en:
     athletics:
       failure: '%{roll} = %{value} (dc 10) %{name} failed on an athletics check'
       success: '%{roll} = %{value} (dc 10) %{name} succeeded on an athletics check'
-    first_aid: '%{roll} = %{value} %{name} (DC 10) successfully applied first aid to %{target}'
-    first_aid_failure: '%{roll} = %{value} %{name} (DC 10) failed to apply first aid to %{target}'
     combat_end: Combat has ended
     combat_start: Combat has started!
     death_fail: 'Death Saving Throw: %{name} rolls a %{roll} = %{value} (fail). Saves: %{saves} Fails: %{fails}'
@@ -108,6 +107,8 @@ en:
     drop_grapple: '%{source} has dropped grapple on %{target}'
     escape_grapple_failure: '%{source} failed to escape the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     escape_grapple_success: '%{source} successfully escaped the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
+    first_aid: '%{roll} = %{value} %{name} (DC 10) successfully applied first aid to %{target}'
+    first_aid_failure: '%{roll} = %{value} %{name} (DC 10) failed to apply first aid to %{target}'
     grapple_failure: '%{source} failed to grapple %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success_no_roll: '%{source} successfully grappled %{target}'

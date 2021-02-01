@@ -11,8 +11,8 @@ map:
     - .HHHHwwwt
     - .T..dwwow
     - HHH=HHHHH
-    - ....www..
-    - ....pp...
+    - ..H.www..
+    - ..d......
   light:
     - .........
     - .........
@@ -31,8 +31,8 @@ map:
     - .????..i.
     - ........e
     - ?????????
-    - ABg......
-    - .........
+    - AB?g....W
+    - ..?.....W
 notes:
   - type: point
     positions:
@@ -139,6 +139,10 @@ legend:
         statuses:
           - hiding
         stealth: 1d20+6
+  W:
+    name: Wolf
+    type: npc
+    sub_type: wolf
   o:
     name: barrel
     type: barrel

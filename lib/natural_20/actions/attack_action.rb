@@ -70,6 +70,8 @@ class AttackAction < Natural20::Action
   def apply!(battle)
     @result.each do |item|
       case (item[:type])
+      when :prone
+        item[:source].prone!
       when :damage
         Natural20::EventManager.received_event({ source: item[:source], attack_roll: item[:attack_roll], target: item[:target], event: :attacked,
                                                  attack_name: item[:attack_name],
@@ -152,6 +154,7 @@ class AttackAction < Natural20::Action
   # @option opts battle [Natural20::Battle]
   # @option opts target [Natural20::Entity]
   def resolve(_session, _map, opts = {})
+    @result.clear
     target = opts[:target] || @target
     raise 'target is a required option for :attack' if target.nil?
 
@@ -213,45 +216,65 @@ class AttackAction < Natural20::Action
             attack_roll.result >= (target.armor_class + cover_ac_adjustments)
           end
 
-    @result = if hit
-                [{
-                  source: @source,
-                  target: target,
-                  type: :damage,
-                  thrown: thrown,
-                  weapon: using,
-                  battle: battle,
-                  damage_roll: damage_roll,
-                  attack_name: attack_name,
-                  attack_roll: attack_roll,
-                  sneak_attack: sneak_attack_roll,
-                  target_ac: target.armor_class,
-                  cover_ac: cover_ac_adjustments,
-                  hit?: hit,
-                  damage_type: weapon[:damage_type],
-                  damage: damage,
-                  ammo: ammo_type,
-                  second_hand: second_hand,
-                  npc_action: npc_action
-                }]
-              else
-                [{
-                  attack_name: attack_name,
-                  source: @source,
-                  target: target,
-                  weapon: using,
-                  battle: battle,
-                  thrown: thrown,
-                  type: :miss,
-                  second_hand: second_hand,
-                  damage_roll: damage_roll,
-                  attack_roll: attack_roll,
-                  target_ac: target.armor_class,
-                  cover_ac: cover_ac_adjustments,
-                  ammo: ammo_type,
-                  npc_action: npc_action
-                }]
-              end
+    if hit
+      @result << {
+        source: @source,
+        target: target,
+        type: :damage,
+        thrown: thrown,
+        weapon: using,
+        battle: battle,
+        damage_roll: damage_roll,
+        attack_name: attack_name,
+        attack_roll: attack_roll,
+        sneak_attack: sneak_attack_roll,
+        target_ac: target.armor_class,
+        cover_ac: cover_ac_adjustments,
+        hit?: hit,
+        damage_type: weapon[:damage_type],
+        damage: damage,
+        ammo: ammo_type,
+        second_hand: second_hand,
+        npc_action: npc_action
+      }
+      unless weapon[:on_hit].blank?
+        weapon[:on_hit].each do |effect|
+          next if effect[:if] && !@source.eval_if(effect[:if], weapon: weapon, target: target)
+
+          if effect[:save_dc]
+            save_type, dc = effect[:save_dc].split(':')
+            raise 'invalid values: save_dc should be of the form <save>:<dc>' if save_type.blank? || dc.blank?
+            raise 'invalid save type' unless Natural20::Entity::ATTRIBUTE_TYPES.include?(save_type)
+
+            save_roll = target.saving_throw!(save_type, battle: battle)
+            if save_roll.result >= dc.to_i
+              @result << target.apply_effect(effect[:success], battle: battle) if effect[:success]
+            elsif effect[:fail]
+              @result << target.apply_effect(effect[:fail], battle: battle)
+            end
+          else
+            target.apply_effect(effect[:effect])
+          end
+        end
+      end
+    else
+      @result << {
+        attack_name: attack_name,
+        source: @source,
+        target: target,
+        weapon: using,
+        battle: battle,
+        thrown: thrown,
+        type: :miss,
+        second_hand: second_hand,
+        damage_roll: damage_roll,
+        attack_roll: attack_roll,
+        target_ac: target.armor_class,
+        cover_ac: cover_ac_adjustments,
+        ammo: ammo_type,
+        npc_action: npc_action
+      }
+    end
 
     self
   end

@@ -29,14 +29,13 @@ class StandAction < Natural20::Action
     self
   end
 
-  def apply!(_battle)
+  def apply!(battle)
     @result.each do |item|
       case (item[:type])
-      when :prone
+      when :stand
         item[:source].stand!
+        battle.entity_state_for(item[:source])[:movement] -= (item[:source].speed / 2).floor
       end
-
-      battle.entity_state_for(item[:source])[:movement] -= (entity.speed / 2).floor
     end
   end
 

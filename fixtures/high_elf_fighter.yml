@@ -13,6 +13,9 @@ ability:
   int: 16
   wis: 12
   cha: 11
+saving_throw_proficiencies:
+- strength
+- constitution
 class_features:
 - dueling
 - second_wind

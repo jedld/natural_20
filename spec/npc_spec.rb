@@ -57,15 +57,27 @@ RSpec.describe Natural20::Npc do
       expect(@npc.hit_die).to eq(6 => 2)
     end
 
-    specify "#short_rest!" do
+    specify '#short_rest!' do
       srand(1000)
       Natural20::EventManager.standard_cli
       @npc.take_damage!(damage: 4)
       expect(@npc.hit_die).to eq(6 => 2)
-      expect {
+      expect do
         @npc.short_rest!(@battle)
-      }.to change(@npc, :hp).from(3).to(7)
+      end.to change(@npc, :hp).from(3).to(7)
       expect(@npc.hit_die).to eq(6 => 1)
+    end
+
+    specify '#saving_throw!' do
+      srand(1000)
+      result = Natural20::Entity::ATTRIBUTE_TYPES.map do |attribute|
+        @npc.saving_throw!(attribute)
+      end
+      expect(result.map { |dr| dr.roller.roll_str }).to eq(['d20-1', 'd20+2', 'd20+0', 'd20+0', 'd20-1', 'd20-1'])
+    end
+
+    specify '#apply_effect' do
+      expect(@npc.apply_effect('status:prone')).to eq({ battle: nil, source: @npc, type: :prone })
     end
   end
 

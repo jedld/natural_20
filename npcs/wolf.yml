@@ -1,0 +1,45 @@
+---
+kind: Wolf
+description: It's a wolf
+size: medium
+race:
+- beast
+alignment: unaligned
+default_ac: 13
+max_hp: 11
+hp_die: 2d8+2
+speed: 40
+passive_perception: 13
+token:
+ - <
+color: magenta
+ability:
+  str: 12
+  dex: 15
+  con: 12
+  int: 3
+  wis: 12
+  cha: 6
+skills:
+  stealth: 4
+  perception: 3
+languages:
+- wolf
+cr: 0.25
+xp: 50
+proficiency_bonus: 2
+attributes:
+- pack_tactics
+actions:
+- name: Bite
+  type: melee_attack
+  range: 5
+  targets: 1
+  attack: 4
+  damage: 7
+  damage_die: 2d4+2
+  damage_type: piercing
+  on_hit:
+    - save_dc: strength:11
+      if: !target:object
+      fail: status:prone
