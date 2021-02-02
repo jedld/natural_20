@@ -3,7 +3,7 @@ class DisengageAction < Natural20::Action
   attr_accessor :as_bonus_action
 
   def self.can?(entity, battle)
-    battle && entity.total_actions(battle) > 0
+    battle && battle.combat? && entity.total_actions(battle).positive?
   end
 
   def build_map
@@ -48,6 +48,6 @@ class DisengageBonusAction < DisengageAction
   # @param entity [Natural20::Entity]
   # @param battle [Natural20::Battle]
   def self.can?(entity, battle)
-    battle && entity.any_class_feature?(%w[cunning_action nimble_escape]) && entity.total_bonus_actions(battle) > 0
+    battle && battle.combat? && entity.any_class_feature?(%w[cunning_action nimble_escape]) && entity.total_bonus_actions(battle) > 0
   end
 end

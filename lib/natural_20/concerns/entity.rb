@@ -181,7 +181,7 @@ module Natural20
       ofs_x, ofs_y = if pos_x.between?(x, x + effective_token_size) && !pos_y.between?(y, y + effective_token_size)
                        [0, y - pos_y > 0 ? distance : -distance]
                      elsif pos_y.between?(y, y + effective_token_size) && !pos_x.between?(x, x + effective_token_size)
-                       [x - pos_x < 0 ? distance : -distance, 0]
+                       [x - pos_x > 0 ? distance : -distance, 0]
                      elsif [pos_x, pos_y] == [x - 1, y - 1]
                        [distance, distance]
                      elsif [pos_x, pos_y] == [x + effective_token_size + 1, y - 1]

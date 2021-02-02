@@ -184,6 +184,38 @@ module Natural20
                                          puts t('event.drop_grapple',
                                                 source: show_name(event), target: event[:target]&.name)
                                        },
+                         flavor: lambda { |event|
+                                   puts t("event.flavor.#{event[:text]}", source: event[:source]&.name,
+                                                                          target: event[:target]&.name)
+                                 },
+                         shove_success: lambda do |event|
+                           opts = {
+                             source: event[:source]&.name, target: event[:target]&.name,
+                             source_roll: event[:source_roll],
+                             source_roll_value: event[:source_roll].result,
+                             target_roll: event[:target_roll],
+                             target_roll_value: event[:target_roll].result
+                           }
+                           if event[:knock_prone]
+                             puts t('event.knock_prone_success', opts)
+                           else
+                             puts t('event.shove_success', opts)
+                           end
+                         end,
+                         shove_failure: lambda do |event|
+                                          opts = {
+                                            source: event[:source]&.name, target: event[:target]&.name,
+                                            source_roll: event[:source_roll],
+                                            source_roll_value: event[:source_roll].result,
+                                            target_roll: event[:target_roll],
+                                            target_roll_value: event[:target_roll].result
+                                          }
+                                          if event[:knock_prone]
+                                            puts t('event.knock_prone_failure', opts)
+                                          else
+                                            puts t('event.shove_failure', opts)
+                                          end
+                                        end,
                          %i[escape_grapple_success escape_grapple_failure] => lambda { |event|
                                                                                 puts t("event.#{event[:event]}",
                                                                                        source: show_name(event), target: event[:target]&.name,

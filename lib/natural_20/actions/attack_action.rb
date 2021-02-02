@@ -69,6 +69,10 @@ class AttackAction < Natural20::Action
   # @param battle [Natural20::Battle]
   def apply!(battle)
     @result.each do |item|
+      if item[:flavor_fail] || item[:flavor_success]
+        Natural20::EventManager.received_event({ event: :flavor, source: item[:source], target: item[:target],
+                                                 text: item[:flavor_fail] || item[:flavor_success] })
+      end
       case (item[:type])
       when :prone
         item[:source].prone!
@@ -248,9 +252,12 @@ class AttackAction < Natural20::Action
 
             save_roll = target.saving_throw!(save_type, battle: battle)
             if save_roll.result >= dc.to_i
-              @result << target.apply_effect(effect[:success], battle: battle) if effect[:success]
+              if effect[:success]
+                @result << target.apply_effect(effect[:success], battle: battle,
+                                                                 flavor: effect[:flavor_success])
+              end
             elsif effect[:fail]
-              @result << target.apply_effect(effect[:fail], battle: battle)
+              @result << target.apply_effect(effect[:fail], battle: battle, flavor: effect[:flavor_fail])
             end
           else
             target.apply_effect(effect[:effect])

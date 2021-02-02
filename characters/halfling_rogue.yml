@@ -43,3 +43,5 @@ inventory:
   qty: 20
 - type: thieves_tools
   qty: 1
+- type: healing_potion
+  qty: 1

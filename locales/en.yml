@@ -113,10 +113,17 @@ en:
     grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success_no_roll: '%{source} successfully grappled %{target}'
     hit_die: '%{source} rolls hit die %{roll} = %{value}'
+    knock_prone_success: '%{source_roll} >= %{target_roll}. %{source} knocks %{target} prone'
+    knock_prone_failure: '%{source_roll} < %{target_roll}. %{source} tried but failed to knock %{target} prone'
+    shove_success: '%{source_roll} >= %{target_roll}. ${source} shoves %{target} 5ft away'
+    shove_failure: '%{source_roll} < %{target_roll}. ${source} tried but failed to shove %{target} 5ft away'
     something: (something)
     status:
       prone: '%{name} is now prone.'
       stand: '%{name} stands up.'
+    flavor:
+      wolf:
+        lunge: The wolf lunges forward and %{target} is now prone
   exit: Exit
   inventory:
     cannot_change_armor_combat: Cannot change armor during combat

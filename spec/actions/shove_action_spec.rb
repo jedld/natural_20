@@ -50,5 +50,31 @@ RSpec.describe ShoveAction do
 
       expect(map.entity_or_object_pos(@npc)).to eq([1, 3])
     end
+
+    specify 'shove diagonal' do
+      map.move_to!(@fighter, 3, 3, @battle)
+      map.move_to!(@npc, 4, 2, @battle)
+      puts Natural20::MapRenderer.new(map).render
+      action = ShoveAction.build(session, @fighter).next.call(@npc).next.call
+      srand(1000)
+      @battle.action!(action)
+      @battle.commit(action)
+
+      expect(map.entity_or_object_pos(@npc)).to eq([5, 1])
+      puts Natural20::MapRenderer.new(map).render
+    end
+
+    specify 'shove right' do
+      map.move_to!(@fighter, 3, 3, @battle)
+      map.move_to!(@npc, 4, 3, @battle)
+      puts Natural20::MapRenderer.new(map).render
+      action = ShoveAction.build(session, @fighter).next.call(@npc).next.call
+      srand(1000)
+      @battle.action!(action)
+      @battle.commit(action)
+
+      expect(map.entity_or_object_pos(@npc)).to eq([5, 3])
+      puts Natural20::MapRenderer.new(map).render
+    end
   end
 end

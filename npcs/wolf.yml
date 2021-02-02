@@ -42,4 +42,5 @@ actions:
   on_hit:
     - save_dc: strength:11
       if: !target:object
+      flavor_fail: wolf.lunge
       fail: status:prone
