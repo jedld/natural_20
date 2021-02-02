@@ -5,12 +5,12 @@ module Natural20::Weapons
     advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon,
                                                                      source_pos: source_pos)
 
-    return 0 if advantages.empty? && disadvantages.empty?
-    return 0 if !advantages.empty? && !disadvantages.empty?
+    return [0, [advantages, disadvantages]]  if advantages.empty? && disadvantages.empty?
+    return [0, [advantages, disadvantages]] if !advantages.empty? && !disadvantages.empty?
 
-    return 1 unless advantages.empty?
+    return [1, [advantages, disadvantages]] unless advantages.empty?
 
-    -1
+    [-1, [advantages, disadvantages]]
   end
 
   # Compute all advantages and disadvantages

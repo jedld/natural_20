@@ -98,6 +98,7 @@ en:
     athletics:
       failure: '%{roll} = %{value} (dc 10) %{name} failed on an athletics check'
       success: '%{roll} = %{value} (dc 10) %{name} succeeded on an athletics check'
+    attack: '%{opportunity}%{source} attacked %{target} with %{attack_name} to Hit%{advantage}: %{attack_roll} = %{attack_value} for %{damage} damage.'
     combat_end: Combat has ended
     combat_start: Combat has started!
     death_fail: 'Death Saving Throw: %{name} rolls a %{roll} = %{value} (fail). Saves: %{saves} Fails: %{fails}'
@@ -109,21 +110,21 @@ en:
     escape_grapple_success: '%{source} successfully escaped the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     first_aid: '%{roll} = %{value} %{name} (DC 10) successfully applied first aid to %{target}'
     first_aid_failure: '%{roll} = %{value} %{name} (DC 10) failed to apply first aid to %{target}'
+    flavor:
+      wolf:
+        lunge: The wolf lunges forward and %{target} is now prone
     grapple_failure: '%{source} failed to grapple %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success_no_roll: '%{source} successfully grappled %{target}'
     hit_die: '%{source} rolls hit die %{roll} = %{value}'
-    knock_prone_success: '%{source_roll} >= %{target_roll}. %{source} knocks %{target} prone'
     knock_prone_failure: '%{source_roll} < %{target_roll}. %{source} tried but failed to knock %{target} prone'
-    shove_success: '%{source_roll} >= %{target_roll}. ${source} shoves %{target} 5ft away'
+    knock_prone_success: '%{source_roll} >= %{target_roll}. %{source} knocks %{target} prone'
     shove_failure: '%{source_roll} < %{target_roll}. ${source} tried but failed to shove %{target} 5ft away'
+    shove_success: '%{source_roll} >= %{target_roll}. ${source} shoves %{target} 5ft away'
     something: (something)
     status:
       prone: '%{name} is now prone.'
       stand: '%{name} stands up.'
-    flavor:
-      wolf:
-        lunge: The wolf lunges forward and %{target} is now prone
   exit: Exit
   inventory:
     cannot_change_armor_combat: Cannot change armor during combat

@@ -59,6 +59,8 @@ module Natural20
                                         puts "#{show_name(event)} unconscious."
                                       },
                          attacked: lambda { |event|
+                                     advantage_mod = event[:advantage_mod]
+                                     advantage, disadvantage = event[:adv_info]
                                      sneak = event[:sneak_attack] ? (event[:sneak_attack]).to_s : nil
                                      damage = (event[:damage_roll]).to_s
                                      damage_str = "#{[damage,
@@ -66,13 +68,36 @@ module Natural20
                                      if event[:cover_ac].try(:positive?)
                                        cover_str = " (behind cover +#{event[:cover_ac]} ac)"
                                      end
-                                     puts "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''}#{show_name(event)} attacked #{event[:target].name}#{cover_str} with #{event[:attack_name]} to Hit: #{event[:attack_roll].to_s.colorize(:green)} for #{damage_str} damage."
+
+                                     advantage_str = if advantage_mod.positive?
+                                                       ' with advantage'.colorize(:green)
+                                                     elsif advantage_mod.negative?
+                                                       ' with disadvantage'.colorize(:red)
+                                                     else
+                                                       ''
+                                                     end
+                                     puts t('event.attack', opportunity: event[:as_reaction] ? 'Opportunity Attack: ' : '',
+                                                            source: show_name(event),
+                                                            target: "#{event[:target].name}#{cover_str}",
+                                                            attack_name: event[:attack_name],
+                                                            advantage: advantage_str,
+                                                            attack_roll: event[:attack_roll].to_s.colorize(:green),
+                                                            attack_value: event[:attack_roll].result,
+                                                            damage: damage_str)
                                    },
                          damage: lambda { |event|
                                    puts "#{show_name(event)} #{event[:source].describe_health}"
                                  },
                          miss: lambda { |event|
-                                 puts "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''} rolled #{event[:attack_roll]} ... #{event[:source].name&.colorize(:blue)} missed his attack #{event[:attack_name].colorize(:red)} on #{event[:target].name.colorize(:green)}"
+                                 advantage_mod = event[:advantage_mod]
+                                 advantage_str = if advantage_mod.positive?
+                                                   ' with advantage'.colorize(:green)
+                                                 elsif advantage_mod.negative?
+                                                   ' with disadvantage'.colorize(:red)
+                                                 else
+                                                   ''
+                                                 end
+                                 puts "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''} rolled #{advantage_str} #{event[:attack_roll]} ... #{event[:source].name&.colorize(:blue)} missed his attack #{event[:attack_name].colorize(:red)} on #{event[:target].name.colorize(:green)}"
                                },
                          initiative: lambda { |event|
                                        puts "#{show_name(event)} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative."

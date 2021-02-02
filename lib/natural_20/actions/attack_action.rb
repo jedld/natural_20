@@ -69,9 +69,9 @@ class AttackAction < Natural20::Action
   # @param battle [Natural20::Battle]
   def apply!(battle)
     @result.each do |item|
-      if item[:flavor_fail] || item[:flavor_success]
+      if item[:flavor]
         Natural20::EventManager.received_event({ event: :flavor, source: item[:source], target: item[:target],
-                                                 text: item[:flavor_fail] || item[:flavor_success] })
+                                                 text: item[:flavor] })
       end
       case (item[:type])
       when :prone
@@ -80,15 +80,19 @@ class AttackAction < Natural20::Action
         Natural20::EventManager.received_event({ source: item[:source], attack_roll: item[:attack_roll], target: item[:target], event: :attacked,
                                                  attack_name: item[:attack_name],
                                                  damage_type: item[:damage_type],
+                                                 advantage_mod: item[:advantage_mod],
                                                  as_reaction: as_reaction,
                                                  damage_roll: item[:damage],
                                                  sneak_attack: item[:sneak_attack],
+                                                 adv_info: item[:adv_info],
                                                  value: item[:damage].result + (item[:sneak_attack]&.result.presence || 0) })
         item[:target].take_damage!(item, battle)
       when :miss
         Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
                                                  attack_name: item[:attack_name],
+                                                 advantage_mod: item[:advantage_mod],
                                                  as_reaction: as_reaction,
+                                                 adv_info: item[:adv_info],
                                                  source: item[:source], target: item[:target], event: :miss })
       end
 
@@ -187,7 +191,7 @@ class AttackAction < Natural20::Action
     end
 
     # DnD 5e advantage/disadvantage checks
-    @advantage_mod = target_advantage_condition(battle, @source, target, weapon)
+    @advantage_mod, adv_info = target_advantage_condition(battle, @source, target, weapon)
 
     # perform the dice rolls
     attack_roll = Natural20::DieRoll.roll("1d20+#{attack_mod}", disadvantage: with_disadvantage?,
@@ -228,12 +232,14 @@ class AttackAction < Natural20::Action
         thrown: thrown,
         weapon: using,
         battle: battle,
+        advantage_mod: @advantage_mod,
         damage_roll: damage_roll,
         attack_name: attack_name,
         attack_roll: attack_roll,
         sneak_attack: sneak_attack_roll,
         target_ac: target.armor_class,
         cover_ac: cover_ac_adjustments,
+        adv_info: adv_info,
         hit?: hit,
         damage_type: weapon[:damage_type],
         damage: damage,
@@ -273,6 +279,8 @@ class AttackAction < Natural20::Action
         battle: battle,
         thrown: thrown,
         type: :miss,
+        advantage_mod: @advantage_mod,
+        adv_info: adv_info,
         second_hand: second_hand,
         damage_roll: damage_roll,
         attack_roll: attack_roll,

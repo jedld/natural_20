@@ -51,6 +51,7 @@ module Natural20
     def object_token(pos_x, pos_y)
       object_meta = @map.object_at(pos_x, pos_y)
       return nil unless object_meta
+
       m_x, m_y = @map.interactable_objects[object_meta]
       color = (object_meta.color.presence || DEFAULT_TOKEN_COLOR).to_sym
 
@@ -80,14 +81,26 @@ module Natural20
             object_token(col_index, row_index)&.colorize(background: background_color) || default_ground
           end
 
+      # render map layer
+      token = if tokens[col_index][row_index]&.fetch(:entity)&.dead?
+                '`'.colorize(color: DEFAULT_TOKEN_COLOR)
+              elsif tokens[col_index][row_index]
+                if any_line_of_sight?(line_of_sight, tokens[col_index][row_index][:entity])
+                  npc_token(col_index,
+                            row_index)
+                end
+              end
+
+      token = (token&.colorize(background: background_color) || c)
+
       if !path.empty? && path[0] != [col_index, row_index]
         if path.include?([col_index, row_index])
-          path_char = '+'
+          path_char = token
           path_color = entity && map.jump_required?(entity, col_index, row_index) ? :red : :blue
           path_char = "\u2713" if athletics_checks.include?([col_index,
                                                              row_index]) || acrobatics_checks.include?([col_index,
                                                                                                         row_index])
-          return path_char.colorize(color: path_color, background: background_color)
+          return path_char.colorize(color: path_color, background: :white)
         end
         return ' '.colorize(background: :black) if line_of_sight && !location_is_visible?(update_on_drop, col_index, row_index,
                                                                                           path)
@@ -100,17 +113,7 @@ module Natural20
         return ' '.colorize(background: :black) if line_of_sight && !has_line_of_sight
       end
 
-      # render map layer
-      token = if tokens[col_index][row_index]&.fetch(:entity)&.dead?
-                '`'.colorize(color: DEFAULT_TOKEN_COLOR)
-              elsif tokens[col_index][row_index]
-                if any_line_of_sight?(line_of_sight, tokens[col_index][row_index][:entity])
-                  npc_token(col_index,
-                            row_index)
-                end
-              end
-
-      (token&.colorize(background: background_color) || c)
+      token
     end
 
     def location_is_visible?(update_on_drop, pos_x, pos_y, path)

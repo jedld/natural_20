@@ -26,8 +26,8 @@ class CommandlineUI < Natural20::Controller
     target_labels << target.name.colorize(:red)
     target_labels << "(cover AC +#{cover_ac})" if cover_ac.positive?
     if weapon
-      advantage_mod = target_advantage_condition(battle, entity, target, weapon)
-      adv_details, disadv_details = compute_advantages_and_disadvantages(battle, entity, target, weapon)
+      advantage_mod, adv_info = target_advantage_condition(battle, entity, target, weapon)
+      adv_details, disadv_details = adv_info
       target_labels << t(:with_advantage) if advantage_mod.positive?
       target_labels << t(:with_disadvantage) if advantage_mod.negative?
 
@@ -499,18 +499,23 @@ class CommandlineUI < Natural20::Controller
       start_combat = false
       if battle.has_controller_for?(entity)
         cycles = 0
+        move_path = []
         loop do
           cycles += 1
           session.save_game(battle)
           action = battle.move_for(entity)
           if action.nil?
+
             unless battle.current_party.include?(entity)
               describe_map(battle.map, line_of_sight: battle.current_party)
-              puts @renderer.render(line_of_sight: battle.current_party)
+              puts @renderer.render(line_of_sight: battle.current_party, path: move_path)
             end
             prompt.keypress(t(:end_turn, name: entity.name)) unless battle.current_party.include? entity
+            move_path = []
             break
           end
+
+          move_path += action.move_path if action.is_a?(MoveAction)
 
           battle.action!(action)
           battle.commit(action)

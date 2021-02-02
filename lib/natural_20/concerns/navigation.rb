@@ -38,7 +38,7 @@ module Natural20::Navigation
     attack_options = if entity.npc?
                        entity.npc_actions.map do |npc_action|
                          next if npc_action[:ammo] && entity.item_count(npc_action[:ammo]) <= 0
-                         next if  npc_action[:if] && !entity.eval_if(npc_action[:if])
+                         next if npc_action[:if] && !entity.eval_if(npc_action[:if])
                          next unless npc_action[:type] == 'melee_attack'
 
                          npc_action
@@ -58,7 +58,8 @@ module Natural20::Navigation
         melee_offence += 0.1
         if attack_options
           opponents.each do |opp|
-            melee_offence += target_advantage_condition(battle, entity, opp, attack_options, source_pos: d)
+            adv, _adv_info = target_advantage_condition(battle, entity, opp, attack_options, source_pos: d)
+            melee_offence += adv
           end
         end
       else
