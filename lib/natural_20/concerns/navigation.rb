@@ -1,4 +1,6 @@
 module Natural20::Navigation
+  include Natural20::Weapons
+
   # @param map [natural20::BattleMap]
   # @param battle [Natural20::Battle]
   # @param entity [Natural20::Entity]
@@ -33,6 +35,16 @@ module Natural20::Navigation
       opp.melee_squares(map)
     end.flatten(1)
 
+    attack_options = if entity.npc?
+                       entity.npc_actions.map do |npc_action|
+                         next if npc_action[:ammo] && entity.item_count(npc_action[:ammo]) <= 0
+                         next if  npc_action[:if] && !entity.eval_if(npc_action[:if])
+                         next unless npc_action[:type] == 'melee_attack'
+
+                         npc_action
+                       end.first
+                     end
+
     destinations = candidate_squares(map, battle, entity)
     destinations.map do |d, _cost|
       # evaluate defence
@@ -44,6 +56,11 @@ module Natural20::Navigation
 
       if melee_squares.include?(d)
         melee_offence += 0.1
+        if attack_options
+          opponents.each do |opp|
+            melee_offence += target_advantage_condition(battle, entity, opp, attack_options, source_pos: d)
+          end
+        end
       else
         ranged_offence += 0.1
         opponents.each do |opp|

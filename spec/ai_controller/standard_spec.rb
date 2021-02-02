@@ -55,7 +55,7 @@ RSpec.describe AiController::Standard do
         end
         false
       end
-      expect(@fighter.hp).to eq 67
+      expect(@fighter.hp).to eq 36
       expect(@npc1.hp).to eq 0
       expect(@npc2.hp).to eq 0
     end
@@ -68,9 +68,13 @@ RSpec.describe AiController::Standard do
       controller.register_battle_listeners(@battle)
       @fighter = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
       @npc1 = session.npc(:goblin)
+      @npc2 = session.npc(:wolf)
+      @npc3 = session.npc(:wolf)
       controller.register_handlers_on(@npc1)
       @battle.add(@fighter, :a, position: :spawn_point_1, token: 'G')
       @battle.add(@npc1, :b, position: :spawn_point_3, token: 'g')
+      @battle.add(@npc2, :b, position: [1, 1])
+      @battle.add(@npc3, :b, position: [6, 1])
       @battle.start([@npc1, @fighter])
       srand(7000)
     end
@@ -88,7 +92,6 @@ RSpec.describe AiController::Standard do
       specify 'Return all valid destination squares' do
         puts Natural20::MapRenderer.new(@map).render
         expect(controller.candidate_squares(@map, @battle, @npc1)).to eq({ [0, 2] => 8,
-                                                                           [1, 1] => 7,
                                                                            [1, 2] => 7,
                                                                            [2, 1] => 6,
                                                                            [3, 1] => 4,
@@ -100,33 +103,53 @@ RSpec.describe AiController::Standard do
                                                                            [5, 1] => 0,
                                                                            [5, 2] => 2,
                                                                            [5, 3] => 3,
-                                                                           [6, 1] => 1,
                                                                            [6, 2] => 1,
                                                                            [6, 3] => 2 })
       end
     end
 
     context '#evaluate_squares' do
-      it 'gives a weight to a destination square' do
-        puts Natural20::MapRenderer.new(@map).render
-        expect(controller.evaluate_square(@map, @battle, @npc1, [@fighter])).to eq(
-          { [0, 2] => [0.1, 0.0, 0.0, 0.0, 0.0],
-            [1, 1] => [0.1, 0.0, 0.0, 0.0, 0.0],
-            [1, 2] => [0.1, 0.0, 0.0, 0.0, 0.0],
-            [2, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [3, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [3, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
-            [3, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
-            [4, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [4, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
-            [4, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
-            [5, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [5, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [5, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
-            [6, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [6, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
-            [6, 3] => [0.0, 0.1, 2.0, 0.0, 0.0] }
-        )
+      context 'goblin' do
+        it 'gives a weight to a destination square' do
+          puts Natural20::MapRenderer.new(@map).render
+          expect(controller.evaluate_square(@map, @battle, @npc1, [@fighter])).to eq(
+            { [0, 2] => [0.1, 0.0, 0.0, 0.0, 0.0],
+              [1, 2] => [0.1, 0.0, 0.0, 0.0, 0.0],
+              [2, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [3, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [3, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [3, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [4, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [4, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [4, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [5, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [5, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [5, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [6, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [6, 3] => [0.0, 0.1, 2.0, 0.0, 0.0] }
+          )
+        end
+      end
+      context 'wolf' do
+        it 'gives a weight to a destination square' do
+          puts Natural20::MapRenderer.new(@map).render(line_of_sight: @npc3)
+          expect(controller.evaluate_square(@map, @battle, @npc3, [@fighter])).to eq(
+            { [0, 2] => [1.1, 0.0, 0.0, 0.0, 0.0],
+              [1, 2] => [1.1, 0.0, 0.0, 0.0, 0.0],
+              [2, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [3, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [3, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [3, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [4, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [4, 2] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [4, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [5, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [5, 3] => [0.0, 0.1, 2.0, 0.0, 0.0],
+              [6, 1] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [6, 2] => [0.0, 0.1, 0.0, 0.0, 0.0],
+              [6, 3] => [0.0, 0.1, 2.0, 0.0, 0.0] }
+          )
+        end
       end
     end
   end

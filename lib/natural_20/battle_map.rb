@@ -227,12 +227,12 @@ module Natural20
     # @param entity1 [Natural20::Entity]
     # @param entity2 [Natural20::Entity]
     # @result [Integer]
-    def distance(entity1, entity2)
+    def distance(entity1, entity2, entity_1_pos: nil)
       raise 'entity 1 param cannot be nil' if entity1.nil?
       raise 'entity 2 param cannot be nil' if entity2.nil?
 
       # entity 1 squares
-      entity_1_sq = entity_squares(entity1)
+      entity_1_sq = entity_1_pos ? entity_squares_at_pos(entity1, *entity_1_pos) : entity_squares(entity1)
       entity_2_sq = entity_squares(entity2)
 
       entity_1_sq.map do |ent1_pos|
@@ -354,10 +354,10 @@ module Natural20
     # @param entity_2_pos [Array] position override for entity2
     # @param allow_dark_vision [Boolean] Allow darkvision
     # @return [Boolean]
-    def can_see?(entity, entity2, distance: nil, entity_2_pos: nil, allow_dark_vision: true)
+    def can_see?(entity, entity2, distance: nil, entity_1_pos: nil, entity_2_pos: nil, allow_dark_vision: true)
       raise 'invalid entity passed' if @entities[entity].nil? && @interactable_objects[entity].nil?
 
-      entity_1_squares = entity_squares(entity)
+      entity_1_squares = entity_1_pos ? entity_squares_at_pos(entity, *entity_1_pos) : entity_squares(entity)
       entity_2_squares = entity_2_pos ? entity_squares_at_pos(entity2, *entity_2_pos) : entity_squares(entity2)
 
       has_line_of_sight = false

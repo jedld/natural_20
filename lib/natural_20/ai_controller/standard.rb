@@ -181,12 +181,18 @@ module AiController
         range_weight = 1.0
         melee_weight = 1.0
         defence_weight = 1.0
-        melee, ranged, defence, _mobility, _support = static_eval
-        range_weight = 2.0 if has_ranged_weapon?(entity)
+        mobolity_weight = 1.0
+        melee, ranged, defence, mobility, _support = static_eval
+
+        if has_ranged_weapon?(entity)
+          range_weight = 2.0
+        else
+          melee_weight = 2.0
+        end
 
         defence_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
 
-        [square, melee_weight * melee + range_weight * ranged + defence_weight * defence]
+        [square, melee_weight * melee + range_weight * ranged + defence_weight * defence + mobility * mobolity_weight]
       end
 
       chosen_path = nil

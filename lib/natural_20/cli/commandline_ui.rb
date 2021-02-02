@@ -307,7 +307,7 @@ class CommandlineUI < Natural20::Controller
   end
 
   def prompt_hit_die_roll(entity, die_types)
-    prompt.select(t('dice_roll.hit_die_selection', name: entity.name)) do |menu|
+    prompt.select(t('dice_roll.hit_die_selection', name: entity.name, hp: entity.hp, max_hp: entity.max_hp)) do |menu|
       die_types.each do |t|
         menu.choice "d#{t}", t
       end

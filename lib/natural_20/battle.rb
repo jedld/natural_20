@@ -262,12 +262,12 @@ module Natural20
     # @param entity1 [Natural20::Entity] observer
     # @param entity2 [Natural20::Entity] entity being observed
     # @return [Boolean]
-    def can_see?(entity1, entity2, active_perception: nil)
+    def can_see?(entity1, entity2, active_perception: nil, entity_1_pos: nil)
       return true if entity1 == entity2
-      return false unless @map.can_see?(entity1, entity2)
+      return false unless @map.can_see?(entity1, entity2, entity_1_pos: entity_1_pos)
       return true unless entity2.hiding?(self)
 
-      cover_value = @map.cover_calculation(@map, entity1, entity2)
+      cover_value = @map.cover_calculation(@map, entity1, entity2, entity_1_pos: entity_1_pos)
       if cover_value.positive?
         entity_2_state = entity_state_for(entity2)
         return false if entity_2_state[:stealth] > (active_perception || entity1.passive_perception)
@@ -413,7 +413,7 @@ module Natural20
     # Determines if there is a conscious enemey within melee range
     # @param source [Natural20::Entity]
     # @return [Boolean]
-    def enemy_in_melee_range?(source, exclude = [])
+    def enemy_in_melee_range?(source, exclude = [], source_pos: nil)
       objects_around_me = map.look(source)
 
       objects_around_me.detect do |object, _|
@@ -424,7 +424,7 @@ module Natural20
         next unless object.conscious?
 
         return true if opposing?(source, object) && (map.distance(source,
-                                                                  object) <= (object.melee_distance / map.feet_per_grid))
+                                                                  object, entity_1_pos: source_pos) <= (object.melee_distance / map.feet_per_grid))
       end
 
       false
@@ -433,7 +433,7 @@ module Natural20
     # Determines if there is a conscious ally within melee range of target
     # @param source [Natural20::Entity]
     # @return [Boolean]
-    def ally_within_enemey_melee_range?(source, target, exclude = [])
+    def ally_within_enemey_melee_range?(source, target, exclude = [], source_pos: nil)
       objects_around_me = map.look(target)
 
       objects_around_me.detect do |object, _|
@@ -445,7 +445,7 @@ module Natural20
         next unless object.conscious?
 
         return true if allies?(source, object) && (map.distance(target,
-                                                                object) <= (object.melee_distance / map.feet_per_grid))
+                                                                object, entity_1_pos: source_pos) <= (object.melee_distance / map.feet_per_grid))
       end
 
       false

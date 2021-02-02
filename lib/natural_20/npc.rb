@@ -133,8 +133,6 @@ module Natural20
       []
     end
 
-    private
-
     def generate_npc_attack_actions(battle, opportunity_attack: false)
       actions = []
 
@@ -151,6 +149,8 @@ module Natural20
 
       actions
     end
+
+    private
 
     def setup_attributes
       super
