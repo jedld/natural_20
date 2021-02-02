@@ -42,6 +42,23 @@ en:
   back: Back
   battle_end: Battle ended in %{num} rounds
   battle_simulator: Battle Simulator
+  builder:
+    ability_score:
+      random: Random dice roll
+      fixed: Fixed ability score 15, 14, 13, 12, 10, 8
+      point_buy: Point purchase
+    class: Select a class
+    enter_name: Enter name for your character
+    select_race: Please select a race
+    ability_score_method: Select method to generate ability scores
+    str: Select Strength ability score
+    dex: Select Dexterity ability score
+    wis: Select Wisdom ability score
+    con: Select Constitution ability score
+    cha: Select Charisma ability score
+    int: Select Intelligence ability score
+    assign_ability_scores: Assign ability scores to attributes [%{scores}]
+  character_builder: Character Builder ...
   character_sheet:
     ac: 'AC: %{ac}'
     hp: 'HP: %{current}/%{max}'
@@ -53,6 +70,7 @@ en:
   character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
   dice_roll:
+    ability_score: 'Rolling for ability score #%{roll_num}'
     acrobatics: Rolling for an acrobatics check
     athletics: Rolling for an athletics check
     attack: Rolling for attack (to hit)

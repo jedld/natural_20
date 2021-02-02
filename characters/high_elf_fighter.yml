@@ -19,7 +19,6 @@ saving_throw_proficiencies:
 - constitution
 class_features:
 - dueling
-- second_wind
 skills:
 - acrobatics
 - arcana

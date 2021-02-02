@@ -22,6 +22,7 @@ module Natural20
       @equipment = {}
       @objects = {}
       @thing = {}
+      @char_classes = {}
       @settings = {
         manual_dice_roll: false
       }
@@ -46,7 +47,7 @@ module Natural20
     end
 
     def setting(k)
-     raise 'invalid settings' unless VALID_SETTINGS.include?(k.to_sym)
+      raise 'invalid settings' unless VALID_SETTINGS.include?(k.to_sym)
 
       @settings[k.to_sym]
     end
@@ -100,6 +101,28 @@ module Natural20
       files.map do |fname|
         npc_name = File.basename(fname, '.yml')
         Natural20::Npc.new(self, npc_name, rand_life: true)
+      end
+    end
+
+    def load_races
+      files = Dir[File.join(@root_path, 'races', '*.yml')]
+      files.map do |fname|
+        race_name = File.basename(fname, '.yml')
+        [race_name, YAML.load_file(fname).deep_symbolize_keys!]
+      end.to_h
+    end
+
+    def load_classes
+      files = Dir[File.join(@root_path, 'char_classes', '*.yml')]
+      files.map do |fname|
+        class_name = File.basename(fname, '.yml')
+        [class_name, YAML.load_file(fname).deep_symbolize_keys!]
+      end.to_h
+    end
+
+    def load_class(klass)
+      @char_classes[klass.to_sym] ||= begin
+        YAML.load_file(File.join(@root_path, 'char_classes', "#{klass}.yml")).deep_symbolize_keys!
       end
     end
 

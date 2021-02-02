@@ -14,8 +14,6 @@ ability:
   int: 11
   wis: 12
   cha: 17
-class_features:
-- sneak_attack
 skills:
 - acrobatics
 - arcana

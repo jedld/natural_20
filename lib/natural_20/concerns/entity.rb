@@ -7,6 +7,7 @@ module Natural20
                   :death_fails, :current_hit_die, :max_hit_die
 
     ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma]
+    ATTRIBUTE_TYPES_ABBV = %w[str dex con int wis cha]
     def label
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
     end

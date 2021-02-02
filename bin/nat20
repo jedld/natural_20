@@ -5,9 +5,7 @@ require 'natural_20'
 
 require 'tty-prompt'
 require 'json'
-if RUBY_ENGINE == "ruby"
-  require 'pry-byebug'
-end
+require 'pry-byebug' if RUBY_ENGINE == 'ruby'
 require 'natural_20/cli/commandline_ui'
 require 'irb/completion'
 
@@ -47,6 +45,11 @@ end
 def new_game
   return if @session.has_save_game? && @prompt.no?(t('save_already_present'))
 
+  controller = AiController::Standard.new
+  map = Natural20::BattleMap.new(@session, @session.game_properties[:starting_map])
+  battle = Natural20::Battle.new(@session, map, controller)
+  command_line = CommandlineUI.new(battle, map)
+
   number_of_players = @session.game_properties[:players] || 1
   chosen_characters = []
   player_characters = @session.load_characters
@@ -57,14 +60,13 @@ def new_game
 
         menu.choice "#{c.name} - #{c.description}", c
       end
+      menu.choice t('character_builder'), :character_builder
     end
+
+    character = command_line.build_character if character == :character_builder
     chosen_characters << character
   end
 
-  controller = AiController::Standard.new
-  map = Natural20::BattleMap.new(@session, @session.game_properties[:starting_map])
-  battle = Natural20::Battle.new(@session, map, controller)
-  command_line = CommandlineUI.new(battle, map)
   command_line.battle_ui(chosen_characters)
 end
 

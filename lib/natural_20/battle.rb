@@ -134,11 +134,14 @@ module Natural20
     end
 
     def roll_for(entity, die_type, number_of_times, description, advantage: false, disadvantage: false)
-      if @entities[entity][:controller]
-        rolls = @entities[entity][:controller].try(:roll_for, entity, die_type, number_of_times, description,
-                                                   advantage: advantage, disadvantage: disadvantage)
-        return rolls if rolls
-      end
+      controller = if @entities[entity] && @entities[entity][:controller]
+                     @entities[entity][:controller]
+                   else
+                     @standard_controller
+                   end
+      rolls = controller.try(:roll_for, entity, die_type, number_of_times, description,
+                             advantage: advantage, disadvantage: disadvantage)
+      return rolls if rolls
 
       if advantage || disadvantage
         number_of_times.times.map { [(1..die_type).to_a.sample, (1..die_type).to_a.sample] }
