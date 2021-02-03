@@ -87,6 +87,10 @@ module Natural20
       File.write(File.join(@root_path, 'savegame.yml'), battle.to_yaml)
     end
 
+    def save_character(name, data)
+      File.write(File.join(@root_path, 'characters', "#{name}.yml"), data.to_yaml)
+    end
+
     # @return [Natural20::Battle]
     def load_save
       YAML.load_file(File.join(@root_path, 'savegame.yml'))
@@ -131,6 +135,10 @@ module Natural20
         weapons = YAML.load_file(File.join(@root_path, 'items', 'weapons.yml')).deep_symbolize_keys!
         weapons[weapon.to_sym]
       end
+    end
+
+    def load_weapons
+      YAML.load_file(File.join(@root_path, 'items', 'weapons.yml')).deep_symbolize_keys!
     end
 
     def load_thing(item)

@@ -4,6 +4,21 @@ arrows:
   name: Arrows
   type: ammunition
   weight: 0.05
+chain_shirt:
+  ac: 13
+  cost: 50
+  mod_cap: 2
+  name: Chain Shirt
+  subtype: light
+  type: armor
+  weight: 13
+chain_mail:
+  ac: 16
+  cost: 75
+  name: Chain Mail
+  subtype: heavy
+  type: armor
+  weight: 55
 copper_piece:
   cost: 0.01
   name: Copper Piece (cp)
@@ -22,7 +37,7 @@ gold_piece:
 healing_potion:
   consumable: true
   hp_regained: 2d4+2
-  item_class: 'ItemLibrary::HealingPotion'
+  item_class: ItemLibrary::HealingPotion
   name: Potion of Healing
   type: potion
   usable: true
@@ -66,14 +81,6 @@ studded_leather:
   ac: 12
   cost: 45
   name: Studded Leather
-  subtype: light
-  type: armor
-  weight: 13
-chain_shirt:
-  ac: 13
-  mod_cap: 2
-  cost: 50
-  name: Chain Shirt
   subtype: light
   type: armor
   weight: 13
