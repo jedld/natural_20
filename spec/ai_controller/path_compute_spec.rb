@@ -22,7 +22,7 @@ RSpec.describe AiController::PathCompute do
       expect(@path_compute.compute_path(0, 0, 6,
                                         6)).to eq([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 4], [6, 4], [7, 5],
                                                    [6, 6]])
-      expect(@map_renderer.render(path: @path_compute.compute_path(0, 0, 6, 6))).to eq("········\n" +
+      expect(@map_renderer.render(path: @path_compute.compute_path(0, 0, 6, 6), path_char: '+')).to eq("········\n" +
         "·+··#···\n" +
         "··+##···\n" +
         "···+#···\n" +
@@ -41,7 +41,7 @@ RSpec.describe AiController::PathCompute do
 
       specify 'compute' do
         expect(@path_compute.compute_path(3, 2, 3, 5)).to eq([[3, 2], [2, 3], [1, 4], [2, 5], [3, 5]])
-        expect(@map_renderer.render(path: @path_compute.compute_path(3, 2, 3, 5))).to eq(
+        expect(@map_renderer.render(path: @path_compute.compute_path(3, 2, 3, 5), path_char: '+')).to eq(
           "········\n" +
           "········\n" +
           "········\n" +
@@ -76,7 +76,7 @@ RSpec.describe AiController::PathCompute do
       )
       expect(@path_compute.compute_path(0, 1, 0,
                                         4)).to eq([[0, 1], [1, 1], [2, 1], [3, 2], [4, 3], [3, 4], [2, 4], [1, 4], [0, 4]])
-      expect(@map_renderer.render(path: @path_compute.compute_path(0, 1, 0, 4))).to eq("#######\n" +
+      expect(@map_renderer.render(path: @path_compute.compute_path(0, 1, 0, 4), path_char: '+')).to eq("#######\n" +
         "O++···#\n" +
         "└┘·+··#\n" +
         "####+·#\n" +
@@ -99,7 +99,7 @@ RSpec.describe AiController::PathCompute do
 
       specify 'compute' do
         expect(@path_compute.compute_path(3, 1, 3, 5)).to eq([[3, 1], [4, 2], [5, 3], [5, 4], [4, 5], [3, 5]])
-        expect(@map_renderer.render(path: @path_compute.compute_path(3, 1, 3, 5))).to eq(
+        expect(@map_renderer.render(path: @path_compute.compute_path(3, 1, 3, 5), path_char: '+')).to eq(
           "········\n" +
           "···O┐···\n" +
           "···└+···\n" +
@@ -131,7 +131,7 @@ RSpec.describe AiController::PathCompute do
         )
         expect(@path_compute.compute_path(0, 1, 0,
                                           4)).to eq( [[0, 1], [1, 1], [2, 1], [3, 2], [4, 1], [5, 2], [5, 3], [5, 4], [4, 5], [3, 5], [2, 4], [1, 4], [0, 4]])
-        expect(@map_renderer.render(path: @path_compute.compute_path(0, 1, 0, 4))).to eq("#######\n" +
+        expect(@map_renderer.render(path: @path_compute.compute_path(0, 1, 0, 4), path_char: '+')).to eq("#######\n" +
           "O++·+·#\n" +
           "└┘·+#+#\n" +
           "#####+#\n" +

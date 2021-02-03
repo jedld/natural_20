@@ -339,7 +339,12 @@ module Natural20
       armor_ac = if armor.nil?
                    10 + dex_mod
                  else
-                   armor[:ac] + (armor[:mod_cap] ? [dex_mod, armor[:mod_cap]].min : dex_mod)
+                   armor[:ac] + (if armor[:mod_cap]
+                                   [dex_mod,
+                                    armor[:mod_cap]].min
+                                 else
+                                   dex_mod
+                                 end) + (class_feature?('defense') ? 1 : 0)
                  end
 
       armor_ac + (shield.nil? ? 0 : shield[:bonus_ac])

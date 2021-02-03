@@ -15,12 +15,12 @@ module Natural20
     # @param select_pos [Array] coordinate position to render selection cursor
     # @param update_on_drop [Boolean] If true, only render line of sight if movement has been confirmed
     # @return [String]
-    def render(entity: nil, line_of_sight: nil, path: [], acrobatics_checks: [], athletics_checks: [], select_pos: nil, update_on_drop: true, highlight: {})
+    def render(entity: nil, line_of_sight: nil, path: [], acrobatics_checks: [], athletics_checks: [], select_pos: nil, update_on_drop: true, path_char: nil, highlight: {})
       highlight_positions = highlight.keys.map { |entity| @map.entity_squares(entity) }.flatten(1)
 
       base_map.transpose.each_with_index.map do |row, row_index|
         row.each_with_index.map do |c, col_index|
-          display = render_position(c, col_index, row_index, path: path, entity: entity, line_of_sight: line_of_sight,
+          display = render_position(c, col_index, row_index, path: path, path_char: path_char, entity: entity, line_of_sight: line_of_sight,
                                                              update_on_drop: update_on_drop, acrobatics_checks: acrobatics_checks,
                                                              athletics_checks: athletics_checks)
 
@@ -70,7 +70,7 @@ module Natural20
       token(entity, pos_x, pos_y).colorize(color)
     end
 
-    def render_position(c, col_index, row_index, path: [], entity: nil, line_of_sight: nil, update_on_drop: true, acrobatics_checks: [],
+    def render_position(c, col_index, row_index, path: [], path_char: nil, entity: nil, line_of_sight: nil, update_on_drop: true, acrobatics_checks: [],
                         athletics_checks: [])
       background_color = render_light(col_index, row_index)
       default_ground = "\u00B7".encode('utf-8').colorize(color: DEFAULT_TOKEN_COLOR, background: background_color)
@@ -95,7 +95,7 @@ module Natural20
 
       if !path.empty? && path[0] != [col_index, row_index]
         if path.include?([col_index, row_index])
-          path_char = token
+          path_char ||= token
           path_color = entity && map.jump_required?(entity, col_index, row_index) ? :red : :blue
           path_char = "\u2713" if athletics_checks.include?([col_index,
                                                              row_index]) || acrobatics_checks.include?([col_index,

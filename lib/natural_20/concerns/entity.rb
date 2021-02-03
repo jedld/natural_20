@@ -730,6 +730,11 @@ module Natural20
       add_item(item_name.to_sym) if @properties[:equipped].delete(item_name.to_s) && transfer_inventory
     end
 
+    # removes all equiped. Used for tests
+    def unequip_all
+      @properties[:equipped].clear
+    end
+
     # Checks if an item is equipped
     # @param item_name [String,Symbol]
     # @return [Boolean]
@@ -739,7 +744,9 @@ module Natural20
 
     # Equips an item
     # @param item_name [String,Symbol]
-    def equip(item_name)
+    def equip(item_name, ignore_inventory: false)
+      return @properties[:equipped] << item_name.to_s if ignore_inventory
+
       item = deduct_item(item_name)
       @properties[:equipped] << item_name.to_s if item
     end
@@ -752,23 +759,35 @@ module Natural20
       weapon = @session.load_thing(item_name)
       return :unequippable unless weapon && weapon[:subtype] == 'weapon' || %w[shield armor].include?(weapon[:type])
 
-      hand_slots = used_hand_slots
+      hand_slots = used_hand_slots + hand_slots_required(to_item(item_name, weapon))
 
       armor_slots = equipped_items.select do |item|
         item.type == 'armor'
       end.size
 
-      return :hands_full if hand_slots >= 2.0 && (weapon[:subtype] == 'weapon' || weapon[:type] == 'shield')
+      return :hands_full if hand_slots > 2.0
       return :armor_equipped if armor_slots >= 1 && weapon[:type] == 'armor'
 
       :ok
+    end
+
+    def hand_slots_required(item)
+      return 0.0 if item.type == 'armor'
+
+      if item.light
+        0.5
+      elsif item.two_handed
+        2.0
+      else
+        1.0
+      end
     end
 
     def used_hand_slots(weapon_only: false)
       equipped_items.select do |item|
         item.subtype == 'weapon' || (!weapon_only && item.type == 'shield')
       end.inject(0.0) do |slot, item|
-        slot + (item.light ? 0.5 : 1.0)
+        slot + hand_slots_required(item)
       end
     end
 
@@ -818,18 +837,23 @@ module Natural20
         item = @session.load_thing(k)
         raise "unknown item #{k}" unless item
 
-        OpenStruct.new(
-          name: k.to_sym,
-          label: item[:label].presence || k.to_s.humanize,
-          type: item[:type],
-          subtype: item[:subtype],
-          light: item[:properties].try(:include?, :light),
-          light_properties: item[:light],
-          qty: 1,
-          equipped: true,
-          weight: item[:weight]
-        )
+        to_item(k, item)
       end
+    end
+
+    def to_item(k, item)
+      OpenStruct.new(
+        name: k.to_sym,
+        label: item[:label].presence || k.to_s.humanize,
+        type: item[:type],
+        subtype: item[:subtype],
+        light: item[:properties].try(:include?, 'light'),
+        two_handed: item[:properties].try(:include?, 'two_handed'),
+        light_properties: item[:light],
+        qty: 1,
+        equipped: true,
+        weight: item[:weight]
+      )
     end
 
     # returns the carrying capacity of an entity in lbs
@@ -925,7 +949,11 @@ module Natural20
                   when 'melee_attack'
                     weapon[:properties]&.include?('finesse') ? [str_mod, dex_mod].max : str_mod
                   when 'ranged_attack'
-                    dex_mod
+                    if class_feature?('archery')
+                      dex_mod + 2
+                    else
+                      dex_mod
+                    end
                   end
 
       modifier

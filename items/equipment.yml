@@ -4,6 +4,18 @@ arrows:
   name: Arrows
   type: ammunition
   weight: 0.05
+bolts:
+  cost: 0.05
+  name: Crossbow Bolts
+  type: ammunition
+  weight: 0.05
+chain_mail:
+  ac: 16
+  cost: 75
+  name: Chain Mail
+  subtype: heavy
+  type: armor
+  weight: 55
 chain_shirt:
   ac: 13
   cost: 50
@@ -12,13 +24,6 @@ chain_shirt:
   subtype: light
   type: armor
   weight: 13
-chain_mail:
-  ac: 16
-  cost: 75
-  name: Chain Mail
-  subtype: heavy
-  type: armor
-  weight: 55
 copper_piece:
   cost: 0.01
   name: Copper Piece (cp)

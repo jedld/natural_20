@@ -117,8 +117,11 @@ RSpec.describe Natural20::PlayerCharacter do
     end
 
     specify '#check_equip' do
+      @player.unequip_all
+      expect(@player.check_equip('light_crossbow')).to eq(:ok)
+      @player.equip('light_crossbow', ignore_inventory: true)
+      expect(@player.check_equip('studded_leather')).to eq(:ok)
       expect(@player.check_equip('scimitar')).to eq(:hands_full)
-      expect(@player.check_equip('studded_leather')).to eq(:armor_equipped)
     end
 
     context '#take_damage!' do

@@ -38,6 +38,7 @@ RSpec.describe GrappleAction do
   context "movement and grappling" do
     before do
       @npc.grappled_by!(@fighter)
+      Natural20::EventManager.standard_cli
     end
 
     it "moves grappled creature alongside" do
@@ -46,6 +47,11 @@ RSpec.describe GrappleAction do
       @battle.commit(action)
       puts Natural20::MapRenderer.new(map).render
       expect(map.entity_or_object_pos(@npc)).to eq([1, 2])
+    end
+
+    it "if incapacitated grappled should be released" do
+      @fighter.unconscious!
+      expect(@npc.grappled?).to_not be
     end
   end
 end

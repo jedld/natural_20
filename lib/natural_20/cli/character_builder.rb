@@ -89,7 +89,7 @@ module Natural20::CharacterBuilder
       end
     end
 
-    fighter_features = %w[archery defence dueling great_weapon_fighting protection two_weapon_fighting]
+    fighter_features = %w[archery defense dueling great_weapon_fighting protection two_weapon_fighting]
     values[:attributes] << prompt.select(t('builder.fighter.select_fighting_style')) do |q|
       fighter_features.each do |style|
         q.choice t("builder.fighter.#{style}"), style
@@ -112,10 +112,10 @@ module Natural20::CharacterBuilder
       q.choice t('object.two_handaxes'), :two_handaxes
     end
 
-    starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_4')) do |q|
-      q.choice t('object.dungeoneers_pack'), :dungeoneers_pack
-      q.choice t('object.explorers_pack'), :explorers_pack
-    end
+    # starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_4')) do |q|
+    #   q.choice t('object.dungeoneers_pack'), :dungeoneers_pack
+    #   q.choice t('object.explorers_pack'), :explorers_pack
+    # end
 
     martial_weapons = session.load_weapons.map do |k, weapon|
       next unless weapon[:proficiency_type].include?('martial')
@@ -168,8 +168,12 @@ module Natural20::CharacterBuilder
           qty: 20
         }
       when :two_handaxes
-      when :dungeoneers_pack
-      when :explorers_pack
+        values[:inventory] << {
+          type: 'handaxe',
+          qty: 2
+        }
+      # when :dungeoneers_pack
+      # when :explorers_pack
       end
     end
     values

@@ -180,9 +180,9 @@ module AiController
       squares_priority = target_squares.map do |square, static_eval|
         range_weight = 1.0
         melee_weight = 1.0
-        defence_weight = 1.0
+        defense_weight = 1.0
         mobolity_weight = 1.0
-        melee, ranged, defence, mobility, _support = static_eval
+        melee, ranged, defense, mobility, _support = static_eval
 
         if has_ranged_weapon?(entity)
           range_weight = 2.0
@@ -190,9 +190,9 @@ module AiController
           melee_weight = 2.0
         end
 
-        defence_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
+        defense_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
 
-        [square, melee_weight * melee + range_weight * ranged + defence_weight * defence + mobility * mobolity_weight]
+        [square, melee_weight * melee + range_weight * ranged + defense_weight * defense + mobility * mobolity_weight]
       end
 
       chosen_path = nil

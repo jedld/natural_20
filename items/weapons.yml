@@ -38,6 +38,27 @@ greatclub:
   subtype: weapon
   type: melee_attack
   weight: 10
+handaxe:
+  cost: 5
+  damage: 1d6
+  damage_type: slashing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Handaxe
+  proficiency_type:
+    - simple
+  properties:
+    - light
+    - thrown
+  range: 5
+  subtype: weapon
+  thrown:
+    range: 30
+    range_max: 60
+  type: melee_attack
+  weight: 10
 javelin:
   cost: 5sp
   damage: 1d6
@@ -58,27 +79,27 @@ javelin:
     range_max: 120
   type: melee_attack
   weight: 2
-spear:
-  cost: 5sp
-  damage: 1d6
-  damage_2: 1d8
+light_crossbow:
+  ammo: bolts
+  cost: 25
+  damage: 1d8
   damage_type: piercing
   meta:
     noise_source: 5
     noise_target: 5
   modifiers: null
-  name: Spear
+  name: Light Crossbow
   proficiency_type:
     - simple
   properties:
-    - thrown
-    - versatile
-  range: 5
+    - loading
+    - ammunition
+    - ranged
+    - two_handed
+  range: 80
+  range_max: 320
   subtype: weapon
-  thrown:
-    range: 20
-    range_max: 60
-  type: melee_attack
+  type: ranged_attack
   weight: 2
 longbow:
   ammo: arrows
@@ -156,6 +177,48 @@ shortbow:
   subtype: weapon
   type: ranged_attack
   weight: 2
+spear:
+  cost: 5sp
+  damage: 1d6
+  damage_2: 1d8
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Spear
+  proficiency_type:
+    - simple
+  properties:
+    - thrown
+    - versatile
+  range: 5
+  subtype: weapon
+  thrown:
+    range: 20
+    range_max: 60
+  type: melee_attack
+  weight: 2
+torch:
+  cost: 0
+  damage: 1
+  damage_type: fire
+  description: Provides bright light in a 20-foot radius and dim light for an additional 20 feet. If you make a melee attack with a burning torch and hit, it deals 1 fire damage
+  light:
+    bright: 20
+    dim: 20
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Torch
+  proficiency_type:
+    - martial
+  properties: null
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 0
 unarmed_attack:
   cost: 0
   damage: 1
@@ -172,26 +235,6 @@ unarmed_attack:
   subtype: weapon
   type: melee_attack
   weight: 0
-torch:
-  cost: 0
-  damage: 1
-  damage_type: fire
-  description: Provides bright light in a 20-foot radius and dim light for an additional 20 feet. If you make a melee attack with a burning torch and hit, it deals 1 fire damage
-  meta:
-    noise_source: 5
-    noise_target: 5
-  modifiers: null
-  name: Torch
-  proficiency_type:
-    - martial
-  properties: null
-  range: 5
-  subtype: weapon
-  type: melee_attack
-  weight: 0
-  light:
-    bright: 20
-    dim: 20
 vicious_rapier:
   bonus:
     additional:

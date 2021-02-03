@@ -1,6 +1,7 @@
 # typed: true
 class MoveAction < Natural20::Action
   include Natural20::MovementHelper
+  include Natural20::ActionDamage
 
   attr_accessor :move_path, :jump_index, :as_dash, :as_bonus_action
 
@@ -130,6 +131,7 @@ class MoveAction < Natural20::Action
       opportunity_attacks = opportunity_attack_list(entity, move_list, battle, battle.map)
       opportunity_attacks.each do |enemy_opporunity|
         next unless enemy_opporunity[:source].has_reaction?(battle)
+        next if @source.grappling_targets.include?(enemy_opporunity[:source])
 
         original_location = move_list[0...enemy_opporunity[:path]]
         attack_location = original_location.last
@@ -169,12 +171,7 @@ class MoveAction < Natural20::Action
           item[:source].send(:"#{k}=", v)
         end
       when :damage
-        Natural20::EventManager.received_event({ source: item[:source], attack_roll: item[:attack_roll], target: item[:target], event: :attacked,
-                                                 attack_name: item[:attack_name],
-                                                 damage_type: item[:damage_type],
-                                                 damage_roll: item[:damage],
-                                                 value: item[:damage].result })
-        item[:target].take_damage!(item, battle)
+        damage_event(item, battle)
       when :acrobatics, :athletics
         if item[:success]
           Natural20::EventManager.received_event(source: item[:source], event: item[:type], success: true,

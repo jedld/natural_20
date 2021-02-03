@@ -47,10 +47,10 @@ module Natural20::Navigation
 
     destinations = candidate_squares(map, battle, entity)
     destinations.map do |d, _cost|
-      # evaluate defence
+      # evaluate defense
       melee_offence = 0.0
       ranged_offence = 0.0
-      defence = 0.0
+      defense = 0.0
       mobility = 0.0
       support = 0.0
 
@@ -65,7 +65,7 @@ module Natural20::Navigation
       else
         ranged_offence += 0.1
         opponents.each do |opp|
-          defence += map.cover_calculation_at_pos(map, opp, entity, d[0], d[1]).to_f
+          defense += map.cover_calculation_at_pos(map, opp, entity, d[0], d[1]).to_f
         end
       end
 
@@ -75,7 +75,7 @@ module Natural20::Navigation
         ranged_offence -= 0.5
       end
 
-      [d, [melee_offence, ranged_offence, defence, mobility, support]]
+      [d, [melee_offence, ranged_offence, defense, mobility, support]]
     end.to_h
   end
 end

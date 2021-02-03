@@ -69,20 +69,21 @@ module Natural20
                                        cover_str = " (behind cover +#{event[:cover_ac]} ac)"
                                      end
 
-                                     advantage_str = if advantage_mod.positive?
+                                     advantage_str = if advantage_mod&.positive?
                                                        ' with advantage'.colorize(:green)
-                                                     elsif advantage_mod.negative?
+                                                     elsif advantage_mod&.negative?
                                                        ' with disadvantage'.colorize(:red)
                                                      else
                                                        ''
                                                      end
-                                     puts t('event.attack', opportunity: event[:as_reaction] ? 'Opportunity Attack: ' : '',
+                                     str_token = event[:attack_roll] ? 'event.attack' : 'event.attack_no_roll'
+                                     puts t(str_token, opportunity: event[:as_reaction] ? 'Opportunity Attack: ' : '',
                                                             source: show_name(event),
                                                             target: "#{event[:target].name}#{cover_str}",
                                                             attack_name: event[:attack_name],
                                                             advantage: advantage_str,
                                                             attack_roll: event[:attack_roll].to_s.colorize(:green),
-                                                            attack_value: event[:attack_roll].result,
+                                                            attack_value: event[:attack_roll]&.result,
                                                             damage: damage_str)
                                    },
                          damage: lambda { |event|
