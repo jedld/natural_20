@@ -17,7 +17,7 @@ ability:
 saving_throw_proficiencies:
 - strength
 - constitution
-class_features:
+attributes:
 - dueling
 skills:
 - acrobatics

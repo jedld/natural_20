@@ -32,7 +32,7 @@ module Natural20::CharacterBuilder
 
     ability_method = prompt.select(t('builder.ability_score_method')) do |q|
       q.choice t('builder.ability_score.random'), :random
-      q.choice t('builder.fixed'), :fixed
+      q.choice t('builder.ability_score.fixed'), :fixed
       q.choice t('builder.ability_score.point_buy'), :point_buy
     end
 
@@ -67,6 +67,31 @@ module Natural20::CharacterBuilder
       chosen_score << score_index
       values[:ability][type.to_sym] = ability_scores[score_index]
     end
+
+    class_features = fighter_build if k == 'fighter'
+    values.merge!(class_features)
     session.save_character(values[:name], values)
+  end
+
+  def fighter_build
+    values = {
+      attributes: [],
+      saving_throw_proficiencies: %w[strength constitution],
+      skills: [],
+    }
+
+    fighter_skills = %w[acrobatics animal_handling athletics history insight intimidation perception survival]
+    values[:skills] = prompt.multi_select(t('builder.fighter.select_skill'), min: 2, max: 2) do |q|
+      fighter_skills.each do |skill|
+        q.choice t("builder.skill.#{skill}"), skill
+      end
+    end
+
+    fighter_features = %w[archery defence dueling great_weapon_fighting protection two_weapon_fighting]
+    values[:attributes] << prompt.select(t('builder.fighter.select_fighting_style')) do |q|
+      fighter_features.each do |style|
+        q.choice t("builder.fighter.#{style}"), style
+      end
+    end
   end
 end
