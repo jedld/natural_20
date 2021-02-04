@@ -251,6 +251,7 @@ vicious_rapier:
     - martial
   properties:
     - finesse
+  rarity: very_rare
   range: 5
   subtype: weapon
   type: melee_attack

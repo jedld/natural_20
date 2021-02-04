@@ -85,13 +85,13 @@ en:
   character_builder: Character Builder ...
   character_sheet:
     ac: 'AC: %{ac}'
+    class: 'Class: %{name}'
     hp: 'HP: %{current}/%{max}'
     inventory: Inventory %{weight}/%{carry_capacity} lbs
     languages: 'Languages:'
     level: 'Level: %{level}'
     name: 'Name: %{name}'
     race: 'Race: %{race}'
-    class: 'Class: %{name}'
   character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
   dice_roll:
@@ -218,6 +218,7 @@ en:
     ground: Ground
     light_crossbow_and_20_bolts: Light crossbow and 20 bolts
     lockpick_failed: Lockpicking failed and the theives tools are now broken
+    longbow_and_arrows: Longbow and Arrows
     martial_weapon_and_shield: (1) Martial Weapon & Shield
     properties:
       ammunition: Ammunition - You make a ranged attack only if you have ammunition to fire from the weapon
@@ -227,6 +228,8 @@ en:
       ranged: Ranged - This weapon can be used to make a ranged attack
       thrown: Thrown - You can throw the weapon to make a ranged attack
       versatile: Versatile - This weapon can be used with one or two hands
+    two_handaxes: Two handaxes
+    two_martial_weapons: (2) Martial Weapons
     weapons:
       dagger: Dagger
   options:

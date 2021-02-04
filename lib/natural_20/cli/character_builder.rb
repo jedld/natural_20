@@ -8,36 +8,38 @@ module Natural20::CharacterBuilder
     loop do
       ability_method = :random
 
-      values[:name] = prompt.ask(t('builder.enter_name', default: values[:name])) do |q|
+      values[:name] = prompt.ask(t('builder.enter_name'), default: values[:name]) do |q|
         q.required true
         q.validate(/\A\w+\Z/)
         q.modify :capitalize
       end
       races = session.load_races
-      values[:race] = prompt.select(t('builder.select_race', default: values[:race])) do |q|
+      values[:race] = prompt.select(t('builder.select_race')) do |q|
         races.each do |race, details|
           q.choice details[:label] || race.humanize, race
         end
       end
 
       race_detail = races[values[:race]]
-      values[:subrace] = prompt.select(t('builder.select_subrace', default: values[:subrace])) do |q|
-        race_detail[:subrace].each do |subrace, detail|
-          q.choice detail[:label] || t("builder.races.#{subrace}"), subrace
+      if race_detail[:subrace]
+        values[:subrace] = prompt.select(t('builder.select_subrace')) do |q|
+          race_detail[:subrace].each do |subrace, detail|
+            q.choice detail[:label] || t("builder.races.#{subrace}"), subrace
+          end
         end
       end
 
       race_bonus = race_detail[:attribute_bonus] || {}
-      subrace_bonus = race_detail.dig(:attribute_bonus, :subrace, values[:subrace], :attribute_bonus) || {}
+      subrace_bonus = race_detail.dig(:subrace, values[:subrace].to_sym, :attribute_bonus) || {}
 
       attribute_bonuses = race_bonus.merge!(subrace_bonus)
 
-      k = prompt.select('builder.class', default: values[:classes].keys.first) do |q|
+      k = prompt.select('builder.class') do |q|
         session.load_classes.each do |klass, details|
-          q.choice details[:label] || klass.humanize, klass
+          q.choice details[:label] || klass.humanize, klass.to_sym
         end
       end
-      values[:classes][k] = 1
+      values[:classes][k.to_sym] = 1
       class_properties = session.load_class(k)
       result = Natural20::DieRoll.parse(class_properties[:hit_die])
       values[:max_hp] = result.die_count * result.die_type.to_i
@@ -83,7 +85,7 @@ module Natural20::CharacterBuilder
         values[:ability][type.to_sym] = ability_scores[score_index] + bonus
       end
 
-      class_features = fighter_build if k == 'fighter'
+      class_features = fighter_build if k.to_s == 'fighter'
       values.merge!(class_features)
       pc = Natural20::PlayerCharacter.new(session, values)
       character_sheet(pc)
@@ -104,7 +106,7 @@ module Natural20::CharacterBuilder
     }
 
     fighter_skills = %w[acrobatics animal_handling athletics history insight intimidation perception survival]
-    @class_values[:skills] = prompt.multi_select(t('builder.fighter.select_skill'), min: 2, max: 2, default: @class_values[:skills]) do |q|
+    @class_values[:skills] = prompt.multi_select(t('builder.fighter.select_skill'), min: 2, max: 2) do |q|
       fighter_skills.each do |skill|
         q.choice t("builder.skill.#{skill}"), skill
       end
@@ -120,7 +122,7 @@ module Natural20::CharacterBuilder
     starting_equipment = []
     starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon')) do |q|
       q.choice t('object.chain_mail'), :chain_mail
-      q.choice t('object.longbow_and_arros'), :longbow_and_arrows
+      q.choice t('object.longbow_and_arrows'), :longbow_and_arrows
     end
 
     starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_2')) do |q|
@@ -139,7 +141,8 @@ module Natural20::CharacterBuilder
     # end
 
     martial_weapons = session.load_weapons.map do |k, weapon|
-      next unless weapon[:proficiency_type].include?('martial')
+      next unless weapon[:proficiency_type]&.include?('martial')
+      next if weapon[:rarity] && weapon[:rarity] != 'common'
 
       k
     end.compact
