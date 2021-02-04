@@ -133,6 +133,10 @@ module Natural20
       []
     end
 
+    def proficient_with_equipped_armor?
+      true
+    end
+
     def generate_npc_attack_actions(battle, opportunity_attack: false)
       actions = []
 

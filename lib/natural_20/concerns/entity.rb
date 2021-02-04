@@ -782,6 +782,28 @@ module Natural20
       :ok
     end
 
+    def proficient_with_armor?(item)
+      armor = @session.load_thing(item)
+      raise "unknown item #{item}" unless armor
+      raise "not armor #{item}" unless %w[armor shield].include?(armor[:type])
+
+      return proficient?("#{armor[:subtype]}_armor") if armor[:type] == 'armor'
+      return proficient?('shields') if armor[:type] == 'shield'
+
+      false
+    end
+
+    def proficient_with_equipped_armor?
+      shields_and_armor = equipped_items.select { |t| %w[armor shield].include?(t[:type]) }
+      return true if shields_and_armor.empty?
+
+      shields_and_armor.each do |item|
+        return false unless proficient_with_armor?(item.name)
+      end
+
+      true
+    end
+
     def hand_slots_required(item)
       return 0.0 if item.type == 'armor'
 

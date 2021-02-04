@@ -129,6 +129,12 @@ module Natural20
       proficiency_bonus_table[level - 1]
     end
 
+    def proficient?(prof)
+      return true if @class_properties.values.detect { |c| c[:proficiencies]&.include?(prof) }
+
+      super
+    end
+
     def to_h
       {
         name: name,

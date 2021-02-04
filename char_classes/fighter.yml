@@ -1,7 +1,9 @@
 ---
 hit_die: 1d10
 proficiencies:
-- armor
+- light_armor
+- medium_armor
+- heavy_armor
 - shields
 - simple_weapon
 - martial_weapon
