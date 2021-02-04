@@ -1,23 +1,27 @@
 module Natural20::InventoryUI
   include Natural20::Weapons
 
+  def character_sheet(entity)
+    puts t('character_sheet.name', name: entity.name)
+    puts t('character_sheet.level', level: entity.level)
+    puts ' str   dex   con   int   wis   cha'
+    puts ' ----  ----  ----  ----  ----  ---- '
+    puts "|#{entity.all_ability_scores.map { |s| " #{s} " }.join('||')}|"
+    puts "|#{entity.all_ability_mods.map { |s| " +#{s} " }.join('||')}|"
+    puts ' ----  ----  ----  ----  ----  ----'
+    puts t('character_sheet.race', race: entity.race.humanize)
+    puts t('character_sheet.hp', current: entity.hp, max: entity.max_hp)
+    puts t('character_sheet.ac', ac: entity.armor_class)
+    puts t('character_sheet.languages')
+    entity.languages.each do |lang|
+      puts "  #{t("language.#{lang}")}"
+    end
+  end
+
   # @param entity [Natural20::Entity]
   def inventory_ui(entity)
     begin
-      puts t('character_sheet.name', name: entity.name)
-      puts t('character_sheet.level', level: entity.level)
-      puts ' str   dex   con   int   wis   cha'
-      puts ' ----  ----  ----  ----  ----  ---- '
-      puts "|#{entity.all_ability_scores.map { |s| " #{s} " }.join('||')}|"
-      puts "|#{entity.all_ability_mods.map { |s| " +#{s} " }.join('||')}|"
-      puts ' ----  ----  ----  ----  ----  ----'
-      puts t('character_sheet.race', race: entity.race.humanize)
-      puts t('character_sheet.hp', current: entity.hp, max: entity.max_hp)
-      puts t('character_sheet.ac', ac: entity.armor_class)
-      puts t('character_sheet.languages')
-      entity.languages.each do |lang|
-        puts "  #{t("language.#{lang}")}"
-      end
+      character_sheet(entity)
       item_inventory_choice = prompt.select(
         t('character_sheet.inventory', weight: entity.inventory_weight,
                                        carry_capacity: entity.carry_capacity), per_page: 20

@@ -78,6 +78,14 @@ module Natural20
       @race_properties[:base_speed]
     end
 
+    def race
+      @properties[:race]
+    end
+
+    def subrace
+      @properties[:subrace]
+    end
+
     def languages
       class_languages = []
       @class_properties.values.each do |prop|
@@ -284,6 +292,7 @@ module Natural20
       return true if @properties[:class_features]&.include?(feature)
       return true if @properties[:attributes]&.include?(feature)
       return true if @race_properties[:race_features]&.include?(feature)
+      return true if @race_properties.dig(:subrace, subrace, :class_features)&.include?(feature)
 
       @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
     end
@@ -291,9 +300,10 @@ module Natural20
     # Loads a pregen character from path
     # @param session [Natural20::Session] The session to use
     # @param path [String] path to character sheet YAML
+    # @apram override [Hash] override attributes
     # @return [Natural20::PlayerCharacter] An instance of PlayerCharacter
-    def self.load(session, path)
-      Natural20::PlayerCharacter.new(session, YAML.load_file(path).deep_symbolize_keys!)
+    def self.load(session, path, override = {})
+      Natural20::PlayerCharacter.new(session, YAML.load_file(path).deep_symbolize_keys!.merge(override))
     end
 
     # returns if an npc or a player character

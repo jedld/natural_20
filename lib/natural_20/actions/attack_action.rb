@@ -153,7 +153,7 @@ class AttackAction < Natural20::Action
   # @param map [Natural20::BattleMap]
   # @option opts battle [Natural20::Battle]
   # @option opts target [Natural20::Entity]
-  def resolve(_session, _map, opts = {})
+  def resolve(_session, map, opts = {})
     @result.clear
     target = opts[:target] || @target
     raise 'target is a required option for :attack' if target.nil?
@@ -167,6 +167,8 @@ class AttackAction < Natural20::Action
     damage_roll = nil
     sneak_attack_roll = nil
     ammo_type = nil
+
+    npc_action = @source.npc_actions.detect { |a| a[:name].downcase == using.downcase } if @source.npc? && using
 
     if npc_action
       weapon = npc_action
@@ -184,6 +186,9 @@ class AttackAction < Natural20::Action
 
     # DnD 5e advantage/disadvantage checks
     @advantage_mod, adv_info = target_advantage_condition(battle, @source, target, weapon)
+
+    # determine eligibility for the 'Protection' fighting style
+    evaluate_feature_protection(battle, map, target, adv_info) if map
 
     # perform the dice rolls
     attack_roll = Natural20::DieRoll.roll("1d20+#{attack_mod}", disadvantage: with_disadvantage?,
@@ -311,6 +316,32 @@ class AttackAction < Natural20::Action
   end
 
   protected
+
+  # determine eligibility for the 'Protection' fighting style
+  def evaluate_feature_protection(battle, map, target, adv_info)
+    melee_sqaures = target.melee_squares(map, adjacent_only: true)
+    melee_sqaures.each do |pos|
+      entity = map.entity_at(*pos)
+      next if entity == @source
+      next if entity == target
+      next unless entity
+
+      next unless entity.class_feature?('protection') && entity.shield_equipped? && entity.has_reaction?(battle)
+
+      controller = battle.controller_for(entity)
+      if controller.respond_to?(:reaction) && !controller.reaction(:feature_protection, target: target,
+                                                                                        source: entity, attacker: @source)
+        next
+      end
+
+      Natural20::EventManager.received_event(event: :feature_protection, target: target, source: entity,
+                                             attacker: @source)
+      _advantage, disadvantage = adv_info
+      disadvantage << :protection
+      @advantage_mod = -1
+      battle.entity_state_for(entity)[:reaction] -= 1
+    end
+  end
 
   def check_weapon_bonuses(battle, weapon, damage_roll, attack_roll)
     if weapon.dig(:bonus, :additional, :restriction) == 'nat20_attack' && attack_roll.nat_20?

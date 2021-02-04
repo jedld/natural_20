@@ -202,6 +202,30 @@ RSpec.describe AttackAction do
         end
       end
     end
+
+    context "protection fighting style" do
+      before do
+        @npc = session.npc(:wolf)
+        @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'), { class_features: ['protection']})
+        @character2 = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
+        @battle.add(@character,:a, position: [0, 5])
+        @battle.add(@character2,:a, position: [1, 5])
+        @battle.add(@npc, :b, position: [1, 6])
+        @character.reset_turn!(@battle)
+        Natural20::EventManager.standard_cli
+      end
+
+      specify "able to impose disadvantage on attack roll" do
+        puts Natural20::MapRenderer.new(@battle_map).render
+        expect(@character.class_feature?('protection')).to be
+        expect(@character.shield_equipped?).to be
+        action = AttackAction.build(session, @npc).next.call(@character2).next.call('Bite').next.call
+        @battle.action!(action)
+        @battle.commit(action)
+        expect(action.advantage_mod).to eq(-1)
+        expect(@character.total_reactions(@battle)).to eq(0)
+      end
+    end
   end
 
   context '#calculate_cover_ac' do

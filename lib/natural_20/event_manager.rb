@@ -151,6 +151,10 @@ module Natural20
                                                        puts t('event.great_weapon_fighting_roll', name: show_name(event),
                                                                                                   roll: event[:roll], prev_roll: event[:prev_roll])
                                                      },
+                         feature_protection: lambda { |event|
+                                               puts t('event.feature_protection', source: event[:source]&.name,
+                                                                                  target: event[:target]&.name, attacker: event[:attacker]&.name)
+                                             },
                          prone: lambda { |event|
                                   puts t('event.status.prone', name: show_name(event))
                                 },

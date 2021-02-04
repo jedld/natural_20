@@ -65,7 +65,12 @@ en:
       select_starting_weapon: Select starting weapon set
       two_weapon_fighting: Two-Weapon Fighting - When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.
     int: Select Intelligence ability score
+    races:
+      lightfoot: Lightfoot
+      stout: Stout
+    review: Confirm this character?
     select_race: Please select a race
+    select_subrace: Please select a sub-race
     skill:
       acrobatics: Acrobatics
       animal_handling: Animal Handling
@@ -147,6 +152,7 @@ en:
     drop_grapple: '%{source} has dropped grapple on %{target}'
     escape_grapple_failure: '%{source} failed to escape the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     escape_grapple_success: '%{source} successfully escaped the grapple from %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
+    feature_protection: '%{source} quickly uses shield in an attempt to protect %{target} from %{attacker}''s attack.'
     first_aid: '%{roll} = %{value} %{name} (DC 10) successfully applied first aid to %{target}'
     first_aid_failure: '%{roll} = %{value} %{name} (DC 10) failed to apply first aid to %{target}'
     flavor:
@@ -196,6 +202,7 @@ en:
     ItemLibrary::Chest:
       loot: Retreive Contents
     Wooden door key: Wooden Door Key
+    chain_mail: Chain Mail
     chest:
       lock: clink. chest is now locked
       unlock: Ka-chink! chest is now unlocked
@@ -208,7 +215,9 @@ en:
       armor_equipped: You already have an armor on (please unequip armor)
       hands_full: Hand Slots are full (please unequip a weapon/shield)
     ground: Ground
+    light_crossbow_and_20_bolts: Light crossbow and 20 bolts
     lockpick_failed: Lockpicking failed and the theives tools are now broken
+    martial_weapon_and_shield: (1) Martial Weapon & Shield
     properties:
       ammunition: Ammunition - You make a ranged attack only if you have ammunition to fire from the weapon
       finesse: Finesse - When making an attack with a finesse weapon, your Strength or Dexterity modifier can be used for the attack and damage roll (Best mod will be automatically be used)
@@ -217,6 +226,8 @@ en:
       ranged: Ranged - This weapon can be used to make a ranged attack
       thrown: Thrown - You can throw the weapon to make a ranged attack
       versatile: Versatile - This weapon can be used with one or two hands
+    weapons:
+      dagger: Dagger
   options:
     automatic_roll: Roll Dice for me automatically (Computer will roll for you)
     dice_roll: Toggle Manual Dice Roll ...

@@ -852,6 +852,15 @@ module Natural20
       end
     end
 
+    def shield_equipped?
+      @equipments ||= YAML.load_file(File.join(session.root_path, 'items', 'equipment.yml')).deep_symbolize_keys!
+
+      equipped_meta = @equipped.map { |e| @equipments[e.to_sym] }.compact
+      !!equipped_meta.detect do |s|
+        s[:type] == 'shield'
+      end
+    end
+
     def to_item(k, item)
       OpenStruct.new(
         name: k.to_sym,

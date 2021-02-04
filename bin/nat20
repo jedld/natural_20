@@ -52,19 +52,26 @@ def new_game
 
   number_of_players = @session.game_properties[:players] || 1
   chosen_characters = []
-  player_characters = @session.load_characters
+
   number_of_players.times.each do |i|
-    character = @prompt.select(t('select_party_member', index: i + 1)) do |menu|
-      player_characters.each do |c|
-        next if chosen_characters.include?(c)
+    loop do
+      player_characters = @session.load_characters
+      character = @prompt.select(t('select_party_member', index: i + 1)) do |menu|
+        player_characters.each do |c|
+          next if chosen_characters.include?(c)
 
-        menu.choice "#{c.name} - #{c.description}", c
+          menu.choice "#{c.name} - #{c.description}", c
+        end
+        menu.choice t('character_builder'), :character_builder
       end
-      menu.choice t('character_builder'), :character_builder
-    end
 
-    character = command_line.build_character if character == :character_builder
-    chosen_characters << character
+      if character == :character_builder
+        character = command_line.build_character
+        next
+      end
+      chosen_characters << character
+      break
+    end
   end
 
   command_line.battle_ui(chosen_characters)
