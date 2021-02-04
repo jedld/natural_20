@@ -78,13 +78,13 @@ module Natural20
                                                      end
                                      str_token = event[:attack_roll] ? 'event.attack' : 'event.attack_no_roll'
                                      puts t(str_token, opportunity: event[:as_reaction] ? 'Opportunity Attack: ' : '',
-                                                            source: show_name(event),
-                                                            target: "#{event[:target].name}#{cover_str}",
-                                                            attack_name: event[:attack_name],
-                                                            advantage: advantage_str,
-                                                            attack_roll: event[:attack_roll].to_s.colorize(:green),
-                                                            attack_value: event[:attack_roll]&.result,
-                                                            damage: damage_str)
+                                                       source: show_name(event),
+                                                       target: "#{event[:target].name}#{cover_str}",
+                                                       attack_name: event[:attack_name],
+                                                       advantage: advantage_str,
+                                                       attack_roll: event[:attack_roll].to_s.colorize(:green),
+                                                       attack_value: event[:attack_roll]&.result,
+                                                       damage: damage_str)
                                    },
                          damage: lambda { |event|
                                    puts "#{show_name(event)} #{event[:source].describe_health}"
@@ -147,7 +147,10 @@ module Natural20
                                                                         fails: event[:fails]).colorize(:red)
                                        end
                                      },
-
+                         great_weapon_fighting_roll: lambda { |event|
+                                                       puts t('event.great_weapon_fighting_roll', name: show_name(event),
+                                                                                                  roll: event[:roll], prev_roll: event[:prev_roll])
+                                                     },
                          prone: lambda { |event|
                                   puts t('event.status.prone', name: show_name(event))
                                 },

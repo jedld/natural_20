@@ -88,6 +88,7 @@ module Natural20
 
     def dead!
       Natural20::EventManager.received_event({ source: self, event: :died })
+      drop_grapple!
       @statuses.add(:dead)
       @statuses.delete(:stable)
       @statuses.delete(:unconscious)
@@ -271,6 +272,7 @@ module Natural20
     end
 
     def unconscious!
+      drop_grapple!
       Natural20::EventManager.received_event({ source: self, event: :unconscious })
       @statuses.add(:unconscious)
     end
@@ -632,6 +634,15 @@ module Natural20
     def ungrapple(target)
       @grappling ||= []
       @grappling.delete(target)
+      target.grapples.delete(self)
+      target.statuses.delete(:grappled) if target.grapples.empty?
+    end
+
+    def drop_grapple!
+      @grappling ||= []
+      @grappling.each do |target|
+        ungrapple(target)
+      end
     end
 
     # Removes Item from inventory

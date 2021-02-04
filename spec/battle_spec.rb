@@ -40,9 +40,12 @@ RSpec.describe Natural20::Battle do
                                     target_ac: 15,
                                     cover_ac: 0,
                                     thrown: nil,
+                                    as_reaction: false,
                                     attack_roll: Natural20::DieRoll.new([2], 8, 20),
                                     target: @npc,
                                     second_hand: nil,
+                                    advantage_mod: 0,
+                                    adv_info: [[],[]],
                                     weapon: 'vicious_rapier',
                                     npc_action: nil
                                   })
@@ -61,10 +64,13 @@ RSpec.describe Natural20::Battle do
                                     target_ac: 15,
                                     cover_ac: 0,
                                     target: @npc,
+                                    as_reaction: false,
                                     weapon: 'vicious_rapier',
                                     thrown: nil,
                                     sneak_attack: nil,
                                     second_hand: nil,
+                                    advantage_mod: 0,
+                                    adv_info: [[],[]],
                                     npc_action: nil
                                   }])
 

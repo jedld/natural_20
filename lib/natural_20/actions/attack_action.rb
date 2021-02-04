@@ -83,7 +83,7 @@ class AttackAction < Natural20::Action
         Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
                                                  attack_name: item[:attack_name],
                                                  advantage_mod: item[:advantage_mod],
-                                                 as_reaction: as_reaction,
+                                                 as_reaction: !!as_reaction,
                                                  adv_info: item[:adv_info],
                                                  source: item[:source], target: item[:target], event: :miss })
       end
@@ -203,6 +203,20 @@ class AttackAction < Natural20::Action
     damage = Natural20::DieRoll.roll(damage_roll, crit: attack_roll.nat_20?, description: t('dice_roll.damage'),
                                                   entity: @source, battle: battle)
 
+    if @source.class_feature?('great_weapon_fighting') && (weapon[:properties]&.include?('two_handed') || (weapon[:properties]&.include?('versatile') && entity.used_hand_slots <= 1.0))
+      damage.rolls.map do |roll|
+        if [1, 2].include?(roll)
+          r = Natural20::DieRoll.roll("1d#{damage.die_sides}", description: t('dice_roll.great_weapon_fighting_reroll'),
+                                                               entity: @source, battle: battle)
+          Natural20::EventManager.received_event({ roll: r, prev_roll: roll,
+                                                   source: item[:source], event: :great_weapon_fighting_roll })
+          r.result
+        else
+          roll
+        end
+      end
+    end
+
     # apply weapon bonus attacks
     damage = check_weapon_bonuses(battle, weapon, damage, attack_roll)
 
@@ -236,7 +250,7 @@ class AttackAction < Natural20::Action
         damage_type: weapon[:damage_type],
         damage: damage,
         ammo: ammo_type,
-        as_reaction: as_reaction,
+        as_reaction: !!as_reaction,
         second_hand: second_hand,
         npc_action: npc_action
       }
@@ -277,7 +291,7 @@ class AttackAction < Natural20::Action
         second_hand: second_hand,
         damage_roll: damage_roll,
         attack_roll: attack_roll,
-        as_reaction: as_reaction,
+        as_reaction: !!as_reaction,
         target_ac: target.armor_class,
         cover_ac: cover_ac_adjustments,
         ammo: ammo_type,

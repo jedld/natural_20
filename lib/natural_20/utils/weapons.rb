@@ -5,7 +5,7 @@ module Natural20::Weapons
     advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon,
                                                                      source_pos: source_pos)
 
-    return [0, [advantages, disadvantages]]  if advantages.empty? && disadvantages.empty?
+    return [0, [advantages, disadvantages]] if advantages.empty? && disadvantages.empty?
     return [0, [advantages, disadvantages]] if !advantages.empty? && !disadvantages.empty?
 
     return [1, [advantages, disadvantages]] unless advantages.empty?
@@ -56,7 +56,7 @@ module Natural20::Weapons
   def damage_modifier(entity, weapon, second_hand: false)
     damage_mod = entity.attack_ability_mod(weapon)
 
-    damage_mod = [damage_mod, 0].min if second_hand # if second hand was used don't add modifier
+    damage_mod = [damage_mod, 0].min if second_hand && !entity.class_feature?('two_weapon_fighting')
 
     # compute damage roll using versatile weapon property
     damage_roll = if weapon[:properties]&.include?('versatile') && entity.used_hand_slots <= 1.0

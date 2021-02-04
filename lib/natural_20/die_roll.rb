@@ -28,7 +28,7 @@ module Natural20
     end
 
     # @param lucky [Boolean] This is a lucky feat reroll
-    def roll(lucky: false)
+    def roll(lucky: false, description_override: nil)
       die_sides = 20
 
       detail = DieRoll.parse(roll_str)
@@ -46,7 +46,7 @@ module Natural20
 
       number_of_die *= 2 if crit
 
-      description = t('dice_roll.description', description: description, roll_str: roll_str)
+      description = t('dice_roll.description', description: description_override.presence || description, roll_str: roll_str)
       description = lucky ? "(lucky) #{description}" : description
 
       rolls = if advantage || disadvantage
