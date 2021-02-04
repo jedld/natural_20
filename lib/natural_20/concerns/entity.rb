@@ -573,12 +573,14 @@ module Natural20
     end
 
     def dexterity_check!(bonus = 0, battle: nil, description: nil)
-      DieRoll.roll_with_lucky(self, "1d20+#{dex_mod + bonus}", description: description || t('dice_roll.dexterity'),
+      disadvantage = !proficient_with_equipped_armor? ? true : false
+      DieRoll.roll_with_lucky(self, "1d20+#{dex_mod + bonus}", disadvantage: disadvantage, description: description || t('dice_roll.dexterity'),
                                                                battle: battle)
     end
 
     def strength_check!(bonus = 0, battle: nil, description: nil)
-      DieRoll.roll_with_lucky(self, "1d20+#{str_mod + bonus}", description: description || t('dice_roll.stength_check'),
+      disadvantage = !proficient_with_equipped_armor? ? true : false
+      DieRoll.roll_with_lucky(self, "1d20+#{str_mod + bonus}", disadvantage: disadvantage, description: description || t('dice_roll.stength_check'),
                                                                battle: battle)
     end
 
@@ -892,6 +894,7 @@ module Natural20
         light: item[:properties].try(:include?, 'light'),
         two_handed: item[:properties].try(:include?, 'two_handed'),
         light_properties: item[:light],
+        proficiency_type: item[:proficiency_type],
         qty: 1,
         equipped: true,
         weight: item[:weight]
@@ -1002,6 +1005,8 @@ module Natural20
     end
 
     def proficient_with_weapon?(weapon)
+      weapon = @session.load_thing weapon if weapon.is_a?(String)
+
       return true if weapon[:name] == 'Unarmed Attack'
 
       @properties[:weapon_proficiencies]&.detect do |prof|
@@ -1084,7 +1089,8 @@ module Natural20
       modifier = ability_mod(save_type)
       modifier += proficiency_bonus if proficient?("#{save_type}_save")
       op = modifier >= 0 ? '+' : ''
-      DieRoll.roll("d20#{op}#{modifier}", battle: battle, entity: self,
+      disadvantage = %i[dex str].include?(save_type.to_sym) && !proficient_with_equipped_armor? ? true : false
+      DieRoll.roll("d20#{op}#{modifier}", disadvantage: disadvantage, battle: battle, entity: self,
                                           description: t("dice_roll.#{save_type}_saving_throw"))
     end
 

@@ -4,6 +4,7 @@ module Natural20::InventoryUI
   def character_sheet(entity)
     puts t('character_sheet.name', name: entity.name)
     puts t('character_sheet.level', level: entity.level)
+    puts t('character_sheet.class', name: entity.class_properties.keys.join(','))
     puts ' str   dex   con   int   wis   cha'
     puts ' ----  ----  ----  ----  ----  ---- '
     puts "|#{entity.all_ability_scores.map { |s| " #{s} " }.join('||')}|"
@@ -27,7 +28,11 @@ module Natural20::InventoryUI
                                        carry_capacity: entity.carry_capacity), per_page: 20
       ) do |menu|
         entity.equipped_items.each do |m|
-          menu.choice "#{m.label} (equipped)", m
+          proficient_str = ''
+          proficient_str = '(not proficient)'.colorize(:red) if m.subtype == 'weapon' && !entity.proficient_with_weapon?(m)
+          proficient_str = '(not proficient)'.colorize(:red) if %w[armor
+                                                    shield].include?(m.type) && !entity.proficient_with_armor?(m.name)
+          menu.choice "#{m.label} (equipped) #{proficient_str}", m
         end
         entity.inventory.each do |m|
           menu.choice "#{m.label} x #{m.qty}", m

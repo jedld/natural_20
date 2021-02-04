@@ -46,9 +46,12 @@ module Natural20
 
       number_of_die *= 2 if crit
 
-      description = t('dice_roll.description', description: description_override.presence || description, roll_str: roll_str)
+      description = t('dice_roll.description', description: description_override.presence || description,
+                                               roll_str: roll_str)
       description = lucky ? "(lucky) #{description}" : description
 
+      description = '(with advantage)'.colorize(:blue) + description if advantage
+      description = '(with disadvantage)'.colorize(:red) + description if disadvantage
       rolls = if advantage || disadvantage
                 if battle
                   battle.roll_for(entity, die_sides, number_of_die, description, advantage: advantage,

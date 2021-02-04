@@ -8,7 +8,7 @@ module Natural20
     prepend Natural20::Lootable
     include Multiattack
 
-    attr_accessor :hp, :other_counters, :resistances, :experience_points
+    attr_accessor :hp, :other_counters, :resistances, :experience_points, :class_properties
 
     ACTION_LIST = %i[first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
                      dash_bonus hide_bonus grapple escape_grapple drop_grapple shove push prone stand short_rest].freeze

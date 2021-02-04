@@ -10,6 +10,7 @@ dagger:
   name: Dagger
   proficiency_type:
     - martial
+    - simple
   properties:
     - light
     - thrown

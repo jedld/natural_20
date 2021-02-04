@@ -124,6 +124,10 @@ RSpec.describe Natural20::PlayerCharacter do
       expect(@player.check_equip('scimitar')).to eq(:hands_full)
     end
 
+    specify "#proficient_with_weapon?" do
+      expect(@player.proficient_with_weapon?('rapier')).to be
+    end
+
     context '#take_damage!' do
       specify 'unconscious' do
         @player.take_damage!(damage: Natural20::DieRoll.new([20], 80))

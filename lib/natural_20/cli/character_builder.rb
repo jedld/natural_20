@@ -90,6 +90,8 @@ module Natural20::CharacterBuilder
       break if prompt.yes?(t('builder.review'))
     end
     session.save_character(values[:name], values)
+
+    pc
   end
 
   def fighter_build

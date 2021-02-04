@@ -91,6 +91,7 @@ en:
     level: 'Level: %{level}'
     name: 'Name: %{name}'
     race: 'Race: %{race}'
+    class: 'Class: %{name}'
   character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
   dice_roll:
