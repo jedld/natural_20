@@ -80,7 +80,7 @@ RSpec.describe AttackAction do
 
     context 'unseen attacker' do
       before do
-        @battle.add(@character, :a, position: :spawn_point_3, token: 'R')
+        @battle.add(@character, :a, position: :spawn_point_3, token: 'G')
         @character.reset_turn!(@battle)
         @guard = @battle_map.entity_at(5, 5)
         @action = AttackAction.build(session, @character).next.call(@guard).next.call('longbow').next.call
@@ -175,6 +175,25 @@ RSpec.describe AttackAction do
             puts Natural20::MapRenderer.new(@battle_map).render(line_of_sight: @guard)
             expect(@action.compute_advantages_and_disadvantages(@battle, @character, @guard,
                                                                 weapon)).to eq([[], []])
+          end
+        end
+
+        context 'Naturally Stealthy' do
+          before do
+            @character2 = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
+            @battle.add(@character2, :a, position: [1, 3])
+            @battle_map.move_to!(@guard, 4, 3, @battle)
+            @character2.hiding!(@battle, 20)
+          end
+
+          specify do
+            expect(@character2.class_feature?('naturally_stealthy')).to be
+          end
+
+          specify '#compute_advantages_and_disadvantages' do
+            puts Natural20::MapRenderer.new(@battle_map).render(line_of_sight: @guard)
+            expect(@action.compute_advantages_and_disadvantages(@battle, @character2, @guard,
+                                                                weapon)).to eq([[:unseen_attacker], []])
           end
         end
       end

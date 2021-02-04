@@ -634,22 +634,27 @@ module Natural20
     # @param pos2_x [Integer]
     # @param pos2_y [Integer]
     # @param distance [Integer]
-    # @return [Array] Cover characteristics if there is LOS
-    def line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance = nil, inclusive = false)
+    # @return [Array<Array<Integer,Integer>>] Cover characteristics if there is LOS
+    def line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance = nil, inclusive = false, entity = false)
       squares = squares_in_path(pos1_x, pos1_y, pos2_x, pos2_y, inclusive: inclusive)
       squares.each_with_index.map do |s, index|
         return nil if distance && index == (distance - 1)
         return nil if opaque?(*s)
         return nil if cover_at(*s) == :total
 
-        [cover_at(*s), s]
+        [cover_at(*s, entity), s]
       end
     end
 
-    def cover_at(pos_x, pos_y)
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param entity [Boolean] inlcude entities
+    def cover_at(pos_x, pos_y, entity = false)
       return :half if object_at(pos_x, pos_y)&.half_cover?
       return :three_quarter if object_at(pos_x, pos_y)&.three_quarter_cover?
       return :total if object_at(pos_x, pos_y)&.total_cover?
+
+      return entity_at(pos_x, pos_y).size_identifier if entity && entity_at(pos_x, pos_y)
 
       :none
     end

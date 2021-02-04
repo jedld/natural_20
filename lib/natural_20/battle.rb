@@ -270,7 +270,7 @@ module Natural20
       return false unless @map.can_see?(entity1, entity2, entity_1_pos: entity_1_pos)
       return true unless entity2.hiding?(self)
 
-      cover_value = @map.cover_calculation(@map, entity1, entity2, entity_1_pos: entity_1_pos)
+      cover_value = @map.cover_calculation(@map, entity1, entity2, entity_1_pos: entity_1_pos, naturally_stealthy: entity2.class_feature?('naturally_stealthy'))
       if cover_value.positive?
         entity_2_state = entity_state_for(entity2)
         return false if entity_2_state[:stealth] > (active_perception || entity1.passive_perception)

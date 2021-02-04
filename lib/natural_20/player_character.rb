@@ -298,7 +298,7 @@ module Natural20
       return true if @properties[:class_features]&.include?(feature)
       return true if @properties[:attributes]&.include?(feature)
       return true if @race_properties[:race_features]&.include?(feature)
-      return true if @race_properties.dig(:subrace, subrace, :class_features)&.include?(feature)
+      return true if subrace && @race_properties.dig(:subrace, subrace.to_sym, :class_features)&.include?(feature)
 
       @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
     end

@@ -1,6 +1,7 @@
 ---
 name: RumbleBelly
 race: halfling
+subrace: lightfoot
 classes:
   rogue: 1
 level: 1
