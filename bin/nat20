@@ -105,9 +105,12 @@ end
 def start
   loop do
     CommandlineUI.clear_screen
+    title_color = @session.game_properties.fetch(:title_color, :white).to_sym
     @session.game_properties[:title]&.each do |title_line|
-      puts title_line
+      puts title_line&.colorize(title_color)
     end
+    puts t('game_author', author: @session.game_properties[:author]) if @session.game_properties[:author]
+    puts ""
     answer = @prompt.select(@session.game_properties[:description] || '') do |menu|
       menu.choice 'New Adventure ...', 1
       menu.choice 'Continue Game ...', 2 if @session.has_save_game?

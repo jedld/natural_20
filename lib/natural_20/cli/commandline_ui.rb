@@ -69,32 +69,17 @@ class CommandlineUI < Natural20::Controller
                                                                     target_types: options[:target_types], range: options[:range],
                                                                     filter: options[:filter],
                                                                     include_objects: true)
-      targets = target_ui(entity, weapon: weapon_details, validation: lambda { |selected|
-                                                                        selected_entities = map.thing_at(*selected)
+      selected_targets = target_ui(entity, weapon: weapon_details, validation: lambda { |selected|
+                                                                                 selected_entities = map.thing_at(*selected)
 
-                                                                        return false if selected_entities.empty?
+                                                                                 if selected_entities.empty?
+                                                                                   return false
+                                                                                 end
 
-                                                                        selected_entities.detect do |selected_entity|
-                                                                          valid_targets.include?(selected_entity)
-                                                                        end
-                                                                      })
-      targets = targets.flatten.select { |t| t.hp && t.hp.positive? }.flatten.uniq
-      expected_targets = options.fetch(:num_select, 1)
-      if targets.size > expected_targets
-        loop do
-          target = prompt.select('multiple targets at location(s) please select specific targets') do |menu|
-            targets.flatten.uniq.each do |t|
-              menu.choice t.name.to_s, t
-            end
-          end
-          selected_targets << target
-          break unless selected_targets.size < expected_targets
-        end
-      else
-        selected_targets = targets
-      end
-
-      return nil if target.nil?
+                                                                                 selected_entities.detect do |selected_entity|
+                                                                                   valid_targets.include?(selected_entity)
+                                                                                 end
+                                                                               })
     else
       selected_targets << target
     end
@@ -118,7 +103,7 @@ class CommandlineUI < Natural20::Controller
       describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(line_of_sight: entity, select_pos: initial_pos, highlight: highlights)
       puts "\n"
-      things = map.thing_at(*initial_pos)
+      things = map.thing_at(*initial_pos, reveal_concealed: true)
 
       prompt.say(t('object.ground')) if things.empty?
 
@@ -173,7 +158,7 @@ class CommandlineUI < Natural20::Controller
         new_pos = [initial_pos[0] + 1, initial_pos[1]]
       elsif movement == 's'
         new_pos = [initial_pos[0], initial_pos[1] + 1]
-      elsif ['x', ' '].include? movement
+      elsif ['x', ' ', "\r"].include? movement
         next if validation && !validation.call(new_pos)
 
         selected << initial_pos
@@ -192,10 +177,30 @@ class CommandlineUI < Natural20::Controller
 
       initial_pos = new_pos
 
-      break unless movement != 'x'
+      break if ['x', ' ', "\r"].include? movement
     end
 
-    selected.compact.map { |e| map.thing_at(*e) }
+    selected = selected.compact.map { |e| map.thing_at(*e) }
+    selected_targets = []
+    targets = selected.flatten.select { |t| t.hp && t.hp.positive? }.flatten.uniq
+
+    if targets.size > num_select
+      loop do
+        target = prompt.select(t('multiple_target_prompt')) do |menu|
+          targets.flatten.uniq.each do |t|
+            menu.choice t.name.to_s, t
+          end
+        end
+        selected_targets << target
+        break unless selected_targets.size < expected_targets
+      end
+    else
+      selected_targets = targets
+    end
+
+    return nil if selected_targets.blank?
+
+    selected_targets
   end
 
   # @param entity [Natural20::Entity]
@@ -238,7 +243,7 @@ class CommandlineUI < Natural20::Controller
         new_path = [path.last[0] + 1, path.last[1]]
       elsif %w[s x].include?(movement)
         new_path = [path.last[0], path.last[1] + 1]
-      elsif [' ', '\r'].include?(movement)
+      elsif [' ', "\r"].include?(movement)
         next unless valid_move_path?(entity, path, battle, @map, manual_jump: jump_index)
 
         return [path, jump_index]
@@ -380,14 +385,28 @@ class CommandlineUI < Natural20::Controller
             [k, v]
           end
         when :select_object
+          target_objects = entity.usable_objects(map, battle)
           item = prompt.select("#{entity.name} interact with") do |menu|
-            entity.usable_objects(map, battle).each do |d|
+            target_objects.each do |d|
               menu.choice d.name.humanize.to_s, d
             end
+            menu.choice t(:manual_target), :manual_target
             menu.choice t(:back).colorize(:blue), :back
           end
 
           return nil if item == :back
+
+          if item == :manual_target
+            item = target_ui(entity, num_select: 1, validation: lambda { |selected|
+              selected_entities = map.thing_at(*selected)
+
+              return false if selected_entities.empty?
+
+              selected_entities.detect do |selected_entity|
+                target_objects.include?(selected_entity)
+              end
+            }).first
+          end
 
           item
         when :select_items

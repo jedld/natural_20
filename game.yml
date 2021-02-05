@@ -12,6 +12,7 @@ title:
 -    ░      ░        ░     ░  ░       ░ ░                       ░  ░  ░   ░  ░      ░        ░      ░       ░ ░        ░ ░          ░ ░      ░  ░    ░  ░   ░  ░░ ░                ░        ░     ░  ░
 -                                                                                                        ░  ░ ░        ░                                        ░                          ░
 -
+title_color: red
 description: A sample hardcore dungeon crawl with a party of 2 (DnD 5th Edition rules)
 author: Joseph Emmanuel Dayo
 players: 2

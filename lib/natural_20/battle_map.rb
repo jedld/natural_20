@@ -126,9 +126,10 @@ module Natural20
     # Get object at map location
     # @param pos_x [Integer]
     # @param pos_y [Integer]
+    # @param reveal_concealed [Boolean]
     # @return [ItemLibrary::Object]
-    def object_at(pos_x, pos_y)
-      @objects[pos_x][pos_y]&.detect { |o| !o.concealed? }
+    def object_at(pos_x, pos_y, reveal_concealed: false)
+      @objects[pos_x][pos_y]&.detect { |o| reveal_concealed || !o.concealed? }
     end
 
     # Get object at map location
@@ -412,11 +413,12 @@ module Natural20
     # Get entity or object at map location
     # @param pos_x [Integer]
     # @param pos_y [Integer]
+    # @param reveal_concealed [Boolean] Included concealed objects
     # @return [Array<Nautral20::Entity>]
-    def thing_at(pos_x, pos_y)
+    def thing_at(pos_x, pos_y, reveal_concealed: false)
       things = []
       things << entity_at(pos_x, pos_y)
-      things << object_at(pos_x, pos_y)
+      things << object_at(pos_x, pos_y, reveal_concealed: reveal_concealed)
       things.compact
     end
 

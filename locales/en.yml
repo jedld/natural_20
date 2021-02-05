@@ -199,6 +199,7 @@ en:
       prone: '%{name} is now prone.'
       stand: '%{name} stands up.'
   exit: Exit
+  game_author: By %{author}
   inventory:
     cannot_change_armor_combat: Cannot change armor during combat
     equiped_items: '%{name} (equipped)'
@@ -222,6 +223,8 @@ en:
     sylvan: Sylvan
     thieves_cant: Thieves Cant
     undercommon: Undercommon
+  manual_target: Target object using the map
+  multiple_target_prompt: Multiple targets at location(s) please select specific targets
   missing_game: missing game.yml in the current folder
   'no': 'No'
   object:
@@ -279,7 +282,7 @@ en:
     dark: Dark and hard to make out
     hide_success: (You are hidden from %{label})
     looking_around: Looking around using Perception %{perception}
-    navigation: ESC- back, (wsad) - inspect square, x, space - select
+    navigation: ESC- back, (wsad) - inspect square, x, space, enter - select
     navigation_look: ESC- back, (wsad) - inspect square
     note_with_language: (in %{note_language}) %{note}
     passed: (perception) %{note}

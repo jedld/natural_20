@@ -327,7 +327,7 @@ module Natural20
           self, battle, weapon: weapon_detail[:name]
         )
 
-        action = TwoWeaponAttackAction.new(session, self, :attack_second)
+        action = TwoWeaponAttackAction.new(session, self, :attack)
         action.using = item
         return action
       end
