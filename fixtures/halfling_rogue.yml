@@ -22,6 +22,9 @@ skills:
 - athletics
 - history
 - perception
+expertise:
+- stealth
+- thieves_tools
 tools:
 - thieves_tools
 - carpenters_tools

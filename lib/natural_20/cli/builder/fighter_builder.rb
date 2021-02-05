@@ -16,8 +16,8 @@ module Natural20::FighterBuilder
 
     starting_equipment = []
     starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon')) do |q|
-      q.choice t('object.chain_mail'), :chain_mail
-      q.choice t('object.longbow_and_arrows'), :longbow_and_arrows
+      q.choice t('object.weapons.chain_mail'), :chain_mail
+      q.choice t('object.weapons.longbow_and_arrows'), :longbow_and_arrows
     end
 
     starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_2')) do |q|

@@ -48,7 +48,7 @@ saving_throw_proficiency:
 weapon_proficiencies:
   - light_armor
   - longsword
-  - simple_weapon
+  - simple
   - hand_crossbow
   - rapier
   - shortsword

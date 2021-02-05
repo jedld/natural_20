@@ -38,6 +38,28 @@ greatclub:
   subtype: weapon
   type: melee_attack
   weight: 10
+hand_crossbow:
+  ammo: bolts
+  cost: 75
+  damage: 1d6
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Hand Crossbow
+  proficiency_type:
+    - martial
+  properties:
+    - loading
+    - ammunition
+    - ranged
+    - light
+  range: 30
+  range_max: 120
+  subtype: weapon
+  type: ranged_attack
+  weight: 3
 handaxe:
   cost: 5
   damage: 1d6

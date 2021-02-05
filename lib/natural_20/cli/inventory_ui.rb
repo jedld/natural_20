@@ -11,15 +11,26 @@ module Natural20::InventoryUI
     puts "|#{entity.all_ability_mods.map { |s| " #{s.negative? ? s : "+#{s}"} " }.join('||')}|"
     puts ' ----  ----  ----  ----  ----  ----'
     puts t('character_sheet.race', race: entity.race.humanize)
-    if entity.subrace
-      puts t('character_sheet.subrace', race: entity.subrace.to_s.humanize)
-    end
+    puts t('character_sheet.subrace', race: entity.subrace.to_s.humanize) if entity.subrace
     puts t('character_sheet.hp', current: entity.hp, max: entity.max_hp)
     puts t('character_sheet.ac', ac: entity.armor_class)
     puts t('character_sheet.speed', speed: entity.speed)
     puts t('character_sheet.languages')
     entity.languages.each do |lang|
       puts "  #{t("language.#{lang}")}"
+    end
+    puts t('character_sheet.skills')
+    Natural20::Entity::ALL_SKILLS.each do |skill|
+      bonus_mod = entity.send("#{skill}_mod")
+      prefix = entity.proficient?(skill) ? '*' : ' '
+      puts "  #{t('character_sheet.skill_mod', prefix: prefix, skill: skill.to_s.ljust(20, ' '),
+                                               bonus: bonus_mod.negative? ? bonus_mod : "+#{bonus_mod}")}"
+    end
+    unless entity.expertise.blank?
+      puts t('character_sheet.expertise')
+      entity.expertise.each do |prof|
+        puts "  #{prof.humanize}"
+      end
     end
   end
 
@@ -33,9 +44,11 @@ module Natural20::InventoryUI
       ) do |menu|
         entity.equipped_items.each do |m|
           proficient_str = ''
-          proficient_str = '(not proficient)'.colorize(:red) if m.subtype == 'weapon' && !entity.proficient_with_weapon?(m)
+          if m.subtype == 'weapon' && !entity.proficient_with_weapon?(m)
+            proficient_str = '(not proficient)'.colorize(:red)
+          end
           proficient_str = '(not proficient)'.colorize(:red) if %w[armor
-                                                    shield].include?(m.type) && !entity.proficient_with_armor?(m.name)
+                                                                   shield].include?(m.type) && !entity.proficient_with_armor?(m.name)
           menu.choice "#{m.label} (equipped) #{proficient_str}", m
         end
         entity.inventory.each do |m|

@@ -3,6 +3,7 @@ require 'natural_20/cli/builder/rogue_builder'
 module Natural20
   class CharacterBuilder
     include Natural20::FighterBuilder
+    include Natural20::RogueBuilder
     include Natural20::InventoryUI
 
     attr_reader :session, :battle
@@ -116,8 +117,7 @@ module Natural20
         break if prompt.yes?(t('builder.review'))
       end
 
-      @values[:max_hp] =
-        session.save_character(@values[:name], @values)
+      session.save_character(@values[:name], @values)
 
       @pc
     end

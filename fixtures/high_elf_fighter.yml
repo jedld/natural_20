@@ -25,6 +25,7 @@ skills:
 - arcana
 - athletics
 - history
+- perception
 languages:
 - abyssal
 - celestial
@@ -36,6 +37,9 @@ equipped:
 - longbow
 - studded_leather
 - shield
+expertise:
+- stealth
+- thieves_tools
 inventory:
 - type: shield
   qty: 1

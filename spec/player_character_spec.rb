@@ -88,13 +88,19 @@ RSpec.describe Natural20::PlayerCharacter do
 
     specify '#perception_check!' do
       srand(1000)
-      expect(@player.perception_check!.result).to eq(24)
+      roll = @player.perception_check!
+      expect(roll.modifier).to eq(4)
+      expect(roll.result).to eq(24)
     end
 
     specify '#dexterity_check!' do
       srand(1000)
       expect(@player.dexterity_check!.to_s).to eq('(20) + 5')
       expect(@player.dexterity_check!.result).to eq(13)
+    end
+
+    specify '#stealth_check!' do
+      expect(@player.stealth_check!.to_s).to eq('(1) + 5')
     end
 
     specify '#acrobatics_check!' do
@@ -175,6 +181,11 @@ RSpec.describe Natural20::PlayerCharacter do
         @player.saving_throw!(attribute)
       end
       expect(result.map { |dr| dr.roller.roll_str }).to eq(['d20+4', 'd20+5', 'd20+6', 'd20+3', 'd20+1', 'd20+0'])
+    end
+
+    specify 'skill mods' do
+      expect(@player.acrobatics_mod).to eq(8)
+      expect(@player.arcana_mod).to eq(6)
     end
   end
 

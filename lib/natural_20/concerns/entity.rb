@@ -28,6 +28,10 @@ module Natural20
       end
     end
 
+    def expertise?(prof)
+      @properties[:expertise]&.include?(prof.to_s)
+    end
+
     def heal!(amt)
       return if dead?
 
@@ -483,6 +487,18 @@ module Natural20
       modifier_table(@ability_scores.fetch(:wis))
     end
 
+    def cha_mod
+      modifier_table(@ability_scores.fetch(:cha))
+    end
+
+    def int_mod
+      modifier_table(@ability_scores.fetch(:int))
+    end
+
+    def dex_mod
+      modifier_table(@ability_scores.fetch(:dex))
+    end
+
     def ability_mod(type)
       mod_type = case type.to_sym
                  when :wisdom, :wis
@@ -511,6 +527,10 @@ module Natural20
 
     def long_jump_distance
       @ability_scores.fetch(:str)
+    end
+
+    def expertise
+      @properties.fetch(:expertise, [])
     end
 
     def token_size
@@ -547,29 +567,48 @@ module Natural20
       end
     end
 
-    def perception_check!(battle = nil, description: nil)
-      modifiers = if perception_proficient?
-                    wis_mod + proficiency_bonus
+    ALL_SKILLS = %i[acrobatics animal_handling arcana athletics deception history insight intimidation
+                    investigation medicine nature perception performance persuasion religion sleight_of_hand stealth survival]
+    SKILL_AND_ABILITY_MAP = {
+      dex: %i[acrobatics sleight_of_hand stealth],
+      wis: %i[animal_handling insight medicine perception survival],
+      int: %i[arcana history investigation nature religion],
+      con: [],
+      str: [:athletics],
+      cha: %i[deception intimidation performance persuasion]
+    }
+
+    SKILL_AND_ABILITY_MAP.each do |ability, skills|
+      skills.each do |skill|
+        define_method("#{skill}_mod") do
+          ability_mod = case ability.to_sym
+                        when :dex
+                          dex_mod
+                        when :wis
+                          wis_mod
+                        when :cha
+                          cha_mod
+                        when :con
+                          con_mod
+                        when :str
+                          str_mod
+                        when :int
+                          int_mod
+                        end
+          bonus = if send(:proficient?, skill)
+                    expertise?(skill) ? proficiency_bonus * 2 : proficiency_bonus
                   else
-                    wis_mod
+                    0
                   end
-      DieRoll.roll_with_lucky(self, "1d20+#{modifiers}", description: description || t('dice_roll.perception'),
-                                                         battle: battle)
-    end
+          ability_mod + bonus
+        end
 
-    def stealth_check!(battle = nil, description: nil)
-      dexterity_check!(stealth_proficient? ? proficiency_bonus : 0, battle: battle,
-                                                                    description: description || t('dice_roll.stealth'))
-    end
-
-    def acrobatics_check!(battle = nil, description: nil)
-      dexterity_check!(acrobatics_proficient? ? proficiency_bonus : 0, battle: battle,
-                                                                       description: description || t('dice_roll.acrobatics'))
-    end
-
-    def athletics_check!(battle = nil, description: nil)
-      strength_check!(athletics_proficient? ? proficiency_bonus : 0, battle: battle,
-                                                                     description: description || t('dice_roll.athletics'))
+        define_method("#{skill}_check!") do |battle = nil, opts = {}|
+          modifiers = send(:"#{skill}_mod")
+          DieRoll.roll_with_lucky(self, "1d20+#{modifiers}", description: opts.fetch(:description, t("dice_roll.#{skill}")),
+                                                             battle: battle)
+        end
+      end
     end
 
     def dexterity_check!(bonus = 0, battle: nil, description: nil)
@@ -592,14 +631,6 @@ module Natural20
     def medicine_check!(battle = nil, description: nil)
       wisdom_check!(medicine_proficient? ? proficiency_bonus : 0, battle: battle,
                                                                   description: description || t('dice_roll.medicine'))
-    end
-
-    def int_mod
-      modifier_table(@ability_scores.fetch(:int))
-    end
-
-    def dex_mod
-      modifier_table(@ability_scores.fetch(:dex))
     end
 
     def attach_handler(event_name, object, callback)
@@ -942,7 +973,12 @@ module Natural20
 
     def lockpick!(battle = nil)
       proficiency_mod = dex_mod
-      proficiency_mod += proficiency_bonus if proficient?(:thieves_tools)
+      bonus = if proficient?(:thieves_tools)
+                expertise?(:thieves_tools) ? proficiency_bonus * 2 : proficiency_bonus
+              else
+                0
+              end
+      proficiency_mod += bonus
       Natural20::DieRoll.roll("1d20+#{proficiency_mod}", description: t('dice_roll.thieves_tools'), battle: battle,
                                                          entity: self)
     end

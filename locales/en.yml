@@ -54,8 +54,6 @@ en:
     con: Select Constitution ability score
     dex: Select Dexterity ability score
     enter_name: Enter name for your character
-    rogue:
-      select_skill: Select a Rogue skill. Pick 4
     fighter:
       archery: Archery - You gain a +2 bonus to attack rolls you make with ranged weapons.
       defense: Defence - While you are wearing armor, you gain a +1 bonus to AC.
@@ -68,13 +66,19 @@ en:
       two_weapon_fighting: Two-Weapon Fighting - When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.
     int: Select Intelligence ability score
     races:
+      dark_elf: Dark Elf
       high_elf: High Elf
       lightfoot: Lightfoot
       stout: Stout
+      wood_elf: Wood Elf
     review: Confirm this character?
+    rogue:
+      expertise: Select Expertise
+      select_skill: Select a Rogue skill. Pick 4
+      select_starting_weapon: Select a starting weapon
+    select_languages: Select languages
     select_race: Please select a race
     select_skill: null
-    select_languages: Select languages
     select_subrace: Please select a sub-race
     skill:
       acrobatics: Acrobatics
@@ -91,20 +95,24 @@ en:
       sleight_of_hand: Sleight of Hand
       stealth: Stealth
       survival: Survival
+      thieves_tools: Thieves Tools
     str: Select Strength ability score
     wis: Select Wisdom ability score
   character_builder: Character Builder ...
   character_sheet:
     ac: 'AC: %{ac}'
     class: 'Class: %{name}'
+    expertise: Expertise
     hp: 'HP: %{current}/%{max}'
     inventory: Inventory %{weight}/%{carry_capacity} lbs
     languages: 'Languages:'
     level: 'Level: %{level}'
     name: 'Name: %{name}'
     race: 'Race: %{race}'
-    subrace: 'Subrace: %{race}'
+    skill_mod: '%{prefix} %{skill} %{bonus}'
+    skills: Skills
     speed: 'Speed: %{speed}ft.'
+    subrace: 'Subrace: %{race}'
   character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
   dice_roll:
@@ -241,10 +249,17 @@ en:
       ranged: Ranged - This weapon can be used to make a ranged attack
       thrown: Thrown - You can throw the weapon to make a ranged attack
       versatile: Versatile - This weapon can be used with one or two hands
+    rapier: Rapier
+    shortbow_and_quiver: a shortbow and quiver of 20 arrows
+    shortsword: Shortsword
     two_handaxes: Two handaxes
     two_martial_weapons: (2) Martial Weapons
     weapons:
+      chain_mail: Chain Mail
       dagger: Dagger
+      longbow_and_arrows: Longbow and Arrows
+      rapier: Rapier
+      shortsword: Shortsword
   options:
     automatic_roll: Roll Dice for me automatically (Computer will roll for you)
     dice_roll: Toggle Manual Dice Roll ...

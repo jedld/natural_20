@@ -32,3 +32,13 @@ subrace:
       - shortsword
       - shortbow
       - longbow
+  dark_elf:
+    darkvision: 120
+    attribute_bonus:
+      cha: 1
+    race_features:
+      - sunlight_sensitivity
+    weapon_proficiencies:
+      - rapiers
+      - shortsword
+      - hand_crossbow
