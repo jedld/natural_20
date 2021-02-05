@@ -11,7 +11,7 @@ module Natural20
     attr_accessor :hp, :other_counters, :resistances, :experience_points, :class_properties
 
     ACTION_LIST = %i[first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
-                     dash_bonus hide_bonus grapple escape_grapple drop_grapple shove push prone stand short_rest].freeze
+                     dash_bonus hide_bonus grapple escape_grapple drop_grapple shove push prone stand short_rest two_weapon_attack].freeze
 
     # @param session [Natural20::Session]
     def initialize(session, properties)
@@ -204,7 +204,7 @@ module Natural20
       !!(@race_properties[:darkvision] && @race_properties[:darkvision] >= distance)
     end
 
-    def player_character_attack_actions(battle, opportunity_attack: false)
+    def player_character_attack_actions(_battle, opportunity_attack: false)
       # check all equipped and create attack for each
       valid_weapon_types = if opportunity_attack
                              %w[melee_attack]
@@ -231,13 +231,6 @@ module Natural20
           attacks << action
         end
 
-        if !opportunity_attack && weapon_detail[:properties] && weapon_detail[:properties].include?('light') && TwoWeaponAttackAction.can?(
-          self, battle, weapon: weapon_detail[:name]
-        )
-          action = TwoWeaponAttackAction.new(session, self, :attack_second)
-          action.using = item
-          attacks << action
-        end
         attacks
       end.flatten.compact
 
@@ -314,12 +307,31 @@ module Natural20
           action = ShoveAction.new(session, self, type)
           action.knock_prone = true
           action
+        when :two_weapon_attack
+          two_weapon_attack_actions(battle)
         when :push
           ShoveAction.new(session, self, type)
         else
           Natural20::Action.new(session, self, type)
         end
       end.compact.flatten + c_class.keys.map { |c| send(:"special_actions_for_#{c}", session, battle) }.flatten
+    end
+
+    def two_weapon_attack_actions(battle)
+      @properties[:equipped].each do |item|
+        weapon_detail = session.load_weapon(item)
+        next if weapon_detail.nil?
+        next unless weapon_detail[:type] == 'melee_attack'
+
+        next unless weapon_detail[:properties] && weapon_detail[:properties].include?('light') && TwoWeaponAttackAction.can?(
+          self, battle, weapon: weapon_detail[:name]
+        )
+
+        action = TwoWeaponAttackAction.new(session, self, :attack_second)
+        action.using = item
+        return action
+      end
+      nil
     end
 
     def available_interactions(_entity, _battle)

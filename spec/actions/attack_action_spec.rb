@@ -11,6 +11,7 @@ RSpec.describe AttackAction do
       @npc = session.npc(:ogre)
       @npc2 = session.npc(:goblin)
     end
+
     context 'attack test' do
       before do
         String.disable_colorization true
@@ -40,6 +41,27 @@ RSpec.describe AttackAction do
         expect(cont.target).to eq(@npc)
         expect(cont.source).to eq(@character)
         expect(cont.using).to eq('vicious_rapier')
+      end
+
+      context 'two weapon fighting' do
+        before do
+          @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'elf_rogue.yml'),
+                                                       { equipped: %w[dagger dagger] })
+          @npc = session.npc(:goblin)
+          @battle.add(@character, :a, token: 'R', position: [0, 0])
+          @battle.add(@npc, :b, token: 'g', position: [1, 0])
+          @character.reset_turn!(@battle)
+          @npc.reset_turn!(@battle)
+        end
+
+        it 'allows for two weapon fighting' do
+          puts Natural20::MapRenderer.new(@battle_map).render
+          expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack)
+          action = AttackAction.build(session, @character).next.call(@npc).next.call('dagger').next.call
+          @battle.action!(action)
+          @battle.commit(action)
+          expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack_second)
+        end
       end
 
       specify 'unarmed attack' do
@@ -211,31 +233,32 @@ RSpec.describe AttackAction do
         specify '#compute_advantages_and_disadvantages' do
           puts Natural20::MapRenderer.new(@battle_map).render
           expect(@action.compute_advantages_and_disadvantages(@battle, @npc, @character,
-            @npc.npc_actions.first)).to eq([[:pack_tactics], []])
+                                                              @npc.npc_actions.first)).to eq([[:pack_tactics], []])
         end
 
         specify 'no pack tactics if no ally' do
           @battle_map.move_to!(@npc2, 2, 5, @battle)
           puts Natural20::MapRenderer.new(@battle_map).render
           expect(@action.compute_advantages_and_disadvantages(@battle, @npc, @character,
-            @npc.npc_actions.first)).to eq([[], []])
+                                                              @npc.npc_actions.first)).to eq([[], []])
         end
       end
     end
 
-    context "protection fighting style" do
+    context 'protection fighting style' do
       before do
         @npc = session.npc(:wolf)
-        @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'), { class_features: ['protection']})
+        @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'),
+                                                     { class_features: ['protection'] })
         @character2 = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
-        @battle.add(@character,:a, position: [0, 5])
-        @battle.add(@character2,:a, position: [1, 5])
+        @battle.add(@character, :a, position: [0, 5])
+        @battle.add(@character2, :a, position: [1, 5])
         @battle.add(@npc, :b, position: [1, 6])
         @character.reset_turn!(@battle)
         Natural20::EventManager.standard_cli
       end
 
-      specify "able to impose disadvantage on attack roll" do
+      specify 'able to impose disadvantage on attack roll' do
         puts Natural20::MapRenderer.new(@battle_map).render
         expect(@character.class_feature?('protection')).to be
         expect(@character.shield_equipped?).to be
