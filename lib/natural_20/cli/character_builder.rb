@@ -20,7 +20,8 @@ module Natural20
         classes: {},
         ability: {},
         skills: [],
-        level: 1
+        level: 1,
+        token: ['X']
       }
       loop do
         ability_method = :random
@@ -30,6 +31,26 @@ module Natural20
           q.validate(/\A\w+\Z/)
           q.modify :capitalize
         end
+
+        @values[:token] = [prompt.ask(t('builder.token'), default: @values[:name][0])]
+        @values[:color] = prompt.select(t('builder.token_color')) do |q|
+          %i[
+            red light_red
+            green light_green
+            yellow light_yellow
+            blue light_blue
+            magenta light_magenta
+            cyan light_cyan
+            white light_white
+          ].each do |color|
+            q.choice @values[:token].first.colorize(color), color
+          end
+        end
+
+        @values[:description] = prompt.multiline(t('builder.description')) do |q|
+          q.default t('buider.default_description')
+        end
+
         races = session.load_races
         @values[:race] = prompt.select(t('builder.select_race')) do |q|
           races.each do |race, details|
@@ -58,7 +79,7 @@ module Natural20
 
         attribute_bonuses = race_bonus.merge!(subrace_bonus)
 
-        k = prompt.select('builder.class') do |q|
+        k = prompt.select(t('builder.class')) do |q|
           session.load_classes.each do |klass, details|
             q.choice details[:label] || klass.humanize, klass.to_sym
           end

@@ -11,8 +11,8 @@ map:
     - .HHHHwwwt
     - .T..dwwow
     - HHH=HHHHH
-    - ..H.www..
-    - ..d......
+    - ..H..wYw.
+    - ..d..www.
   light:
     - .........
     - .........
@@ -139,6 +139,9 @@ legend:
         statuses:
           - hiding
         stealth: 1d20+6
+  Y:
+    name: Brazier
+    type: brazier
   W:
     name: Wolf
     type: npc
