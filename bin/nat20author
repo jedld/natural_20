@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'natural_20'
+
+require 'tty-prompt'
+require 'json'
+require 'pry-byebug' if RUBY_ENGINE == 'ruby'
+require 'natural_20/cli/commandline_ui'
+require 'irb/completion'
+
+@prompt = TTY::Prompt.new
+
+game = {
+  starting_map: 'maps/game_map',
+  player_profiles: 'characters'
+}
+
+@prompt.say('This is the nat20 game authoring tool')
+game[:name] = @prompt.ask('Enter a name for this game')
+game[:title] = @prompt.multiline('Enter a banner title for this game')
+
+game_map = {
+  map: {
+    name: game[:name],
+    description: "Map for #{game[:name]}",
+    illumination: 1.0,
+    base: [],
+    legend: {
+      A: {
+        name: 'spawn_point_1',
+        type: 'spawn_point'
+      },
+      B: {
+        name: 'spawn_point_2',
+        type: 'spawn_point'
+      }
+    }
+  }
+}
+
+game[:description] = @prompt.ask('Enter a description for this game')
+game[:players] = @prompt.ask('Enter number of party members (1-4)') do |q|
+  q.in('1-4')
+end
+
+width = @prompt.ask('Enter map width') do |q|
+  q.in('1-30')
+end.to_i
+
+height = @prompt.ask('Enter map height') do |q|
+  q.in('1-30')
+end.to_i
+
+game_map[:map][:base] = height.times.map do
+  width.times.map { '.' }.join
+end
+
+game_map[:map][:meta] = height.times.map do
+  width.times.map { '.' }.join
+end
+
+game_root_folder = game[:name]
+FileUtils.mkdir_p(File.join(game_root_folder, 'maps'))
+File.write(File.join(game_root_folder, 'game.yml'), game.to_yaml)
+File.write(File.join(game_root_folder, 'maps', 'game.yml'), game_map.to_yaml)

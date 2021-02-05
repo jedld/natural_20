@@ -2,8 +2,10 @@
 class InteractAction < Natural20::Action
   attr_accessor :target, :object_action, :other_params
 
+  # @param entity [Natural20::Entity]
+  # @param battle [Natural20::Battle]
   def self.can?(entity, battle)
-    battle.nil? || entity.total_actions(battle).positive? || entity.free_object_interaction?(battle)
+    battle.nil? || !battle.ongoing? || entity.total_actions(battle).positive? || entity.free_object_interaction?(battle)
   end
 
   def self.build(session, source)

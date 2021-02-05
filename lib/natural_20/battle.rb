@@ -81,6 +81,8 @@ module Natural20
         movement: 0,
         stealth: 0,
         statuses: Set.new,
+        active_perception: 0,
+        active_perception_disadvantage: 0,
         free_object_interaction: 0,
         target_effect: {},
         two_weapon: nil,
@@ -215,6 +217,10 @@ module Natural20
       end
     end
 
+    def active_perception_for(entity)
+      @entities[entity][:active_perception] || 0
+    end
+
     # Generates targets that make sense for a given action
     # @param entity [Natural20::Entity]
     # @param action [Natural20::Action]
@@ -224,6 +230,7 @@ module Natural20
     def valid_targets_for(entity, action, target_types: [:enemies], range: nil, active_perception: nil, include_objects: false, filter: nil)
       raise 'not an action' unless action.is_a?(Natural20::Action)
 
+      active_perception = active_perception.nil? ? active_perception_for(entity) : 0
       target_types = target_types&.map(&:to_sym) || [:enemies]
       entity_group = @entities[entity][:group]
       attack_range = compute_max_weapon_range(action, range)
@@ -265,15 +272,16 @@ module Natural20
     # @param entity1 [Natural20::Entity] observer
     # @param entity2 [Natural20::Entity] entity being observed
     # @return [Boolean]
-    def can_see?(entity1, entity2, active_perception: nil, entity_1_pos: nil)
+    def can_see?(entity1, entity2, active_perception: 0, entity_1_pos: nil, entity_2_pos: nil)
       return true if entity1 == entity2
-      return false unless @map.can_see?(entity1, entity2, entity_1_pos: entity_1_pos)
+      return false unless @map.can_see?(entity1, entity2, entity_1_pos: entity_1_pos, entity_2_pos: entity_2_pos)
       return true unless entity2.hiding?(self)
 
-      cover_value = @map.cover_calculation(@map, entity1, entity2, entity_1_pos: entity_1_pos, naturally_stealthy: entity2.class_feature?('naturally_stealthy'))
+      cover_value = @map.cover_calculation(@map, entity1, entity2, entity_1_pos: entity_1_pos,
+                                                                   naturally_stealthy: entity2.class_feature?('naturally_stealthy'))
       if cover_value.positive?
         entity_2_state = entity_state_for(entity2)
-        return false if entity_2_state[:stealth] > (active_perception || entity1.passive_perception)
+        return false if entity_2_state[:stealth] > [active_perception, entity1.passive_perception].max
       end
 
       true

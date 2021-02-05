@@ -20,6 +20,7 @@ module Natural20::Weapons
   # @option weapon type [String]
   # @return [Array]
   def compute_advantages_and_disadvantages(battle, source, target, weapon, source_pos: nil)
+    weapon = battle.session.load_weapon(weapon) if weapon.is_a?(String) || weapon.is_a?(Symbol)
     advantage = []
     disadvantage = []
 
@@ -45,7 +46,8 @@ module Natural20::Weapons
     disadvantage << :small_creature_using_heavy if weapon[:properties]&.include?('heavy') && source.size == :small
     advantage << :target_is_prone if weapon[:type] == 'melee_attack' && target.prone?
 
-    advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source, entity_1_pos: source_pos)
+    advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source, entity_2_pos: source_pos)
+    disadvantage << :invisible_attacker if battle.map && !battle.can_see?(source, target, entity_1_pos: source_pos)
     [advantage, disadvantage]
   end
 

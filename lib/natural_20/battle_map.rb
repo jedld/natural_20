@@ -355,7 +355,7 @@ module Natural20
     # @param entity_2_pos [Array] position override for entity2
     # @param allow_dark_vision [Boolean] Allow darkvision
     # @return [Boolean]
-    def can_see?(entity, entity2, distance: nil, entity_1_pos: nil, entity_2_pos: nil, allow_dark_vision: true)
+    def can_see?(entity, entity2, distance: nil, entity_1_pos: nil, entity_2_pos: nil, allow_dark_vision: true, active_perception: 0, active_perception_disadvantage: 0)
       raise 'invalid entity passed' if @entities[entity].nil? && @interactable_objects[entity].nil?
 
       entity_1_squares = entity_1_pos ? entity_squares_at_pos(entity, *entity_1_pos) : entity_squares(entity)
@@ -369,8 +369,8 @@ module Natural20
         entity_2_squares.each do |pos2|
           pos1_x, pos1_y = pos1
           pos2_x, pos2_y = pos2
-          next if pos1_x >= size[0] || pos1_x < 0 || pos1_y >= size[1] || pos1_y < 0
-          next if pos2_x >= size[0] || pos2_x < 0 || pos2_y >= size[1] || pos2_y < 0
+          next if pos1_x >= size[0] || pos1_x.negative? || pos1_y >= size[1] || pos1_y.negative?
+          next if pos2_x >= size[0] || pos2_x.negative? || pos2_y >= size[1] || pos2_y.negative?
           next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
 
           location_illumnination = light_at(pos2_x, pos2_y)
@@ -773,6 +773,16 @@ module Natural20
       obj
     end
 
+    # @param entity [Natural20::Battle]
+    # @param pos_x [Integer]
+    # @param pos_y [Integer]
+    # @param group [Symbol]
+    def add(entity, pos_x, pos_y, group: :b)
+      @unaware_npcs << { group: group&.to_sym || :b, entity: entity }
+      @entities[entity] = [pos_x, pos_y]
+      place(pos_x, pos_y, entity, nil)
+    end
+
     protected
 
     def compute_lights
@@ -818,9 +828,8 @@ module Natural20
 
             entity = session.npc(npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides],
                                                              rand_life: true)
-            @unaware_npcs << { group: npc_meta[:group]&.to_sym || :b, entity: entity }
-            @entities[entity] = [column_index, row_index]
-            place(column_index, row_index, entity, nil)
+
+            add(entity, column_index, row_index, group: npc_meta[:group])
           when 'spawn_point'
             @spawn_points[@legend.dig(token.to_sym, :name)] = {
               location: [column_index, row_index]

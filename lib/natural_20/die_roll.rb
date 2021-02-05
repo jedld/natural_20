@@ -225,6 +225,10 @@ module Natural20
       false
     end
 
+    def <=>(other)
+      result <=> other.result
+    end
+
     def +(other)
       if other.is_a?(DieRolls)
         other.add_to_front(self)

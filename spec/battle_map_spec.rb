@@ -236,6 +236,8 @@ RSpec.describe Natural20::BattleMap do
                                                       bonus_action: 1,
                                                       controller: nil,
                                                       free_object_interaction: 1,
+                                                      active_perception: 0,
+                                                      active_perception_disadvantage: 0,
                                                       group: :b,
                                                       movement: 30,
                                                       reaction: 1,

@@ -55,7 +55,7 @@ RSpec.describe AiController::Standard do
         end
         false
       end
-      expect(@fighter.hp).to eq 36
+      expect(@fighter.hp).to eq 67
       expect(@npc1.hp).to eq 0
       expect(@npc2.hp).to eq 0
     end
@@ -84,7 +84,12 @@ RSpec.describe AiController::Standard do
       @npc1.reset_turn!(@battle)
       state = @battle.entity_state_for(@npc1)
       state[:action] = 0 # force movement only
-      action = controller.move_for(@npc1, @battle)
+      action = nil
+      begin
+        action = controller.move_for(@npc1, @battle)
+        @battle.action!(action)
+        @battle.commit(action)
+      end until action.action_type == :move
       expect(action.move_path).to eq([[5, 1], [6, 2], [6, 3]])
     end
 

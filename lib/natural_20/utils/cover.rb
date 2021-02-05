@@ -2,10 +2,12 @@ module Natural20::Cover
   # @param map [Natural20::BattleMap]
   # @param source [Natural20::Entity]
   # @param target [Natural20::Entity]
+  # @param entity_1_pos [Array<Integer,Integer>]
+  # @param entity_2_pos [Array<Integer,Integer>]
   # @return [Integer]
-  def cover_calculation(map, source, target, entity_1_pos: nil, naturally_stealthy: false)
+  def cover_calculation(map, source, target, entity_1_pos: nil, entity_2_pos: nil, naturally_stealthy: false)
     source_squares = entity_1_pos ? map.entity_squares_at_pos(source, *entity_1_pos) : map.entity_squares(source)
-    target_squares = map.entity_squares(target)
+    target_squares = entity_2_pos ? map.entity_squares_at_pos(target, *entity_2_pos) : map.entity_squares(target)
     source_position = map.position_of(source)
     source_melee_square = source.melee_squares(map, target_position: source_position, adjacent_only: true)
 

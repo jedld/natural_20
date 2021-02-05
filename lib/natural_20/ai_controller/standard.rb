@@ -46,7 +46,7 @@ module AiController
       end
     end
 
-    def attack_listener(battle, _action, _source, target)
+    def attack_listener(battle, target)
       unaware_npc_info = battle.map.unaware_npcs.detect { |n| n[:entity] == target }
       return unless unaware_npc_info
 
@@ -126,6 +126,11 @@ module AiController
 
       # generate available targets
       valid_actions = []
+
+      if LookAction.can?(entity, battle)
+        action = LookAction.new(battle.session, entity, :look)
+        return action
+      end
 
       # try to stand if prone
       valid_actions << StandAction.new(@session, entity, :stand) if entity.prone? && StandAction.can?(entity, battle)

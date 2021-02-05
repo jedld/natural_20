@@ -160,5 +160,9 @@ module Natural20
         objects[object_name.to_sym]
       end
     end
+
+    def t(token, options = {})
+      I18n.t(token, options)
+    end
   end
 end

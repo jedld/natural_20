@@ -340,6 +340,8 @@ module Natural20
                             reaction: 1,
                             movement: speed,
                             free_object_interaction: 1,
+                            active_perception: 0,
+                            active_perception_disadvantage: 0,
                             two_weapon: nil
                           })
       entity_state[:statuses].delete(:dodge)
@@ -1146,7 +1148,10 @@ module Natural20
       @death_fails = 0
     end
 
-    def on_take_damage(battle, damage_params); end
+    def on_take_damage(battle, _damage_params)
+      controller = battle.controller_for(self)
+      controller.attack_listener(battle, self) if controller && controller.respond_to?(:attack_listener)
+    end
 
     def modifier_table(value)
       mod_table = [[1, 1, -5],

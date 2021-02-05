@@ -60,7 +60,7 @@ RSpec.describe AttackAction do
           action = AttackAction.build(session, @character).next.call(@npc).next.call('dagger').next.call
           @battle.action!(action)
           @battle.commit(action)
-          expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack_second)
+          expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack)
         end
       end
 
@@ -110,7 +110,7 @@ RSpec.describe AttackAction do
         srand(2000)
       end
 
-      context 'attach from the dark' do
+      context 'attack from the dark' do
         specify '#compute_advantages_and_disadvantages' do
           puts Natural20::MapRenderer.new(@battle_map).render(line_of_sight: @guard)
           weapon = session.load_weapon('longbow')
@@ -242,6 +242,29 @@ RSpec.describe AttackAction do
           expect(@action.compute_advantages_and_disadvantages(@battle, @npc, @character,
                                                               @npc.npc_actions.first)).to eq([[], []])
         end
+      end
+    end
+
+    context 'attacking an unseen or invisible target' do
+      before do
+        Natural20::EventManager.standard_cli
+        @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'human_fighter.yml'))
+        @goblin = session.npc(:goblin)
+        @battle.add(@character, :a, position: [5, 0])
+        @battle_map.place(5, 1, @goblin)
+        @action = AttackAction.build(session, @character).next.call(@goblin).next.call('dagger').next.call
+      end
+
+      specify 'has disadvantage' do
+        puts Natural20::MapRenderer.new(@battle_map).render
+        expect(@action.compute_advantages_and_disadvantages(@battle, @character, @goblin,
+                                                            'dagger')).to eq([[], [:invisible_attacker]])
+      end
+
+      specify "can attack invisible" do
+        @battle.action!(@action)
+        @battle.commit(@action)
+        expect(@action.result.last[:attack_roll].roller.disadvantage).to be
       end
     end
 
