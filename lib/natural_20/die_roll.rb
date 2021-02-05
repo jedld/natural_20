@@ -46,7 +46,7 @@ module Natural20
 
       number_of_die *= 2 if crit
 
-      description = t('dice_roll.description', description: description_override.presence || description,
+      description = t('dice_roll.description', description: description_override.presence || @description,
                                                roll_str: roll_str)
       description = lucky ? "(lucky) #{description}" : description
 
