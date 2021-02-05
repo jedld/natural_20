@@ -4,7 +4,7 @@ class LookAction < Natural20::Action
   # @param entity [Natural20::Entity]
   # @param battle [Natural20::Battle]
   def self.can?(entity, battle)
-    battle.nil? || battle.ongoing? || battle.entity_state_for(entity)[:active_perception].zero?
+    battle.nil? || !battle.ongoing? || battle.entity_state_for(entity)[:active_perception].zero?
   end
 
   def build_map
@@ -32,7 +32,6 @@ class LookAction < Natural20::Action
 
   def resolve(_session, _map, opts = {})
     perception_check = @source.perception_check!(opts[:battle])
-
     perception_check_2 = @source.perception_check!(opts[:battle])
 
     perception_check_disadvantage = [perception_check, perception_check_2].min

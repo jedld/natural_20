@@ -91,11 +91,13 @@ module Natural20
     end
 
     def dead!
-      Natural20::EventManager.received_event({ source: self, event: :died })
-      drop_grapple!
-      @statuses.add(:dead)
-      @statuses.delete(:stable)
-      @statuses.delete(:unconscious)
+      unless dead?
+        Natural20::EventManager.received_event({ source: self, event: :died })
+        drop_grapple!
+        @statuses.add(:dead)
+        @statuses.delete(:stable)
+        @statuses.delete(:unconscious)
+      end
     end
 
     def prone!
@@ -276,6 +278,8 @@ module Natural20
     end
 
     def unconscious!
+      return if unconscious? || dead?
+
       drop_grapple!
       Natural20::EventManager.received_event({ source: self, event: :unconscious })
       @statuses.add(:unconscious)

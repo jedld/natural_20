@@ -55,7 +55,7 @@ RSpec.describe AiController::Standard do
         end
         false
       end
-      expect(@fighter.hp).to eq 67
+      expect(@fighter.hp).to eq 36
       expect(@npc1.hp).to eq 0
       expect(@npc2.hp).to eq 0
     end

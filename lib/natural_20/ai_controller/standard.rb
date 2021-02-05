@@ -127,7 +127,7 @@ module AiController
       # generate available targets
       valid_actions = []
 
-      if LookAction.can?(entity, battle)
+      if enemy_positions.empty? && LookAction.can?(entity, battle)
         action = LookAction.new(battle.session, entity, :look)
         return action
       end
