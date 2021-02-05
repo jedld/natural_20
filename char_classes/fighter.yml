@@ -1,15 +1,16 @@
 ---
 hit_die: 1d10
-proficiencies:
+weapon_proficiencies:
 - light_armor
 - medium_armor
 - heavy_armor
 - shields
-- simple_weapon
-- martial_weapon
+- simple
+- martial
 saving_throw_proficiency:
 - str
 - con
+available_skills_choices: 2
 available_skills:
 - acrobatics
 - animal_handling

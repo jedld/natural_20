@@ -8,11 +8,15 @@ module Natural20::InventoryUI
     puts ' str   dex   con   int   wis   cha'
     puts ' ----  ----  ----  ----  ----  ---- '
     puts "|#{entity.all_ability_scores.map { |s| " #{s} " }.join('||')}|"
-    puts "|#{entity.all_ability_mods.map { |s| " +#{s} " }.join('||')}|"
+    puts "|#{entity.all_ability_mods.map { |s| " #{s.negative? ? s : "+#{s}"} " }.join('||')}|"
     puts ' ----  ----  ----  ----  ----  ----'
     puts t('character_sheet.race', race: entity.race.humanize)
+    if entity.subrace
+      puts t('character_sheet.subrace', race: entity.subrace.to_s.humanize)
+    end
     puts t('character_sheet.hp', current: entity.hp, max: entity.max_hp)
     puts t('character_sheet.ac', ac: entity.armor_class)
+    puts t('character_sheet.speed', speed: entity.speed)
     puts t('character_sheet.languages')
     entity.languages.each do |lang|
       puts "  #{t("language.#{lang}")}"

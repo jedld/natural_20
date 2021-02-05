@@ -75,6 +75,10 @@ module Natural20
     end
 
     def speed
+      if subrace
+        return (@race_properties.dig(:subrace, subrace.to_sym,
+                                     :base_speed) || @race_properties[:base_speed])
+      end
       @race_properties[:base_speed]
     end
 
@@ -131,8 +135,36 @@ module Natural20
 
     def proficient?(prof)
       return true if @class_properties.values.detect { |c| c[:proficiencies]&.include?(prof) }
+      return true if @race_properties[:skills]&.include?(prof)
+      return true if weapon_proficiencies.include?(prof)
 
       super
+    end
+
+    def proficient_with_weapon?(weapon)
+      weapon = @session.load_thing weapon if weapon.is_a?(String)
+
+      all_weapon_proficiencies = weapon_proficiencies
+
+      return true if all_weapon_proficiencies.include?(weapon[:name])
+
+      all_weapon_proficiencies&.detect do |prof|
+        weapon[:proficiency_type]&.include?(prof)
+      end
+    end
+
+    def weapon_proficiencies
+      all_weapon_proficiencies = @class_properties.values.map do |p|
+        p[:weapon_proficiencies]
+      end.compact.flatten + @properties.fetch(:weapon_proficiencies, [])
+
+      all_weapon_proficiencies += @race_properties.fetch(:weapon_proficiencies, [])
+      if subrace
+        all_weapon_proficiencies += (@race_properties.dig(:subrace, subrace.to_sym,
+                                                          :weapon_proficiencies) || [])
+      end
+
+      all_weapon_proficiencies
     end
 
     def to_h
@@ -299,6 +331,7 @@ module Natural20
       return true if @properties[:attributes]&.include?(feature)
       return true if @race_properties[:race_features]&.include?(feature)
       return true if subrace && @race_properties.dig(:subrace, subrace.to_sym, :class_features)&.include?(feature)
+      return true if subrace && @race_properties.dig(:subrace, subrace.to_sym, :race_features)&.include?(feature)
 
       @class_properties.values.detect { |p| p[:class_features]&.include?(feature) }
     end

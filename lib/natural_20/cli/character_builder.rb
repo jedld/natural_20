@@ -1,205 +1,189 @@
-module Natural20::CharacterBuilder
-  def build_character
-    values = {
-      hit_die: 'inherit',
-      classes: {},
-      ability: {}
-    }
-    loop do
-      ability_method = :random
+require 'natural_20/cli/builder/fighter_builder'
+require 'natural_20/cli/builder/rogue_builder'
+module Natural20
+  class CharacterBuilder
+    include Natural20::FighterBuilder
+    include Natural20::InventoryUI
 
-      values[:name] = prompt.ask(t('builder.enter_name'), default: values[:name]) do |q|
-        q.required true
-        q.validate(/\A\w+\Z/)
-        q.modify :capitalize
-      end
-      races = session.load_races
-      values[:race] = prompt.select(t('builder.select_race')) do |q|
-        races.each do |race, details|
-          q.choice details[:label] || race.humanize, race
+    attr_reader :session, :battle
+
+    def initialize(prompt, session, battle)
+      @prompt = prompt
+      @session = session
+      @battle = battle
+    end
+
+    def build_character
+      @values = {
+        hit_die: 'inherit',
+        classes: {},
+        ability: {},
+        skills: [],
+        level: 1
+      }
+      loop do
+        ability_method = :random
+
+        @values[:name] = prompt.ask(t('builder.enter_name'), default: @values[:name]) do |q|
+          q.required true
+          q.validate(/\A\w+\Z/)
+          q.modify :capitalize
         end
-      end
-
-      race_detail = races[values[:race]]
-      if race_detail[:subrace]
-        values[:subrace] = prompt.select(t('builder.select_subrace')) do |q|
-          race_detail[:subrace].each do |subrace, detail|
-            q.choice detail[:label] || t("builder.races.#{subrace}"), subrace
+        races = session.load_races
+        @values[:race] = prompt.select(t('builder.select_race')) do |q|
+          races.each do |race, details|
+            q.choice details[:label] || race.humanize, race
           end
         end
-      end
 
-      race_bonus = race_detail[:attribute_bonus] || {}
-      subrace_bonus = race_detail.dig(:subrace, values[:subrace].to_sym, :attribute_bonus) || {}
-
-      attribute_bonuses = race_bonus.merge!(subrace_bonus)
-
-      k = prompt.select('builder.class') do |q|
-        session.load_classes.each do |klass, details|
-          q.choice details[:label] || klass.humanize, klass.to_sym
+        race_detail = races[@values[:race]]
+        if race_detail[:subrace]
+          @values[:subrace] = prompt.select(t('builder.select_subrace')) do |q|
+            race_detail[:subrace].each do |subrace, detail|
+              q.choice detail[:label] || t("builder.races.#{subrace}"), subrace
+            end
+          end
         end
-      end
-      values[:classes][k.to_sym] = 1
-      class_properties = session.load_class(k)
-      result = Natural20::DieRoll.parse(class_properties[:hit_die])
-      values[:max_hp] = result.die_count * result.die_type.to_i
+        subrace_detail = race_detail.dig(:subrace, @values[:subrace]&.to_sym)
 
-      ability_method = prompt.select(t('builder.ability_score_method')) do |q|
-        q.choice t('builder.ability_score.random'), :random
-        q.choice t('builder.ability_score.fixed'), :fixed
-        # q.choice t('builder.ability_score.point_buy'), :point_buy
-      end
+        known_languages = race_detail.fetch(:languages, []) + (subrace_detail&.fetch(:languages, []) || [])
+        language_choice = race_detail.fetch(:language_choice, 0) + (subrace_detail&.fetch(:language_choice, 0) || 0)
+        if language_choice.positive?
+          language_selector(ALL_LANGUAGES - known_languages, min: language_choice, max: language_choice)
+        end
 
-      ability_scores = if ability_method == :random
-                         6.times.map do |index|
-                           r = 4.times.map do |_x|
-                             die_roll = Natural20::DieRoll.roll('1d6', battle: battle,
-                                                                       description: t('dice_roll.ability_score', roll_num: index + 1))
-                             die_roll.result
+        race_bonus = race_detail[:attribute_bonus] || {}
+        subrace_bonus = subrace_detail&.fetch(:attribute_bonus, {})
+
+        attribute_bonuses = race_bonus.merge!(subrace_bonus)
+
+        k = prompt.select('builder.class') do |q|
+          session.load_classes.each do |klass, details|
+            q.choice details[:label] || klass.humanize, klass.to_sym
+          end
+        end
+
+        @values[:classes][k.to_sym] = 1
+        @class_properties = session.load_class(k)
+
+        ability_method = prompt.select(t('builder.ability_score_method')) do |q|
+          q.choice t('builder.ability_score.random'), :random
+          q.choice t('builder.ability_score.fixed'), :fixed
+          # q.choice t('builder.ability_score.point_buy'), :point_buy
+        end
+
+        ability_scores = if ability_method == :random
+                           6.times.map do |index|
+                             r = 4.times.map do |_x|
+                               die_roll = Natural20::DieRoll.roll('1d6', battle: battle,
+                                                                         description: t('dice_roll.ability_score', roll_num: index + 1))
+                               die_roll.result
+                             end.sort.reverse
+                             puts "#{index + 1}. #{r.join(',')}"
+
+                             r.take(3).sum
                            end.sort.reverse
-                           puts "#{index + 1}. #{r.join(',')}"
+                         elsif ability_method == :fixed
+                           [15, 14, 13, 12, 10, 8]
+                         end
 
-                           r.take(3).sum
-                         end.sort.reverse
-                       elsif ability_method == :fixed
-                         [15, 14, 13, 12, 10, 8]
-                       end
+        puts t('builder.assign_ability_scores', scores: ability_scores.join(','))
 
-      puts t('builder.assign_ability_scores', scores: ability_scores.join(','))
+        chosen_score = []
 
-      chosen_score = []
+        Natural20::Entity::ATTRIBUTE_TYPES_ABBV.each do |type|
+          bonus = attribute_bonuses[type.to_sym] || 0
+          ability_choice_str = t("builder.#{type}")
+          ability_choice_str += " (+#{bonus})" if bonus.positive?
+          score_index = prompt.select(ability_choice_str) do |q|
+            ability_scores.each_with_index do |score, index|
+              next if chosen_score.include?(index)
 
-      Natural20::Entity::ATTRIBUTE_TYPES_ABBV.each do |type|
-        bonus = attribute_bonuses[type.to_sym] || 0
-        ability_choice_str = t("builder.#{type}")
-        ability_choice_str += " (+#{bonus})" if bonus.positive?
-        score_index = prompt.select(ability_choice_str) do |q|
-          ability_scores.each_with_index do |score, index|
-            next if chosen_score.include?(index)
-
-            q.choice score, index
+              q.choice score, index
+            end
           end
+
+          chosen_score << score_index
+          @values[:ability][type.to_sym] = ability_scores[score_index] + bonus
         end
 
-        chosen_score << score_index
-        values[:ability][type.to_sym] = ability_scores[score_index] + bonus
+        class_skills_selector
+
+        send(:"#{k}_builder")
+        @values.merge!(@class_values)
+        @pc = Natural20::PlayerCharacter.new(session, @values)
+        character_sheet(@pc)
+        break if prompt.yes?(t('builder.review'))
       end
 
-      class_features = fighter_build if k.to_s == 'fighter'
-      values.merge!(class_features)
-      pc = Natural20::PlayerCharacter.new(session, values)
-      character_sheet(pc)
-      break if prompt.yes?(t('builder.review'))
-    end
-    session.save_character(values[:name], values)
+      @values[:max_hp] =
+        session.save_character(@values[:name], @values)
 
-    pc
-  end
-
-  def fighter_build
-    @class_values ||= {
-      attributes: [],
-      saving_throw_proficiencies: %w[strength constitution],
-      skills: [],
-      equipped: [],
-      inventory: []
-    }
-
-    fighter_skills = %w[acrobatics animal_handling athletics history insight intimidation perception survival]
-    @class_values[:skills] = prompt.multi_select(t('builder.fighter.select_skill'), min: 2, max: 2) do |q|
-      fighter_skills.each do |skill|
-        q.choice t("builder.skill.#{skill}"), skill
-      end
+      @pc
     end
 
-    fighter_features = %w[archery defense dueling great_weapon_fighting protection two_weapon_fighting]
-    @class_values[:attributes] << prompt.select(t('builder.fighter.select_fighting_style')) do |q|
-      fighter_features.each do |style|
-        q.choice t("builder.fighter.#{style}"), style
-      end
-    end
+    ALL_LANGUAGES = %w[abyssal
+                       celestial
+                       common
+                       deep_speech
+                       draconic
+                       dwarvish
+                       elvish
+                       giant
+                       gnomish
+                       goblin
+                       halfling
+                       infernal
+                       orc
+                       primordial
+                       sylvan
+                       undercommon]
 
-    starting_equipment = []
-    starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon')) do |q|
-      q.choice t('object.chain_mail'), :chain_mail
-      q.choice t('object.longbow_and_arrows'), :longbow_and_arrows
-    end
+    protected
 
-    starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_2')) do |q|
-      q.choice t('object.martial_weapon_and_shield'), :martial_weapon_and_shield
-      q.choice t('object.two_martial_weapons'), :two_martial_weapons
-    end
-
-    starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_3')) do |q|
-      q.choice t('object.light_crossbow_and_20_bolts'), :light_crossbow_and_20_bolts
-      q.choice t('object.two_handaxes'), :two_handaxes
-    end
-
-    # starting_equipment << prompt.select(t('builder.fighter.select_starting_weapon_4')) do |q|
-    #   q.choice t('object.dungeoneers_pack'), :dungeoneers_pack
-    #   q.choice t('object.explorers_pack'), :explorers_pack
-    # end
-
-    martial_weapons = session.load_weapons.map do |k, weapon|
-      next unless weapon[:proficiency_type]&.include?('martial')
-      next if weapon[:rarity] && weapon[:rarity] != 'common'
-
-      k
-    end.compact
-
-    starting_equipment.each do |equipment|
-      case equipment
-      when :chain_mail
-        @class_values[:equipped] << 'chain_mail'
-      when :longbow_and_arrows
-        @class_values[:inventory] << {
-          type: 'longbow',
-          qty: 1
-        }
-      when :martial_weapon_and_shield
-        chosen_martial_weapon = prompt.select(t('builder.select_martial_weapon')) do |q|
-          martial_weapons.each do |weapon|
-            q.choice t("object.weapons.#{weapon}"), weapon
-          end
+    def language_selector(languages = ALL_LANGUAGES, min: 1, max: 1)
+      @values[:languages] = prompt.multi_select(t('builder.select_languages'), min: min, max: max, per_page: 20) do |q|
+        languages.each do |lang|
+          q.choice t("language.#{lang}"), lang
         end
-        @class_values[:inventory] << {
-          type: chosen_martial_weapon,
-          qty: 1
-        }
-        @class_values[:inventory] << {
-          type: 'shield',
-          qty: 1
-        }
-      when :two_martial_weapons
-        chosen_martial_weapons = prompt.multi_select(t('builder.select_martial_weapon'), min: 2, max: 2) do |q|
-          martial_weapons.each do |weapon|
-            q.choice t("object.weapons.#{weapon}"), weapon
-          end
-        end
-        chosen_martial_weapons.each do |w|
-          @class_values[:inventory] << {
-            type: w,
-            qty: 1
-          }
-        end
-      when :light_crossbow_and_20_bolts
-        @class_values[:inventory] << {
-          type: 'crossbow',
-          qty: 1
-        }
-        @class_values[:inventory] << {
-          type: 'bolts',
-          qty: 20
-        }
-      when :two_handaxes
-        @class_values[:inventory] << {
-          type: 'handaxe',
-          qty: 2
-        }
-        # when :dungeoneers_pack
-        # when :explorers_pack
       end
     end
-    @class_values
+
+    def class_skills_selector
+      class_skills = @class_properties[:available_skills]
+      num_choices = @class_properties[:available_skills_choices]
+      @values[:skills] += prompt.multi_select(t("builder.#{@values[:classes].keys.first}.select_skill"),
+                                              min: num_choices, max: num_choices, per_page: 20) do |q|
+        class_skills.each do |skill|
+          q.choice t("builder.skill.#{skill}"), skill
+        end
+      end
+    end
+
+    def modifier_table(value)
+      mod_table = [[1, 1, -5],
+                   [2, 3, -4],
+                   [4, 5, -3],
+                   [6, 7, -2],
+                   [8, 9, -1],
+                   [10, 11, 0],
+                   [12, 13, 1],
+                   [14, 15, 2],
+                   [16, 17, 3],
+                   [18, 19, 4],
+                   [20, 21, 5],
+                   [22, 23, 6],
+                   [24, 25, 7],
+                   [26, 27, 8],
+                   [28, 29, 9],
+                   [30, 30, 10]]
+
+      mod_table.each do |row|
+        low, high, mod = row
+        return mod if value.between?(low, high)
+      end
+    end
+
+    attr_reader :prompt
   end
 end

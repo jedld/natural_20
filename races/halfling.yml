@@ -13,10 +13,10 @@ subrace:
   lightfoot:
     attribute_bonus:
       cha: 1
-    class_features:
+    race_features:
       - naturally_stealthy
   stout:
     attribute_bonus:
       con: 1
-    class_features:
+    race_features:
       - stout_resilience

@@ -5,7 +5,6 @@ class CommandlineUI < Natural20::Controller
   include Natural20::InventoryUI
   include Natural20::MovementHelper
   include Natural20::Cover
-  include Natural20::CharacterBuilder
 
   TTY_PROMPT_PER_PAGE = 20
   attr_reader :battle, :map, :session, :test_mode

@@ -835,6 +835,7 @@ module Natural20
     def proficient?(prof)
       @properties[:skills]&.include?(prof.to_s) ||
         @properties[:tools]&.include?(prof.to_s) ||
+
         @properties[:saving_throw_proficiencies]&.map { |s| "#{s}_save" }&.include?(prof.to_s)
     end
 
@@ -912,19 +913,19 @@ module Natural20
     end
 
     def perception_proficient?
-      @properties[:skills].include?('perception')
+      proficient?('perception')
     end
 
     def investigation_proficient?
-      @properties[:skills].include?('investigation')
+      proficient?('investigation')
     end
 
     def insight_proficient?
-      @properties[:skills].include?('insight')
+      proficient?('insight')
     end
 
     def stealth_proficient?
-      @properties[:skills].include?('stealth')
+      proficient?('stealth')
     end
 
     def acrobatics_proficient?

@@ -1,0 +1,13 @@
+base_speed: 30
+size: medium
+languages:
+  - common
+attribute_bonus:
+  dex: 1
+  con: 1
+  wis: 1
+  cha: 1
+  int: 1
+  str: 1
+language_choice: 1
+

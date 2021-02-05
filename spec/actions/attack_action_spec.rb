@@ -45,6 +45,7 @@ RSpec.describe AttackAction do
       specify 'unarmed attack' do
         Natural20::EventManager.standard_cli
         @battle_map.move_to!(@character, 0, 5, @battle)
+        srand(1000)
         puts Natural20::MapRenderer.new(@battle_map).render
         action = AttackAction.build(session, @character).next.call(@npc).next.call('unarmed_attack').next.call
         expect do

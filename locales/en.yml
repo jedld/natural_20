@@ -54,6 +54,8 @@ en:
     con: Select Constitution ability score
     dex: Select Dexterity ability score
     enter_name: Enter name for your character
+    rogue:
+      select_skill: Select a Rogue skill. Pick 4
     fighter:
       archery: Archery - You gain a +2 bonus to attack rolls you make with ranged weapons.
       defense: Defence - While you are wearing armor, you gain a +1 bonus to AC.
@@ -66,19 +68,28 @@ en:
       two_weapon_fighting: Two-Weapon Fighting - When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.
     int: Select Intelligence ability score
     races:
+      high_elf: High Elf
       lightfoot: Lightfoot
       stout: Stout
     review: Confirm this character?
     select_race: Please select a race
+    select_skill: null
+    select_languages: Select languages
     select_subrace: Please select a sub-race
     skill:
       acrobatics: Acrobatics
       animal_handling: Animal Handling
       athletics: Athletics
+      deception: Deception
       history: History
       insight: Insight
       intimidation: Intimidation
+      investigation: Investigation
       perception: Perception
+      performance: Performance
+      persuasion: Persuasion
+      sleight_of_hand: Sleight of Hand
+      stealth: Stealth
       survival: Survival
     str: Select Strength ability score
     wis: Select Wisdom ability score
@@ -92,6 +103,8 @@ en:
     level: 'Level: %{level}'
     name: 'Name: %{name}'
     race: 'Race: %{race}'
+    subrace: 'Subrace: %{race}'
+    speed: 'Speed: %{speed}ft.'
   character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
   dice_roll:

@@ -9,7 +9,6 @@ dagger:
   modifiers: null
   name: Dagger
   proficiency_type:
-    - martial
     - simple
   properties:
     - light
@@ -123,6 +122,24 @@ longbow:
   subtype: weapon
   type: ranged_attack
   weight: 2
+longsword:
+  cost: 15gp
+  damage: 1d8
+  damage_2: 1d10
+  damage_type: slashing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Longsword
+  proficiency_type:
+    - martial
+  properties:
+    - versatile
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 3
 rapier:
   cost: 25
   damage: 1d8
@@ -251,8 +268,8 @@ vicious_rapier:
     - martial
   properties:
     - finesse
-  rarity: very_rare
   range: 5
+  rarity: very_rare
   subtype: weapon
   type: melee_attack
   weight: 2

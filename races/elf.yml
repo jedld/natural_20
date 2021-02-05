@@ -1,0 +1,34 @@
+base_speed: 30
+size: medium
+darkvision: 60
+attribute_bonus:
+  dex: 2
+skills:
+  - perception
+languages:
+  - common
+  - elvish
+race_features:
+  - fey_ancestry
+  - trance
+subrace:
+  high_elf:
+    language_choice: 1
+    attribute_bonus:
+      int: 1
+    weapon_proficiencies:
+      - longsword
+      - shortsword
+      - shortbow
+      - longbow
+  wood_elf:
+    base_speed: 35
+    attribute_bonus:
+      wis: 1
+    race_features:
+      - mask_of_the_wild
+    weapon_proficiencies:
+      - longsword
+      - shortsword
+      - shortbow
+      - longbow

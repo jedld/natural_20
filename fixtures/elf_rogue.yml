@@ -1,7 +1,7 @@
 ---
-name: RumbleBelly
-race: halfling
-subrace: lightfoot
+name: GrumbleBelly
+race: elf
+subrace: high_elf
 classes:
   rogue: 1
 level: 1
@@ -16,6 +16,7 @@ ability:
   cha: 17
 class_features:
 - cunning_action
+- sneak_attack
 skills:
 - acrobatics
 - arcana

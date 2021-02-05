@@ -1,6 +1,7 @@
 ---
 name: Gomerin
-race: high_elf
+race: elf
+subrace: high_elf
 classes:
   fighter: 1
 description: A high elf fighter seeking for glory

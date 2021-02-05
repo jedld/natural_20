@@ -1,6 +1,7 @@
 ---
 name: Gomerin
-race: high_elf
+race: elf
+subrace: high_elf
 classes:
   fighter: 1
 level: 7
@@ -24,10 +25,6 @@ skills:
 - arcana
 - athletics
 - history
-- perception
-weapon_proficiencies:
-- martial
-- simple
 languages:
 - abyssal
 - celestial

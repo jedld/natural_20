@@ -6,6 +6,7 @@ RSpec.describe Natural20::PlayerCharacter do
 
   context 'fighter' do
     before do
+      String.disable_colorization true
       @player = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
       @player2 = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
     end
@@ -124,8 +125,13 @@ RSpec.describe Natural20::PlayerCharacter do
       expect(@player.check_equip('scimitar')).to eq(:hands_full)
     end
 
-    specify "#proficient_with_weapon?" do
+    specify '#proficient_with_weapon?' do
       expect(@player.proficient_with_weapon?('rapier')).to be
+      expect(@player.proficient_with_weapon?('longbow')).to be
+    end
+
+    specify '#proficient?' do
+      expect(@player.proficient?('perception')).to be
     end
 
     context '#take_damage!' do
@@ -173,20 +179,47 @@ RSpec.describe Natural20::PlayerCharacter do
   end
 
   context 'rogue' do
-    before do
-      @player = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
-    end
+    context 'halfling' do
+      before do
+        @player = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
+      end
 
-    specify '#languages' do
-      expect(@player.languages).to eq(%w[common halfling thieves_cant])
-    end
+      specify '#languages' do
+        expect(@player.languages).to eq(%w[common halfling thieves_cant])
+      end
 
-    # test to see if character is "glowing" because of equipment
-    specify '#light_properties' do
-      expect(@player.light_properties).to eq({
-                                               bright: 20.0,
-                                               dim: 20.0
-                                             })
+      # test to see if character is "glowing" because of equipment
+      specify '#light_properties' do
+        expect(@player.light_properties).to eq({
+                                                 bright: 20.0,
+                                                 dim: 20.0
+                                               })
+      end
+
+      specify '#proficient?' do
+        expect(@player.proficient?('longsword')).to be
+      end
+    end
+    context 'elf' do
+      before do
+        @player = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'elf_rogue.yml'))
+      end
+
+      specify '#languages' do
+        expect(@player.languages).to eq(%w[common elvish thieves_cant])
+      end
+
+      # test to see if character is "glowing" because of equipment
+      specify '#light_properties' do
+        expect(@player.light_properties).to eq({
+                                                 bright: 20.0,
+                                                 dim: 20.0
+                                               })
+      end
+
+      specify '#proficient?' do
+        expect(@player.proficient?('longsword')).to be
+      end
     end
   end
 end
