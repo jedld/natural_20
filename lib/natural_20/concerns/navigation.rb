@@ -31,9 +31,13 @@ module Natural20::Navigation
   # @param entity [Natural20::Entity]
   # @param opponents [Array<Natural20::Entity>]
   def evaluate_square(map, battle, entity, opponents)
-    melee_squares = opponents.map do |opp|
-      opp.melee_squares(map)
-    end.flatten(1)
+    melee_attack_squares = {}
+    opponents.each do |opp|
+      opp.melee_squares(map).each do |pos|
+        melee_attack_squares[pos] ||= 0
+        melee_attack_squares[pos] += 1
+      end
+    end
 
     attack_options = if entity.npc?
                        entity.npc_actions.map do |npc_action|
@@ -54,8 +58,9 @@ module Natural20::Navigation
       mobility = 0.0
       support = 0.0
 
-      if melee_squares.include?(d)
+      if melee_attack_squares.key?(d)
         melee_offence += 0.1
+        defense -= 0.05 * melee_attack_squares[d]
         if attack_options
           opponents.each do |opp|
             adv, _adv_info = target_advantage_condition(battle, entity, opp, attack_options, source_pos: d)
@@ -65,7 +70,8 @@ module Natural20::Navigation
       else
         ranged_offence += 0.1
         opponents.each do |opp|
-          defense += map.cover_calculation_at_pos(map, opp, entity, d[0], d[1]).to_f
+          defense += map.cover_calculation(map, opp, entity, entity_2_pos: d,
+                                                             naturally_stealthy: entity.class_feature?('naturally_stealthy')).to_f
         end
       end
 
