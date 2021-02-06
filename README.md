@@ -24,7 +24,9 @@ Features:
 
 ## Installation
 
-Add this line to your application's Gemfile if you plan to use the game engine in an adventure of your own otherwise you can just clone this repository locally:
+- Install ruby 2.5 or later
+
+Add this line to your application's Gemfile if you plan to use the game engine in an adventure of your own otherwise you can just clone this repository locally using git clone:
 
 ```ruby
 gem 'natural_20'
@@ -46,6 +48,8 @@ load the default adventure included in this repository:
 ```
 bin/nat20
 ```
+
+See below for a description of the adventure
 
 ## Adventure Tutorial
 
