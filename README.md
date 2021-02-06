@@ -69,6 +69,13 @@ game.yml
 
 These are all text readable for you to customize to your liking.
 
+## Screenshots
+
+![Screenshot from 2021-02-06 13-14-48](https://user-images.githubusercontent.com/949459/107109725-91212000-687d-11eb-8f59-3ecd2d5efa9e.png)
+![Screenshot from 2021-02-06 13-15-13](https://user-images.githubusercontent.com/949459/107109730-941c1080-687d-11eb-94ad-565d4bde5cfd.png)
+![Screenshot from 2021-02-06 13-15-37](https://user-images.githubusercontent.com/949459/107109733-95e5d400-687d-11eb-8928-53caad6f9b28.png)
+
+
 ## Creating your own adventures
 
 You can generate a skeleton adventure using:
