@@ -9,6 +9,7 @@ Features:
  - Simulation of doors, traps, treasure chests and cover
  - Rudimentary AI and pathfinding
  - Text based UI
+ - Support for automatic and manual dice rolling
  - Easily extensible to incorporate in your own games
 
  Supported Races:
