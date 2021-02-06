@@ -191,4 +191,5 @@ module Natural20::MovementHelper
     Movement.new(actual_moves, original_budget, acrobatics_check_locations, athletics_check_locations, jump_locations, jump_start_locations, land_locations, jump_budget,
                  movement_budget, impediment)
   end
+
 end

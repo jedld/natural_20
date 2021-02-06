@@ -60,7 +60,22 @@ game_map[:map][:meta] = height.times.map do
   width.times.map { '.' }.join
 end
 
+templates_root =  File.expand_path(File.join(__dir__, '..'))
+
 game_root_folder = game[:name]
-FileUtils.mkdir_p(File.join(game_root_folder, 'maps'))
+
+raise "folder #{game_root_folder} already exists" if File.exist?(game_root_folder)
+
+puts "writing out generated files"
+
+FileUtils.mkdir_p(game_root_folder)
+
+%w[char_classes characters items npcs races].each do |asset|
+  puts "copy #{File.join(templates_root, asset)} to #{File.join(game_root_folder, asset)}"
+  FileUtils.cp_r(File.join(templates_root, asset), File.join(game_root_folder, asset))
+end
+
 File.write(File.join(game_root_folder, 'game.yml'), game.to_yaml)
 File.write(File.join(game_root_folder, 'maps', 'game.yml'), game_map.to_yaml)
+
+puts "written #{File.join(game_root_folder, 'game.yml')}"

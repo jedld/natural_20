@@ -183,7 +183,7 @@ module Natural20
     end
 
     # @param map [Natural20::BattleMap]
-    def push_from!(map, pos_x, pos_y, distance = 5)
+    def push_from(map, pos_x, pos_y, distance = 5)
       x, y = map.entity_or_object_pos(self)
       effective_token_size = token_size - 1
       ofs_x, ofs_y = if pos_x.between?(x, x + effective_token_size) && !pos_y.between?(y, y + effective_token_size)
@@ -205,7 +205,11 @@ module Natural20
       ofs_x /= map.feet_per_grid
       ofs_y /= map.feet_per_grid
 
-      map.move_to!(self, x + ofs_x, y + ofs_y, nil) if map.placeable?(self, x + ofs_x, y + ofs_y)
+      if map.placeable?(self, x + ofs_x, y + ofs_y)
+        [x + ofs_x, y + ofs_y]
+      else
+        nil
+      end
     end
 
     # @param map [Natural20::BattleMap]

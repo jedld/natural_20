@@ -1,4 +1,5 @@
 class ShoveAction < Natural20::Action
+  include Natural20::ActionDamage
   attr_accessor :target, :knock_prone
 
   def self.can?(entity, battle, _options = {})
@@ -45,7 +46,7 @@ class ShoveAction < Natural20::Action
   # @param map [Natural20::BattleMap]
   # @option opts battle [Natural20::Battle]
   # @option opts target [Natural20::Entity]
-  def resolve(_session, _map, opts = {})
+  def resolve(_session, map, opts = {})
     target = opts[:target] || @target
     battle = opts[:battle]
     raise 'target is a required option for :attack' if target.nil?
@@ -71,6 +72,15 @@ class ShoveAction < Natural20::Action
       shove_success = strength_roll.result >= contested_roll.result
     end
 
+    shove_loc = nil
+    additional_effects = []
+    unless knock_prone
+      shove_loc = @target.push_from(map, *map.entity_or_object_pos(@source))
+      if shove_loc
+        trigger_results = map.area_trigger!(@target, shove_loc, false)
+        additional_effects += trigger_results
+      end
+    end
     @result = if shove_success
                 [{
                   source: @source,
@@ -78,10 +88,11 @@ class ShoveAction < Natural20::Action
                   type: :shove,
                   success: true,
                   battle: battle,
+                  shove_loc: shove_loc,
                   knock_prone: knock_prone,
                   source_roll: strength_roll,
                   target_roll: contested_roll
-                }]
+                }] + additional_effects
               else
                 [{
                   source: @source,
@@ -99,13 +110,16 @@ class ShoveAction < Natural20::Action
   def apply!(battle)
     @result.each do |item|
       case (item[:type])
+      when :damage
+        damage_event(item, battle)
       when :shove
         if item[:success]
           if item[:knock_prone]
             item[:target].prone!
-          else
-            item[:target].push_from!(item[:battle].map, *item[:battle].map.entity_or_object_pos(item[:source]))
+          elsif item[:shove_loc]
+            item[:battle].map.move_to!(item[:target], *item[:shove_loc], battle)
           end
+
           Natural20::EventManager.received_event(event: :shove_success,
                                                  knock_prone: item[:knock_prone],
                                                  target: item[:target], source: item[:source],
