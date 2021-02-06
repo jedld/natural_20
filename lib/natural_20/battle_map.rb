@@ -821,6 +821,7 @@ module Natural20
       @meta_map&.each_with_index do |meta_row, column_index|
         meta_row.each_with_index do |token, row_index|
           token_type = @legend.dig(token.to_sym, :type)
+
           case token_type
           when 'npc'
             npc_meta = @legend[token.to_sym]

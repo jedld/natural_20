@@ -49,7 +49,7 @@ module Natural20
 
         @values[:description] = prompt.multiline(t('builder.description')) do |q|
           q.default t('buider.default_description')
-        end
+        end.join("\n")
 
         races = session.load_races
         @values[:race] = prompt.select(t('builder.select_race')) do |q|
@@ -75,7 +75,7 @@ module Natural20
         end
 
         race_bonus = race_detail[:attribute_bonus] || {}
-        subrace_bonus = subrace_detail&.fetch(:attribute_bonus, {})
+        subrace_bonus = subrace_detail&.fetch(:attribute_bonus, {}) || {}
 
         attribute_bonuses = race_bonus.merge!(subrace_bonus)
 
