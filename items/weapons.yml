@@ -1,4 +1,22 @@
 ---
+battleaxe:
+  cost: 10
+  damage: 1d8
+  damage_2: 1d10
+  damage_type: slashing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Battleaxe
+  proficiency_type:
+    - martial
+  properties:
+    - versatile
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 4
 dagger:
   cost: 2
   damage: 1d4
@@ -122,6 +140,45 @@ light_crossbow:
   range_max: 320
   subtype: weapon
   type: ranged_attack
+  weight: 2
+light_hammer:
+  cost: 2
+  damage: 1d4
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Light Hammer
+  proficiency_type:
+    - simple
+  properties:
+    - light
+    - thrown
+  range: 5
+  subtype: weapon
+  thrown:
+    range: 20
+    range_max: 60
+  type: melee_attack
+  weight: 2
+warhammer:
+  cost: 2
+  damage: 1d8
+  damage_2: 1d10
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Warhammer
+  proficiency_type:
+    - martial
+  properties:
+    - versatile
+  range: 5
+  subtype: weapon
+  type: melee_attack
   weight: 2
 longbow:
   ammo: arrows

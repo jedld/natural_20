@@ -1,0 +1,35 @@
+base_speed: 25
+size: medium
+darkvision: 60
+attribute_bonus:
+  con: 2
+skills:
+  - perception
+languages:
+  - common
+  - dwarvish
+race_features:
+  - dwarven_resilience
+  - stonecunning
+weapon_proficiencies:
+  - battleaxe
+  - handaxe
+  - light_hammer
+  - warhammer
+tool_proficiencies_choice: 1
+tool_proficiencies:
+  - smiths_tools
+  - brewers_supplies
+  - masons_tools
+subrace:
+  hill_dwarf:
+    attribute_bonus:
+      wis: 1
+    race_features:
+      - dwarven_toughness
+  mountain_dwarf:
+    attribute_bonus:
+      str: 1
+    weapon_proficiencies:
+      - light_armor
+      - medium_armor

@@ -21,14 +21,14 @@ module Natural20
         ability: {},
         skills: [],
         level: 1,
-        token: ['X']
+        token: ['X'],
+        tools: []
       }
       loop do
         ability_method = :random
 
         @values[:name] = prompt.ask(t('builder.enter_name'), default: @values[:name]) do |q|
           q.required true
-          q.validate(/\A\w+\Z/)
           q.modify :capitalize
         end
 
@@ -87,6 +87,15 @@ module Natural20
 
         @values[:classes][k.to_sym] = 1
         @class_properties = session.load_class(k)
+
+        if race_detail[:tool_proficiencies_choice]
+          num_tools_choices = race_detail[:tool_proficiencies_choice]
+          @values[:tools] = prompt.multi_select(t('builder.select_tools_proficiency'), min: num_tools_choices, max: num_tools_choices) do |q|
+            race_detail[:tool_proficiencies].each do |prof|
+              q.choice t("builder.tools.#{prof}"), prof
+            end
+          end
+        end
 
         ability_method = prompt.select(t('builder.ability_score_method')) do |q|
           q.choice t('builder.ability_score.random'), :random

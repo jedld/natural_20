@@ -31,7 +31,7 @@ module Natural20
       @statuses = Set.new
       @resistances = []
       entity_uid = SecureRandom.uuid
-      setup_attributes
+
       @max_hit_die = {}
       @current_hit_die = {}
 
@@ -48,6 +48,8 @@ module Natural20
 
         [klass.to_sym, character_class_properties]
       end.to_h
+
+      setup_attributes
     end
 
     def name
@@ -55,7 +57,11 @@ module Natural20
     end
 
     def max_hp
-      @properties[:max_hp]
+      if class_feature?('dwarven_toughness')
+        @properties[:max_hp] + level
+      else
+        @properties[:max_hp]
+      end
     end
 
     def armor_class
@@ -384,7 +390,7 @@ module Natural20
 
     def setup_attributes
       super
-      @hp = @properties[:max_hp]
+      @hp = max_hp
     end
 
     def equipped_ac

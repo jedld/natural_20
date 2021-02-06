@@ -73,6 +73,8 @@ en:
       lightfoot: Lightfoot
       stout: Stout
       wood_elf: Wood Elf
+      hill_dwarf: Hill Dwarf
+      mountain_dwarf: Mountain Dwarf
     review: Confirm this character?
     rogue:
       expertise: Select Expertise
@@ -99,6 +101,10 @@ en:
       stealth: Stealth
       survival: Survival
       thieves_tools: Thieves Tools
+    tools:
+      smiths_tools: Smith's Tools
+      brewers_supplies: Brewer's Supplies
+      masons_tools: Mason's Tools
     str: Select Strength ability score
     token: Select a token to represent this character on the board
     token_color: Select a color for your token

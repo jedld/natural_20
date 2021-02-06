@@ -15,6 +15,7 @@ Features:
  - Human
  - Elf
  - Halfling
+ - Dwarf
  - More to come
 
  Supported Classes;
