@@ -36,7 +36,7 @@ RSpec.describe MoveAction do
 
     specify '#opportunity_attack_list' do
       @action.move_path = [[2, 5], [3, 5]]
-      expect(@action.opportunity_attack_list(@action.source, @action.move_path, @battle, map)).to eq [{ source: @npc, path: 1 }]
+      expect(@action.send(:opportunity_attack_list, @action.source, @action.move_path, @battle, map)).to eq [{ source: @npc, path: 1 }]
     end
 
     context 'opportunity attack large creature' do
@@ -46,7 +46,7 @@ RSpec.describe MoveAction do
         @ogre = session.npc(:ogre)
         @battle.add(@ogre, :b, position: [1, 1], token: 'g')
         @ogre.reset_turn!(@battle)
-        expect(@action.opportunity_attack_list(@action.source, [[1, 0], [2, 0], [3, 0]], @battle, map).size).to eq(0)
+        expect(@action.send(:opportunity_attack_list, @action.source, [[1, 0], [2, 0], [3, 0]], @battle, map).size).to eq(0)
       end
     end
 

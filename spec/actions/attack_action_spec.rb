@@ -57,6 +57,7 @@ RSpec.describe AttackAction do
         it 'allows for two weapon fighting' do
           puts Natural20::MapRenderer.new(@battle_map).render
           expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack)
+          expect(@character.equipped_items.map(&:label)).to eq(["Dagger", "Dagger"])
           action = AttackAction.build(session, @character).next.call(@npc).next.call('dagger').next.call
           @battle.action!(action)
           @battle.commit(action)

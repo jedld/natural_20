@@ -88,6 +88,19 @@ nat20author
 
 A prompt based system will launch for you to create your own game.
 
+The end result will be a folder containing a bunch of YAML files describing your game
+
+## Map making guide
+
+A map is a YAML file that consists of the following:
+
+- Base Layer - contains terrain information like ground, grass, walls, doors, traps and various obstacles
+- Meta Layer - contains information about dynamic objects like player tokens, NPCs
+- Light Layer - contains information about static lights in the map
+- Legend - A mapping from the layers to details about the terrain and tokens
+- Map Triggers - A map level trigger
+
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

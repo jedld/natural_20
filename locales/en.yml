@@ -70,11 +70,11 @@ en:
     races:
       dark_elf: Dark Elf
       high_elf: High Elf
+      hill_dwarf: Hill Dwarf
       lightfoot: Lightfoot
+      mountain_dwarf: Mountain Dwarf
       stout: Stout
       wood_elf: Wood Elf
-      hill_dwarf: Hill Dwarf
-      mountain_dwarf: Mountain Dwarf
     review: Confirm this character?
     rogue:
       expertise: Select Expertise
@@ -101,13 +101,13 @@ en:
       stealth: Stealth
       survival: Survival
       thieves_tools: Thieves Tools
-    tools:
-      smiths_tools: Smith's Tools
-      brewers_supplies: Brewer's Supplies
-      masons_tools: Mason's Tools
     str: Select Strength ability score
     token: Select a token to represent this character on the board
     token_color: Select a color for your token
+    tools:
+      brewers_supplies: Brewer's Supplies
+      masons_tools: Mason's Tools
+      smiths_tools: Smith's Tools
     wis: Select Wisdom ability score
   character_builder: Character Builder ...
   character_sheet:
@@ -230,8 +230,8 @@ en:
     thieves_cant: Thieves Cant
     undercommon: Undercommon
   manual_target: Target object using the map
-  multiple_target_prompt: Multiple targets at location(s) please select specific targets
   missing_game: missing game.yml in the current folder
+  multiple_target_prompt: Multiple targets at location(s) please select specific targets
   'no': 'No'
   object:
     Arrows: Arrows
@@ -269,6 +269,7 @@ en:
     two_handaxes: Two handaxes
     two_martial_weapons: (2) Martial Weapons
     weapons:
+      battleaxe: Battleaxe
       chain_mail: Chain Mail
       dagger: Dagger
       hand_crossbow: Hand Crossbow
@@ -279,6 +280,7 @@ en:
       scimitar: Scimitar
       shortbow: Shortbow
       shortsword: Shortsword
+      warhammer: Warhammer
   options:
     automatic_roll: Roll Dice for me automatically (Computer will roll for you)
     dice_roll: Toggle Manual Dice Roll ...

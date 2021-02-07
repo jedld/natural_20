@@ -357,9 +357,9 @@ class TwoWeaponAttackAction < AttackAction
   # @param entity [Natural20::Entity]
   # @param battle [Natural20::Battle]
   def self.can?(entity, battle, options = {})
-    battle.nil? || (entity.total_bonus_actions(battle).positive? && battle.two_weapon_attack?(entity) && options[:weapon] != battle.first_hand_weapon(entity) || entity.equipped_weapons.select do |a|
-      a == battle.first_hand_weapon(entity)
-    end.size >= 2)
+    battle.nil? || (entity.total_bonus_actions(battle).positive? && battle.two_weapon_attack?(entity) && (options[:weapon] != battle.first_hand_weapon(entity) || entity.equipped_weapons.select do |a|
+      a.to_s == battle.first_hand_weapon(entity)
+    end.size >= 2))
   end
 
   def second_hand

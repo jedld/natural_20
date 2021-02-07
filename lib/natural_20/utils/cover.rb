@@ -17,6 +17,13 @@ module Natural20::Cover
         next 0 unless cover_characteristics
 
         max_ac = 0
+
+        # check if any objects in the area provide cover
+        objs = map.objects_at(*target_pos)
+        objs.each do |object|
+          max_ac = [max_ac, object.cover_ac].max if object.can_hide?
+        end
+
         cover_characteristics.each do |cover|
           cover_type, pos = cover
 

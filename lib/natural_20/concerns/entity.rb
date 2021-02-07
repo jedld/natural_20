@@ -205,11 +205,7 @@ module Natural20
       ofs_x /= map.feet_per_grid
       ofs_y /= map.feet_per_grid
 
-      if map.placeable?(self, x + ofs_x, y + ofs_y)
-        [x + ofs_x, y + ofs_y]
-      else
-        nil
-      end
+      [x + ofs_x, y + ofs_y] if map.placeable?(self, x + ofs_x, y + ofs_y)
     end
 
     # @param map [Natural20::BattleMap]
@@ -591,6 +587,8 @@ module Natural20
     SKILL_AND_ABILITY_MAP.each do |ability, skills|
       skills.each do |skill|
         define_method("#{skill}_mod") do
+          return @properties[:skills][skill.to_sym] if npc? && @properties[:skills] && @properties[:skills][skill.to_sym]
+
           ability_mod = case ability.to_sym
                         when :dex
                           dex_mod

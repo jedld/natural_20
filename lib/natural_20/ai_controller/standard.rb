@@ -163,6 +163,17 @@ module AiController
         valid_actions += generate_moves_for_positions(battle, entity, investigate_location)
       end
 
+      if HideBonusAction.can?(entity, battle) # bonus action hide if able
+        valid_actions << HideBonusAction.new(battle.session, entity, :hide_bonus)
+      end
+
+      if valid_actions.first&.action_type == :move && DisengageBonusAction.can?(entity,
+                                                                               battle) && !retrieve_opportunity_attacks(
+                                                                                 entity, valid_actions.first.move_path, battle
+                                                                               ).empty?
+        return DisengageBonusAction.new(battle.session, entity, :disengage_bonus)
+      end
+
       valid_actions << DodgeAction.new(battle.session, entity, :dodge) if entity.action?(battle)
 
       return valid_actions.first unless valid_actions.empty?
@@ -195,7 +206,7 @@ module AiController
           melee_weight = 2.0
         end
 
-        defense_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
+        # defense_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
 
         [square, melee_weight * melee + range_weight * ranged + defense_weight * defense + mobility * mobolity_weight]
       end

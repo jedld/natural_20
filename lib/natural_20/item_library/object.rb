@@ -73,12 +73,27 @@ module ItemLibrary
       @properties[:cover] == 'half'
     end
 
+    def cover_ac
+      case @properties[:cover].to_sym
+      when :half
+        2
+      when :three_quarter
+        5
+      else
+        0
+      end
+    end
+
     def three_quarter_cover?
       @properties[:cover] == 'three_quarter'
     end
 
     def total_cover?
       @properties[:cover] == 'total'
+    end
+
+    def can_hide?
+      @properties.fetch(:allow_hide, false)
     end
 
     def interactable?

@@ -21,4 +21,22 @@ RSpec.describe HideAction do
     hide_action.apply!(@battle)
     expect(@npc.hiding?(@battle)).to be
   end
+
+  context "hiding in terrain" do
+    before do
+      @battle_map = Natural20::BattleMap.new(session, 'fixtures/hide_test')
+      @battle = Natural20::Battle.new(session, @battle_map)
+      @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
+      @npc = session.npc(:goblin)
+      @battle.add(@character, :a, position: 'spawn_point_2')
+      @battle.add(@npc, :b, position: 'spawn_point_1')
+    end
+
+    it "allows to hide in a certain terrain" do
+      puts Natural20::MapRenderer.new(@battle_map).render(line_of_sight: @character)
+      @npc.hiding!(@battle, 20)
+      expect(@npc.hiding?(@battle)).to be
+      puts Natural20::MapRenderer.new(@battle_map, @battle).render(line_of_sight: @character)
+    end
+  end
 end

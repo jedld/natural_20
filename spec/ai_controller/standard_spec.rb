@@ -155,6 +155,20 @@ RSpec.describe AiController::Standard do
           )
         end
       end
+
+      context 'cover evaluation' do
+        before do
+          @map = Natural20::BattleMap.new(session, 'fixtures/hide_test')
+          @battle = Natural20::Battle.new(session, @map)
+          @battle.add(@fighter, :a, position: :spawn_point_1, token: 'G')
+          @battle.add(@npc1, :b, position: :spawn_point_2, token: 'g')
+        end
+
+        xit "gives correct weights" do
+          puts Natural20::MapRenderer.new(@map).render(line_of_sight: @npc1)
+          expect(controller.evaluate_square(@map, @battle, @npc1, [@fighter])).to eq([])
+        end
+      end
     end
   end
 

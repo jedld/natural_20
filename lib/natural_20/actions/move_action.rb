@@ -127,40 +127,17 @@ class MoveAction < Natural20::Action
   # @param move_list [Array<Array<Integer,Integer>>]
   # @param battle [Natural20::Battle]
   def check_opportunity_attacks(entity, move_list, battle, grappled: false)
-    if battle && !@source.disengage?(battle)
-      opportunity_attacks = opportunity_attack_list(entity, move_list, battle, battle.map)
-      opportunity_attacks.each do |enemy_opporunity|
-        next unless enemy_opporunity[:source].has_reaction?(battle)
-        next if @source.grappling_targets.include?(enemy_opporunity[:source])
+    if battle
 
+      retrieve_opportunity_attacks(entity, move_list, battle).each do |enemy_opporunity|
         original_location = move_list[0...enemy_opporunity[:path]]
         attack_location = original_location.last
         battle.trigger_opportunity_attack(enemy_opporunity[:source], entity, *attack_location)
 
-        if !grappled && !entity.conscious?
-          move_list = original_location
-          break
-        end
+        return original_location if !grappled && !entity.conscious?
       end
     end
     move_list
-  end
-
-  def opportunity_attack_list(entity, current_moves, battle, map)
-    # get opposing forces
-    opponents = battle.opponents_of?(entity)
-    entered_melee_range = Set.new
-    left_melee_range = []
-    current_moves.each_with_index do |path, index|
-      opponents.each do |enemy|
-        entered_melee_range.add(enemy) if enemy.entered_melee?(map, entity, *path)
-        if !left_melee_range.include?(enemy) && entered_melee_range.include?(enemy) && !enemy.entered_melee?(map,
-                                                                                                             entity, *path)
-          left_melee_range << { source: enemy, path: index }
-        end
-      end
-    end
-    left_melee_range
   end
 
   def apply!(battle)

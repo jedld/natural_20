@@ -330,10 +330,10 @@ module Natural20
         next unless weapon_detail[:type] == 'melee_attack'
 
         next unless weapon_detail[:properties] && weapon_detail[:properties].include?('light') && TwoWeaponAttackAction.can?(
-          self, battle, weapon: weapon_detail[:name]
+          self, battle, weapon: item
         )
 
-        action = TwoWeaponAttackAction.new(session, self, :attack)
+        action = TwoWeaponAttackAction.new(session, self, :attack, weapon: item)
         action.using = item
         return action
       end

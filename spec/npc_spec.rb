@@ -76,6 +76,11 @@ RSpec.describe Natural20::Npc do
       expect(result.map { |dr| dr.roller.roll_str }).to eq(['d20-1', 'd20+2', 'd20+0', 'd20+0', 'd20-1', 'd20-1'])
     end
 
+    specify '#stealth_check!' do
+      roll = @npc.stealth_check!(@battle)
+      expect(roll.roller.roll_str).to eq('1d20+6')
+    end
+
     specify '#apply_effect' do
       expect(@npc.apply_effect('status:prone')).to eq({ battle: nil, source: @npc, type: :prone })
     end

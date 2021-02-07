@@ -100,7 +100,7 @@ module Natural20::MovementHelper
     original_budget = movement_budget
 
     current_moves.each_with_index do |m, index|
-      raise "invalid move coordinate" unless m.size == 2 # assert move correctness
+      raise 'invalid move coordinate' unless m.size == 2 # assert move correctness
 
       unless index.positive?
         actual_moves << m
@@ -192,4 +192,36 @@ module Natural20::MovementHelper
                  movement_budget, impediment)
   end
 
+  # Checks if a move provokes opportunity attacks
+  # @param entity [Natural20::Entity]
+  # @param move_list [Array<Array<Integer,Integer>>]
+  # @param battle [Natural20::Battle]
+  # @return [Array<Hash>]
+  def retrieve_opportunity_attacks(entity, move_list, battle)
+    return [] if entity.disengage?(battle)
+
+    opportunity_attacks = opportunity_attack_list(entity, move_list, battle, battle.map)
+    opportunity_attacks.select do |enemy_opporunity|
+      enemy_opporunity[:source].has_reaction?(battle) && !entity.grappling_targets.include?(enemy_opporunity[:source])
+    end
+  end
+
+  protected
+
+  def opportunity_attack_list(entity, current_moves, battle, map)
+    # get opposing forces
+    opponents = battle.opponents_of?(entity)
+    entered_melee_range = Set.new
+    left_melee_range = []
+    current_moves.each_with_index do |path, index|
+      opponents.each do |enemy|
+        entered_melee_range.add(enemy) if enemy.entered_melee?(map, entity, *path)
+        if !left_melee_range.include?(enemy) && entered_melee_range.include?(enemy) && !enemy.entered_melee?(map,
+                                                                                                             entity, *path)
+          left_melee_range << { source: enemy, path: index }
+        end
+      end
+    end
+    left_melee_range
+  end
 end

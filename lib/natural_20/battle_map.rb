@@ -135,7 +135,7 @@ module Natural20
     # Get object at map location
     # @param pos_x [Integer]
     # @param pos_y [Integer]
-    # @return [ItemLibrary::Object]
+    # @return [Array<ItemLibrary::Object>]
     def objects_at(pos_x, pos_y)
       @objects[pos_x][pos_y]
     end

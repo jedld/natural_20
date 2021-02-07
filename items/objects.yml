@@ -61,6 +61,29 @@ water:
   passable: true
   token:
     - ^
+briar:
+  color: green
+  passable: true
+  placeable: true
+  movement_cost: 2
+  cover: half
+  default_ac: 10
+  hp_die: 1d4
+  max_hp: 4
+  allow_hide: true
+  token:
+    - ▓
+tree:
+  color: green
+  passable: true
+  placeable: true
+  cover: half
+  default_ac: 10
+  hp_die: 1d8
+  max_hp: 8
+  allow_hide: true
+  token:
+    - '*'
 wooden_door:
   color: magenta
   default_ac: 15

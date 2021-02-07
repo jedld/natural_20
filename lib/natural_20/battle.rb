@@ -64,7 +64,7 @@ module Natural20
 
     # Adds an entity to the battle
     # @param entity [Natural20::Entity] The entity to add to the battle
-    # @param group [Symbol] A symbol denoting which group this entity belongs to
+    # @param group [Symbol] A symbol denoting which opposing group this entity belongs to
     # @param controller [AiController::Standard] Ai controller to use
     # @param position [Array, Symbol] Starting location in the map can be a position or a spawn point
     # @param token [String, Symbol] The token to use
@@ -279,6 +279,7 @@ module Natural20
 
       cover_value = @map.cover_calculation(@map, entity1, entity2, entity_1_pos: entity_1_pos,
                                                                    naturally_stealthy: entity2.class_feature?('naturally_stealthy'))
+
       if cover_value.positive?
         entity_2_state = entity_state_for(entity2)
         return false if entity_2_state[:stealth] > [active_perception, entity1.passive_perception].max
