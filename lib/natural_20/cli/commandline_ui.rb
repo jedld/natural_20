@@ -468,7 +468,7 @@ class CommandlineUI < Natural20::Controller
   def describe_map(map, line_of_sight: [])
     line_of_sight = [line_of_sight] unless line_of_sight.is_a?(Array)
     pov = line_of_sight.map(&:name).join(',')
-    puts "Battle Map (#{map.size[0]}x#{map.size[1]}) #{map.feet_per_grid}ft per square, pov #{pov}:"
+    puts t('map_description', width: map.size[0], length: map.size[1], feet_per_grid: map.feet_per_grid, pov: pov)
   end
 
   # Return moves by a player using the commandline UI
@@ -485,10 +485,10 @@ class CommandlineUI < Natural20::Controller
       puts t(:character_status_line, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
                                      available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(','))
 
-      action = prompt.select("#{entity.name} (#{entity.token&.first}) will", per_page: TTY_PROMPT_PER_PAGE,
-                                                                             filter: true) do |menu|
-        entity.available_actions(@session, battle).each do |action|
-          menu.choice action.label, action
+      action = prompt.select(t('character_action_prompt', name: entity.name, token: entity.token&.first), per_page: TTY_PROMPT_PER_PAGE,
+                                                                                                          filter: true) do |menu|
+        entity.available_actions(@session, battle).each do |a|
+          menu.choice a.label, a
         end
         # menu.choice 'Console (Developer Mode)', :console
         menu.choice 'End'.colorize(:red), :end
@@ -523,6 +523,7 @@ class CommandlineUI < Natural20::Controller
           cycles += 1
           session.save_game(battle)
           action = battle.move_for(entity)
+
           if action.nil?
 
             unless battle.current_party.include?(entity)

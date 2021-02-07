@@ -383,7 +383,7 @@ module Natural20
 
     def while_active(max_rounds = nil, &block)
       loop do
-        Natural20::EventManager.received_event(source: self, event: :start_of_round)
+        Natural20::EventManager.received_event(source: self, event: :start_of_round, in_battle: ongoing?)
 
         current_turn.death_saving_throw!(self) if current_turn.unconscious? && !current_turn.stable?
 

@@ -21,6 +21,7 @@ class HideAction < Natural20::Action
     stealth_roll = @source.stealth_check!(opts[:battle])
     @result = [{
       source: @source,
+      bonus_action: as_bonus_action,
       type: :hide,
       roll: stealth_roll,
       battle: opts[:battle]
@@ -37,10 +38,10 @@ class HideAction < Natural20::Action
         item[:source].hiding!(battle, item[:roll].result)
       end
 
-      if as_bonus_action
-        battle.entity_state_for(item[:source])[:bonus_action] -= 1
+      if item[:bonus_action]
+        battle.consume(item[:source], :bonus_action)
       else
-        battle.entity_state_for(item[:source])[:action] -= 1
+        battle.consume(item[:source], :action)
       end
     end
   end

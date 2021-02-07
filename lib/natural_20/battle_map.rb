@@ -228,13 +228,13 @@ module Natural20
     # @param entity1 [Natural20::Entity]
     # @param entity2 [Natural20::Entity]
     # @result [Integer]
-    def distance(entity1, entity2, entity_1_pos: nil)
+    def distance(entity1, entity2, entity_1_pos: nil, entity_2_pos: nil)
       raise 'entity 1 param cannot be nil' if entity1.nil?
       raise 'entity 2 param cannot be nil' if entity2.nil?
 
       # entity 1 squares
       entity_1_sq = entity_1_pos ? entity_squares_at_pos(entity1, *entity_1_pos) : entity_squares(entity1)
-      entity_2_sq = entity_squares(entity2)
+      entity_2_sq = entity_2_pos ? entity_squares_at_pos(entity2, *entity_2_pos) : entity_squares(entity2)
 
       entity_1_sq.map do |ent1_pos|
         entity_2_sq.map do |ent2_pos|
@@ -242,6 +242,20 @@ module Natural20
           pos2_x, pos2_y = ent2_pos
           Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
         end
+      end.flatten.min
+    end
+
+    # Returns the line distance between an entity and a location
+    # @param entity [Natural20::Entity]
+    # @param pos2_x [Integer]
+    # @param pos2_y [Integer]
+    # @result [Integer]
+    def line_distance(entity1, pos2_x, pos2_y, entity_1_pos: nil)
+      entity_1_sq = entity_1_pos ? entity_squares_at_pos(entity1, *entity_1_pos) : entity_squares(entity1)
+
+      entity_1_sq.map do |ent1_pos|
+        pos1_x, pos1_y = ent1_pos
+        Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
       end.flatten.min
     end
 

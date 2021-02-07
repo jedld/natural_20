@@ -42,6 +42,8 @@ en:
   back: Back
   battle_end: Battle ended in %{num} rounds
   battle_simulator: Battle Simulator
+  map_description: 'Battle Map (%{width}x%{length}) %{feet_per_grid}ft per square, pov %{pov}:'
+  character_action_prompt: '%{name} (%{token}) will'
   builder:
     ability_score:
       fixed: Fixed ability score 15, 14, 13, 12, 10, 8
@@ -124,7 +126,7 @@ en:
     skills: Skills
     speed: 'Speed: %{speed}ft.'
     subrace: 'Subrace: %{race}'
-  character_status_line: '%{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
+  character_status_line: 'HP: %{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
   dice_roll:
     ability_score: 'Rolling for ability score #%{roll_num}'

@@ -127,7 +127,7 @@ module AiController
       # generate available targets
       valid_actions = []
 
-      if enemy_positions.empty? && LookAction.can?(entity, battle)
+      if enemy_positions.empty? && investigate_location.empty? && LookAction.can?(entity, battle)
         action = LookAction.new(battle.session, entity, :look)
         return action
       end
@@ -164,13 +164,15 @@ module AiController
       end
 
       if HideBonusAction.can?(entity, battle) # bonus action hide if able
-        valid_actions << HideBonusAction.new(battle.session, entity, :hide_bonus)
+        hide_action = HideBonusAction.new(battle.session, entity, :hide_bonus)
+        hide_action.as_bonus_action = true
+        valid_actions << hide_action
       end
 
       if valid_actions.first&.action_type == :move && DisengageBonusAction.can?(entity,
-                                                                               battle) && !retrieve_opportunity_attacks(
-                                                                                 entity, valid_actions.first.move_path, battle
-                                                                               ).empty?
+                                                                                battle) && !retrieve_opportunity_attacks(
+                                                                                  entity, valid_actions.first.move_path, battle
+                                                                                ).empty?
         return DisengageBonusAction.new(battle.session, entity, :disengage_bonus)
       end
 

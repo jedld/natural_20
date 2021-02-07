@@ -59,7 +59,7 @@ module Natural20::Navigation
       support = 0.0
 
       if melee_attack_squares.key?(d)
-        melee_offence += 0.1
+        melee_offence += 0.2
         defense -= 0.05 * melee_attack_squares[d]
         if attack_options
           opponents.each do |opp|
@@ -81,6 +81,7 @@ module Natural20::Navigation
         ranged_offence -= 0.5
       end
 
+      mobility -= 0.001 * map.line_distance(entity, *d)
       [d, [melee_offence, ranged_offence, defense, mobility, support]]
     end.to_h
   end
