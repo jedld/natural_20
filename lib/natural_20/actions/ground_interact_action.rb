@@ -11,7 +11,12 @@ class GroundInteractAction < Natural20::Action
     action.build_map
   end
 
+  # @param entity [Natural20::Entity]
+  # @param battle [Natural20::Battle]
+  # @return [Integer]
   def self.items_on_the_ground_count(entity, battle)
+    return 0 unless battle.map
+
     battle.map.items_on_the_ground(entity).inject(0) { |total, item| total + item[1].size }
   end
 

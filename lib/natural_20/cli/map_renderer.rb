@@ -15,11 +15,23 @@ module Natural20
     # @param select_pos [Array] coordinate position to render selection cursor
     # @param update_on_drop [Boolean] If true, only render line of sight if movement has been confirmed
     # @return [String]
-    def render(entity: nil, line_of_sight: nil, path: [], acrobatics_checks: [], athletics_checks: [], select_pos: nil, update_on_drop: true, path_char: nil, highlight: {})
+    def render(entity: nil, line_of_sight: nil, path: [], acrobatics_checks: [], athletics_checks: [], select_pos: nil, update_on_drop: true, path_char: nil, highlight: {}, viewport_size: nil, top_position: [
+      0, 0
+    ])
       highlight_positions = highlight.keys.map { |entity| @map.entity_squares(entity) }.flatten(1)
 
-      base_map.transpose.each_with_index.map do |row, row_index|
-        row.each_with_index.map do |c, col_index|
+      viewport_size ||= map.size
+
+      top_x, top_y = top_position
+      top_x = map.size[0] - top_x < viewport_size[0] ? map.size[0] - viewport_size[0] : top_x if viewport_size
+      top_y = map.size[0] - top_y < viewport_size[1] ? map.size[1] - viewport_size[1] : top_y if viewport_size
+
+      right_x = top_x + viewport_size[0] >= map.size[1] ? map.size[1] - 1 : top_x + viewport_size[0]
+      right_y = top_y + viewport_size[1] >= map.size[0] ? map.size[0] - 1 : top_y + viewport_size[1]
+
+      (top_x..right_x).map do |row_index|
+        (top_y..right_y).map do |col_index|
+          c = map.base_map[col_index][row_index]
           display = render_position(c, col_index, row_index, path: path, override_path_char: path_char, entity: entity, line_of_sight: line_of_sight,
                                                              update_on_drop: update_on_drop, acrobatics_checks: acrobatics_checks,
                                                              athletics_checks: athletics_checks)

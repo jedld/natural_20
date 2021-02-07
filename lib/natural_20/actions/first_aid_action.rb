@@ -9,6 +9,7 @@ class FirstAidAction < Natural20::Action
   # @param battle [Natural20::Battle]
   def self.unconscious_targets(entity, battle)
     return [] unless battle
+    return [] unless battle.map
 
     adjacent_squares = entity.melee_squares(battle.map, adjacent_only: true)
     entities = []

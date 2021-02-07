@@ -11,7 +11,9 @@ class AttackAction < Natural20::Action
   # @param battle [Natural20::Battle]
   # @return [Boolean]
   def self.can?(entity, battle, options = {})
-    battle.nil? || entity.total_actions(battle).positive? || (options[:opportunity_attack] && entity.total_reactions(battle).positive?) || entity.multiattack?(
+    return entity.total_reactions(battle).positive? if battle && options[:opportunity_attack]
+
+    battle.nil? || entity.total_actions(battle).positive? || entity.multiattack?(
       battle, options[:npc_action]
     )
   end
@@ -109,11 +111,11 @@ class AttackAction < Natural20::Action
       end
 
       if as_reaction
-        battle.entity_state_for(item[:source])[:reaction] -= 1
+        battle.consume(item[:source], :reaction)
       elsif item[:second_hand]
-        battle.entity_state_for(item[:source])[:bonus_action] -= 1
+        battle.consume(item[:source], :bonus_action)
       else
-        battle.entity_state_for(item[:source])[:action] -= 1
+        battle.consume(item[:source], :action)
       end
 
       item[:source].break_stealth!(battle)
@@ -339,7 +341,7 @@ class AttackAction < Natural20::Action
       _advantage, disadvantage = adv_info
       disadvantage << :protection
       @advantage_mod = -1
-      battle.entity_state_for(entity)[:reaction] -= 1
+      battle.consume(entity, :reaction)
     end
   end
 

@@ -523,6 +523,15 @@ module Natural20
       @map.activate_map_triggers(event, source, opt.merge(ui_controller: controller_for(source)))
     end
 
+    # Consumes an action resource
+    # @param entity [Natural20::Entity]
+    # @param resouce [Symbol]
+    def consume(entity, resource, qty = 1)
+      raise 'invalid resource' unless %i[action reaction bonus_action movement].include?(resource.to_sym)
+
+      entity_state_for(entity)[resource.to_sym] = [0, entity_state_for(entity)[resource.to_sym] - qty].max
+    end
+
     protected
 
     def t(key, options = {})

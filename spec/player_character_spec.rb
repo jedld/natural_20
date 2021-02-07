@@ -49,10 +49,24 @@ RSpec.describe Natural20::PlayerCharacter do
       expect(@player.speed).to eq 30
     end
 
-    specify '#available_actions' do
-      expect(@player.available_actions(session,
-                                       nil).map(&:to_s)).to eq ['Look', 'Attack', 'Attack', 'Attack', 'Move',
-                                                                'Use item', 'Interact', 'Ground interact', 'Inventory', 'Grapple', 'Drop grapple', 'Shove', 'Push', 'Second wind']
+    context '#available_actions' do
+      before do
+        @battle = Natural20::Battle.new(session, nil)
+        @battle.add(@player, :a)
+        @player.reset_turn!(@battle)
+      end
+      specify do
+        expect(@player.available_actions(session,
+                                         @battle).map(&:to_s)).to eq ['Look', 'Attack', 'Attack', 'Attack', 'Move', 'Dash', 'Hide', 'Help', 'Dodge',
+                                                                      'Use item', 'Interact', 'Inventory', 'Grapple', 'Shove', 'Push', 'Prone', 'Short rest', 'Second wind']
+      end
+      specify 'opportunity attacks' do
+        expect(@player.available_actions(session,
+                                         @battle, opportunity_attack: true).map(&:to_s)).to eq %w[Attack Attack]
+        @battle.consume(@player, :reaction)
+        expect(@player.available_actions(session,
+                                         @battle, opportunity_attack: true).map(&:to_s)).to eq %w[]
+      end
     end
 
     specify '#to_h' do

@@ -249,8 +249,12 @@ module Natural20
     def available_actions(session, battle, opportunity_attack: false)
       return [] if unconscious?
 
-      if opportunity_attack && AttackAction.can?(self, battle, opportunity_attack: true)
-        return player_character_attack_actions(battle, opportunity_attack: true)
+      if opportunity_attack
+        if AttackAction.can?(self, battle, opportunity_attack: true)
+          return player_character_attack_actions(battle, opportunity_attack: true)
+        else
+          return []
+        end
       end
 
       ACTION_LIST.map do |type|
