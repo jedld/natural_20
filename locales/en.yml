@@ -39,6 +39,7 @@ en:
     target_is_prone_range: Ranged attack on prone target
     target_long_range: Long range penalty
     unseen_attacker: Attacker is unseen
+    invisible_attacker: Target is hidden/invisible
   back: Back
   battle_end: Battle ended in %{num} rounds
   battle_simulator: Battle Simulator

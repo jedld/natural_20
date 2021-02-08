@@ -1,0 +1,89 @@
+---
+hit_die: 1d6
+weapon_proficiencies:
+- dagger
+- dart
+- sling
+- quarterstaff
+- light_crossbow
+saving_throw_proficiency:
+- int
+- wis
+available_skills_choices: 2
+available_skills:
+  - arcana
+  - history
+  - insight
+  - investigation
+  - medicine
+  - religion
+spell_list:
+  cantrip:
+    - acid_splash
+    - blade_ward
+    - chill_touch
+    - dancing_lights
+    - fire_bolt
+    - friends
+    - light
+    - mage_hand
+    - mending
+    - message
+    - minor_illusion
+    - poison_spray
+    - prestidigitation
+    - ray_of_frost
+    - shocking_grasp
+    - true_strike
+  level_1:
+    - alarm
+    - burning_hands
+    - charm_person
+    - chromatic_orb
+    - color_spray
+    - comprehend_languages
+    - detect_magic
+    - disguise_self
+    - expeditious_retreat
+    - false_life
+    - feather_fall
+    - find_familiar
+    - fog_cloud
+    - grease
+    - identify
+    - illusory_script
+    - jump
+    - longstrider
+    - mage_armor
+    - magic_missile
+    - protect_from_evil_and_good
+    - ray_of_sickness
+    - shield
+    - silent_image
+    - sleep
+    - tasha_hideous_laughter
+    - tensers_floating_disk
+    - thunderwave
+    - unseen_servant
+    - witch_bolt
+proficiency_bonuses:
+- 2
+- 2
+- 2
+- 2
+- 3
+- 3
+- 3
+- 3
+- 4
+- 4
+- 4
+- 4
+- 5
+- 5
+- 5
+- 5
+- 6
+- 6
+- 6
+- 6

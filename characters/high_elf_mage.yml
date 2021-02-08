@@ -1,0 +1,9 @@
+---
+name: Crysania
+race: elf
+subrace: high_elf
+classes:
+  wizard: 1
+description: A high elf mage
+level: 1
+hit_die: inherit

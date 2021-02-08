@@ -20,24 +20,40 @@ bottomless_pit:
 brazier:
   color: yellow
   default_ac: 17
-  max_hp: 27
-  passable: true
-  placeable: false
   light:
     bright: 20
     dim: 10
+  max_hp: 27
+  passable: true
+  placeable: false
   token:
     - Ý
+briar:
+  allow_hide: true
+  color: green
+  cover: half
+  default_ac: 10
+  hp_die: 1d4
+  max_hp: 4
+  movement_cost: 2
+  passable: true
+  placeable: true
+  token:
+    - ▓
 chest:
   color: yellow
-  item_class: 'ItemLibrary::Chest'
+  item_class: ItemLibrary::Chest
   name: Treasure Chest
   passable: true
   placeable: false
+ground:
+  passable: true
+  placeable: true
+  token: inherit
 pit_trap:
   damage_die: 1d10
   damage_type: piercing
-  item_class: 'ItemLibrary::PitTrap'
+  item_class: ItemLibrary::PitTrap
   name: Pit Trap
   notes:
     - highlight: true
@@ -46,7 +62,7 @@ pit_trap:
 stone_wall:
   color: light_magenta
   default_ac: 17
-  item_class: 'ItemLibrary::StoneWall'
+  item_class: ItemLibrary::StoneWall
   max_hp: 27
   name: Stone Wall
   opaque: true
@@ -54,6 +70,17 @@ stone_wall:
   token:
     - null
   wall: true
+tree:
+  allow_hide: true
+  color: green
+  cover: half
+  default_ac: 10
+  hp_die: 1d8
+  max_hp: 8
+  passable: true
+  placeable: true
+  token:
+    - '*'
 water:
   color: blue
   movement_cost: 2
@@ -61,35 +88,12 @@ water:
   passable: true
   token:
     - ^
-briar:
-  color: green
-  passable: true
-  placeable: true
-  movement_cost: 2
-  cover: half
-  default_ac: 10
-  hp_die: 1d4
-  max_hp: 4
-  allow_hide: true
-  token:
-    - ▓
-tree:
-  color: green
-  passable: true
-  placeable: true
-  cover: half
-  default_ac: 10
-  hp_die: 1d8
-  max_hp: 8
-  allow_hide: true
-  token:
-    - '*'
 wooden_door:
   color: magenta
   default_ac: 15
   hp_die: 4d8
   interactable: true
-  item_class: 'ItemLibrary::DoorObject'
+  item_class: ItemLibrary::DoorObject
   max_hp: 18
   name: Wooden Door
   token:

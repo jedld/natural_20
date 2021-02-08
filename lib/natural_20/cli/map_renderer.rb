@@ -68,6 +68,7 @@ module Natural20
       color = (object_meta.color.presence || DEFAULT_TOKEN_COLOR).to_sym
 
       return nil unless object_meta.token
+      return :inherit if object_meta.token.to_s == 'inherit'
 
       if object_meta.token.is_a?(Array)
         object_meta.token[pos_y - m_y][pos_x - m_x].colorize(color)
@@ -90,7 +91,12 @@ module Natural20
           when '.', '?'
             default_ground
           else
-            object_token(col_index, row_index)&.colorize(background: background_color) || default_ground
+            token = object_token(col_index, row_index)
+            if token && token != :inherit
+              token&.colorize(background: background_color) || default_ground
+            else
+              c
+            end
           end
 
       # render map layer

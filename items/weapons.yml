@@ -39,6 +39,66 @@ dagger:
     range_max: 120
   type: melee_attack
   weight: 10
+quarterstaff:
+  cost: 2sp
+  damage: 1d6
+  damage_2: 1d8
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Quarterstaff
+  proficiency_type:
+    - simple
+  properties:
+    - versatile
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 4
+sling:
+  ammo: pellet
+  cost: 1sp
+  damage: 1d4
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Sling
+  proficiency_type:
+    - simple
+  properties:
+    - ammunition
+    - ranged
+  range: 30
+  range_max: 120
+  subtype: weapon
+  type: ranged_attack
+  weight: 0
+dart:
+  ammo: dart
+  cost: 2
+  damage: 1d4
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Dart
+  proficiency_type:
+    - simple
+  properties:
+    - thrown
+    - finesse
+  range: 5
+  subtype: weapon
+  thrown:
+    range: 20
+    range_max: 60
+  type: ranged_attack
+  weight: 0.25
 greatclub:
   cost: 2sp
   damage: 1d8
@@ -160,24 +220,6 @@ light_hammer:
   thrown:
     range: 20
     range_max: 60
-  type: melee_attack
-  weight: 2
-warhammer:
-  cost: 2
-  damage: 1d8
-  damage_2: 1d10
-  damage_type: bludgeoning
-  meta:
-    noise_source: 5
-    noise_target: 5
-  modifiers: null
-  name: Warhammer
-  proficiency_type:
-    - martial
-  properties:
-    - versatile
-  range: 5
-  subtype: weapon
   type: melee_attack
   weight: 2
 longbow:
@@ -349,6 +391,24 @@ vicious_rapier:
     - finesse
   range: 5
   rarity: very_rare
+  subtype: weapon
+  type: melee_attack
+  weight: 2
+warhammer:
+  cost: 2
+  damage: 1d8
+  damage_2: 1d10
+  damage_type: bludgeoning
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Warhammer
+  proficiency_type:
+    - martial
+  properties:
+    - versatile
+  range: 5
   subtype: weapon
   type: melee_attack
   weight: 2
