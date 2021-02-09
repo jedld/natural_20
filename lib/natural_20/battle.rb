@@ -337,7 +337,7 @@ module Natural20
     end
 
     # consume action resource and return if something changed
-    def consume!(entity, resource, qty)
+    def consume!(entity, resource, qty = 1)
       current_qty = entity_state_for(entity)[resource.to_sym]
       new_qty = [0, current_qty - qty].max
       entity_state_for(entity)[resource.to_sym] = new_qty
@@ -505,7 +505,11 @@ module Natural20
       return if action.nil?
 
       # check_action_serialization(action)
-      action.apply!(self)
+      action.result.each do |item|
+        Natural20::Action.descendants.each do |klass|
+          klass.apply!(self, item)
+        end
+      end
 
       case action.action_type
       when :move
@@ -528,6 +532,7 @@ module Natural20
     # @param resouce [Symbol]
     def consume(entity, resource, qty = 1)
       raise 'invalid resource' unless %i[action reaction bonus_action movement].include?(resource.to_sym)
+      return unless entity_state_for(entity)
 
       entity_state_for(entity)[resource.to_sym] = [0, entity_state_for(entity)[resource.to_sym] - qty].max
     end

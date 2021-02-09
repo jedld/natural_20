@@ -27,12 +27,10 @@ class ProneAction < Natural20::Action
     self
   end
 
-  def apply!(_battle)
-    @result.each do |item|
-      case (item[:type])
-      when :prone
-        item[:source].prone!
-      end
+  def apply!(_battle, item)
+    case (item[:type])
+    when :prone
+      item[:source].prone!
     end
   end
 end

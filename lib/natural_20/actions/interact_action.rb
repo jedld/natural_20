@@ -71,21 +71,19 @@ class InteractAction < Natural20::Action
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      entity = item[:source]
-      case (item[:type])
-      when :interact
-        item[:target].use!(entity, item)
-        if item[:cost] == :action
-          battle&.consume!(entity, :action, 1)
-        else
-          battle&.consume!(entity, :free_object_interaction, 1) || battle&.consume!(entity, :action, 1)
-        end
-
-        Natural20::EventManager.received_event(event: :interact, source: entity, target: item[:target],
-                                               object_action: item[:object_action])
+  def self.apply!(battle, item)
+    entity = item[:source]
+    case (item[:type])
+    when :interact
+      item[:target].use!(entity, item)
+      if item[:cost] == :action
+        battle&.consume!(entity, :action, 1)
+      else
+        battle&.consume!(entity, :free_object_interaction, 1) || battle&.consume!(entity, :action, 1)
       end
+
+      Natural20::EventManager.received_event(event: :interact, source: entity, target: item[:target],
+                                             object_action: item[:object_action])
     end
   end
 end

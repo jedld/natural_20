@@ -39,14 +39,12 @@ class ShortRestAction < Natural20::Action
   end
 
   # @param battle [Natural20::Battle]
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :short_rest
-        Natural20::EventManager.received_event({ source: item[:source], event: :short_rest, targets: item[:targets] })
-        item[:targets].each do |entity|
-          entity.short_rest!(battle, prompt: true)
-        end
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :short_rest
+      Natural20::EventManager.received_event({ source: item[:source], event: :short_rest, targets: item[:targets] })
+      item[:targets].each do |entity|
+        entity.short_rest!(battle, prompt: true)
       end
     end
   end

@@ -2,7 +2,7 @@
 class AttackAction < Natural20::Action
   include Natural20::Cover
   include Natural20::Weapons
-  include Natural20::ActionDamage
+  extend Natural20::ActionDamage
 
   attr_accessor :target, :using, :npc_action, :as_reaction, :thrown, :second_hand
   attr_reader :advantage_mod
@@ -70,76 +70,82 @@ class AttackAction < Natural20::Action
   end
 
   # @param battle [Natural20::Battle]
-  def apply!(battle)
-    @result.each do |item|
-      if item[:flavor]
-        Natural20::EventManager.received_event({ event: :flavor, source: item[:source], target: item[:target],
-                                                 text: item[:flavor] })
-      end
-      case (item[:type])
-      when :prone
-        item[:source].prone!
-      when :damage
-        damage_event(item, battle)
-      when :miss
-        Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
-                                                 attack_name: item[:attack_name],
-                                                 advantage_mod: item[:advantage_mod],
-                                                 as_reaction: !!as_reaction,
-                                                 adv_info: item[:adv_info],
-                                                 source: item[:source], target: item[:target], event: :miss })
-      end
+  def self.apply!(battle, item)
+    if item[:flavor]
+      Natural20::EventManager.received_event({ event: :flavor, source: item[:source], target: item[:target],
+                                               text: item[:flavor] })
+    end
+    case (item[:type])
+    when :prone
+      item[:source].prone!
+    when :damage
+      damage_event(item, battle)
+      consume_resource(battle, item)
+    when :miss
+      consume_resource(battle, item)
+      Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
+                                               attack_name: item[:attack_name],
+                                               advantage_mod: item[:advantage_mod],
+                                               as_reaction: !!item[:as_reaction],
+                                               adv_info: item[:adv_info],
+                                               source: item[:source], target: item[:target], event: :miss })
+    end
+  end
 
-      # handle ammo
-      item[:source].deduct_item(item[:ammo], 1) if item[:ammo]
+  # @param battle [Natural20::Battle]
+  # @param item [Hash]
+  def self.consume_resource(battle, item)
+    # handle ammo
+    item[:source].deduct_item(item[:ammo], 1) if item[:ammo]
 
-      # hanle thrown items
-      if item[:thrown]
-        if item[:source].item_count(item[:weapon]).positive?
-          item[:source].deduct_item(item[:weapon], 1)
-        else
-          item[:source].unequip(item[:weapon], transfer_inventory: false)
-        end
-
-        if item[:type] == :damage
-          item[:target].add_item(item[:weapon])
-        else
-          ground_pos = item[:battle].map.entity_or_object_pos(item[:target])
-          ground_object = item[:battle].map.objects_at(*ground_pos).detect { |o| o.is_a?(ItemLibrary::Ground) }
-          ground_object&.add_item(item[:weapon])
-        end
-      end
-
-      if as_reaction
-        battle.consume(item[:source], :reaction)
-      elsif item[:second_hand]
-        battle.consume(item[:source], :bonus_action)
+    # hanle thrown items
+    if item[:thrown]
+      if item[:source].item_count(item[:weapon]).positive?
+        item[:source].deduct_item(item[:weapon], 1)
       else
-        battle.consume(item[:source], :action)
+        item[:source].unequip(item[:weapon], transfer_inventory: false)
       end
 
-      item[:source].break_stealth!(battle)
-
-      # handle two-weapon fighting
-      weapon = session.load_weapon(item[:weapon]) if item[:weapon]
-
-      if weapon && weapon[:properties]&.include?('light') && !battle.two_weapon_attack?(item[:source]) && !item[:second_hand]
-        battle.entity_state_for(item[:source])[:two_weapon] = item[:weapon]
+      if item[:type] == :damage
+        item[:target].add_item(item[:weapon])
       else
-        battle.entity_state_for(item[:source])[:two_weapon] = nil
+        ground_pos = item[:battle].map.entity_or_object_pos(item[:target])
+        ground_object = item[:battle].map.objects_at(*ground_pos).detect { |o| o.is_a?(ItemLibrary::Ground) }
+        ground_object&.add_item(item[:weapon])
       end
+    end
 
-      # handle multiattacks
+    if item[:as_reaction]
+      battle.consume(item[:source], :reaction)
+    elsif item[:second_hand]
+      battle.consume(item[:source], :bonus_action)
+    else
+      battle.consume(item[:source], :action)
+    end
+
+    item[:source].break_stealth!(battle)
+
+    # handle two-weapon fighting
+    weapon = battle.session.load_weapon(item[:weapon]) if item[:weapon]
+
+    if weapon && weapon[:properties]&.include?('light') && !battle.two_weapon_attack?(item[:source]) && !item[:second_hand]
+      battle.entity_state_for(item[:source])[:two_weapon] = item[:weapon]
+    elsif battle.entity_state_for(item[:source])
+      battle.entity_state_for(item[:source])[:two_weapon] = nil
+    end
+
+    # handle multiattacks
+    if battle.entity_state_for(item[:source])
       battle.entity_state_for(item[:source])[:multiattack]&.each do |_group, attacks|
         if attacks.include?(item[:attack_name])
           attacks.delete(item[:attack_name])
           item[:source].clear_multiattack!(battle) if attacks.empty?
         end
       end
-
-      # dismiss help actions
-      battle.dismiss_help_for(item[:target])
     end
+
+    # dismiss help actions
+    battle.dismiss_help_for(item[:target])
   end
 
   def with_advantage?
@@ -371,4 +377,6 @@ class TwoWeaponAttackAction < AttackAction
   def label
     "Bonus Action -> #{super}"
   end
+
+  def self.apply!(battle, item); end
 end

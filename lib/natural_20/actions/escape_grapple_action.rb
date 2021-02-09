@@ -73,25 +73,23 @@ class EscapeGrappleAction < Natural20::Action
               end
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :grapple_escape
-        if item[:success]
-          @source.escape_grapple_from!(item[:target])
-          Natural20::EventManager.received_event(event: :escape_grapple_success,
-                                                 target: item[:target], source: @source,
-                                                 source_roll: item[:source_roll],
-                                                 target_roll: item[:target_roll])
-        else
-          Natural20::EventManager.received_event(event: :escape_grapple_failure,
-                                                 target: item[:target], source: @source,
-                                                 source_roll: item[:source_roll],
-                                                 target_roll: item[:target_roll])
-        end
-
-        battle.entity_state_for(item[:source])[:action] -= 1
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :grapple_escape
+      if item[:success]
+        item[:source].escape_grapple_from!(item[:target])
+        Natural20::EventManager.received_event(event: :escape_grapple_success,
+                                               target: item[:target], source: item[:source],
+                                               source_roll: item[:source_roll],
+                                               target_roll: item[:target_roll])
+      else
+        Natural20::EventManager.received_event(event: :escape_grapple_failure,
+                                               target: item[:target], source: item[:source],
+                                               source_roll: item[:source_roll],
+                                               target_roll: item[:target_roll])
       end
+
+      battle.consume(item[:source], :action)
     end
   end
 end

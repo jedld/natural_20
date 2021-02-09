@@ -59,8 +59,7 @@ class GroundInteractAction < Natural20::Action
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
+  def self.apply!(battle, item)
       entity = item[:source]
       case (item[:type])
       when :pickup
@@ -74,6 +73,5 @@ class GroundInteractAction < Natural20::Action
           battle&.consume!(entity, :free_object_interaction, 1) || battle&.consume!(entity, :action, 1)
         end
       end
-    end
   end
 end

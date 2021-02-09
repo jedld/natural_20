@@ -389,6 +389,8 @@ module Natural20
 
     def break_stealth!(battle)
       entity_state = battle.entity_state_for(self)
+      return unless entity_state
+
       entity_state[:statuses].delete(:hiding)
       entity_state[:stealth] = 0
     end
@@ -587,7 +589,9 @@ module Natural20
     SKILL_AND_ABILITY_MAP.each do |ability, skills|
       skills.each do |skill|
         define_method("#{skill}_mod") do
-          return @properties[:skills][skill.to_sym] if npc? && @properties[:skills] && @properties[:skills][skill.to_sym]
+          if npc? && @properties[:skills] && @properties[:skills][skill.to_sym]
+            return @properties[:skills][skill.to_sym]
+          end
 
           ability_mod = case ability.to_sym
                         when :dex

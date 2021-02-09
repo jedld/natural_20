@@ -22,14 +22,11 @@ class DashAction < Natural20::Action
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :dash
-        Natural20::EventManager.received_event({ source: item[:source], event: :dash })
-        battle.entity_state_for(item[:source])[:movement] += item[:source].speed
-      end
-
+  def self.apply!(battle, item)
+    case item[:type]
+    when :dash
+      Natural20::EventManager.received_event({ source: item[:source], event: :dash })
+      battle.entity_state_for(item[:source])[:movement] += item[:source].speed
       if as_bonus_action
         battle.entity_state_for(item[:source])[:bonus_action] -= 1
       else

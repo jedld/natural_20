@@ -33,15 +33,13 @@ class SecondWindAction < Natural20::Action
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :second_wind
-        Natural20::EventManager.received_event(action: self.class, source: item[:source], roll: item[:roll],
-                                               event: :second_wind)
-        item[:source].second_wind!(item[:roll].result)
-        battle.entity_state_for(item[:source])[:bonus_action] -= 1
-      end
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :second_wind
+      Natural20::EventManager.received_event(action: self.class, source: item[:source], roll: item[:roll],
+                                             event: :second_wind)
+      item[:source].second_wind!(item[:roll].result)
+      battle.entity_state_for(item[:source])[:bonus_action] -= 1
     end
   end
 

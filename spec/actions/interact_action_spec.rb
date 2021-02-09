@@ -16,7 +16,7 @@ RSpec.describe InteractAction do
     specify "resolve and apply" do
       expect(@door.opened?).to_not be
       @action.resolve(session)
-      @action.apply!(nil)
+      InteractAction.apply!(nil, @action.result.first)
       expect(@door.opened?).to be
       expect(@battle_map.objects_near(entity, nil)).to include @door
     end

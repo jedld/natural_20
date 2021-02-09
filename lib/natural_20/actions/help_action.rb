@@ -14,16 +14,16 @@ class HelpAction < Natural20::Action
                          type: :select_target,
                          target_types: %i[allies enemies],
                          range: 5,
-                         num: 1,
-                       },
+                         num: 1
+                       }
                      ],
                      next: lambda { |target|
                        self.target = target
                        OpenStruct.new({
-                         param: nil,
-                         next: -> { self },
-                       })
-                     },
+                                        param: nil,
+                                        next: -> { self }
+                                      })
+                     }
                    })
   end
 
@@ -37,20 +37,17 @@ class HelpAction < Natural20::Action
       source: @source,
       target: @target,
       type: :help,
-      battle: opts[:battle],
+      battle: opts[:battle]
     }]
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :help
-        Natural20::EventManager.received_event({ source: item[:source], target: item[:target], event: :help })
-        item[:source].help!(item[:battle], item[:target])
-      end
-
-      battle.entity_state_for(item[:source])[:action] -= 1
+  def self.apply!(battle, item)
+    case item[:type]
+    when :help
+      Natural20::EventManager.received_event({ source: item[:source], target: item[:target], event: :help })
+      item[:source].help!(item[:battle], item[:target])
+      battle.consume!(item[:source], :action)
     end
   end
 end

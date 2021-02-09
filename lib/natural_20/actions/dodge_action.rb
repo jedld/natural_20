@@ -22,20 +22,19 @@ class DodgeAction < Natural20::Action
     @result = [{
       source: @source,
       type: :dodge,
+      as_bonus: as_bonus_action,
       battle: opts[:battle]
     }]
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :dodge
-        Natural20::EventManager.received_event({ source: item[:source], event: :dodge })
-        item[:source].dodging!(battle)
-      end
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :dodge
+      Natural20::EventManager.received_event({ source: item[:source], event: :dodge })
+      item[:source].dodging!(battle)
 
-      if as_bonus_action
+      if item[:as_bonus_action]
         battle.entity_state_for(item[:source])[:bonus_action] -= 1
       else
         battle.entity_state_for(item[:source])[:action] -= 1

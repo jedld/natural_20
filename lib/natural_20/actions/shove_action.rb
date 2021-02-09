@@ -107,33 +107,29 @@ class ShoveAction < Natural20::Action
               end
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :damage
-        damage_event(item, battle)
-      when :shove
-        if item[:success]
-          if item[:knock_prone]
-            item[:target].prone!
-          elsif item[:shove_loc]
-            item[:battle].map.move_to!(item[:target], *item[:shove_loc], battle)
-          end
-
-          Natural20::EventManager.received_event(event: :shove_success,
-                                                 knock_prone: item[:knock_prone],
-                                                 target: item[:target], source: item[:source],
-                                                 source_roll: item[:source_roll],
-                                                 target_roll: item[:target_roll])
-        else
-          Natural20::EventManager.received_event(event: :shove_failure,
-                                                 target: item[:target], source: item[:source],
-                                                 source_roll: item[:source_roll],
-                                                 target_roll: item[:target_roll])
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :shove
+      if item[:success]
+        if item[:knock_prone]
+          item[:target].prone!
+        elsif item[:shove_loc]
+          item[:battle].map.move_to!(item[:target], *item[:shove_loc], battle)
         end
 
-        battle.entity_state_for(item[:source])[:action] -= 1
+        Natural20::EventManager.received_event(event: :shove_success,
+                                               knock_prone: item[:knock_prone],
+                                               target: item[:target], source: item[:source],
+                                               source_roll: item[:source_roll],
+                                               target_roll: item[:target_roll])
+      else
+        Natural20::EventManager.received_event(event: :shove_failure,
+                                               target: item[:target], source: item[:source],
+                                               source_roll: item[:source_roll],
+                                               target_roll: item[:target_roll])
       end
+
+      battle.entity_state_for(item[:source])[:action] -= 1
     end
   end
 end

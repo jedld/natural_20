@@ -4,6 +4,7 @@ module Natural20
     include Natural20::Entity
     include Natural20::RogueClass
     include Natural20::FighterClass
+    include Natural20::WizardClass
     include Natural20::HealthFlavor
     prepend Natural20::Lootable
     include Multiattack

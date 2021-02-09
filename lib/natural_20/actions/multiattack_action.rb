@@ -9,7 +9,7 @@ class MultiattackAction < Natural20::Action
   def build_map
     OpenStruct.new({
                      param: nil,
-                     next: -> { self },
+                     next: -> { self }
                    })
   end
 
@@ -22,20 +22,19 @@ class MultiattackAction < Natural20::Action
     @result = [{
       source: @source,
       type: :multiattack,
-      battle: opts[:battle],
+      battle: opts[:battle]
     }]
     self
   end
 
   # @param battle [Natural20::Battle]
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :multiattack
-        @total_attacks += 2
-      end
-
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :multiattack
+      @total_attacks += 2
       battle.consume!(:action, 1)
     end
+
+
   end
 end

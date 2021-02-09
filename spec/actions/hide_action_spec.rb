@@ -18,7 +18,7 @@ RSpec.describe HideAction do
     cont = HideAction.build(session, @npc)
     hide_action = cont.next.call
     hide_action.resolve(session, nil, battle: @battle)
-    hide_action.apply!(@battle)
+    @battle.commit(hide_action)
     expect(@npc.hiding?(@battle)).to be
   end
 

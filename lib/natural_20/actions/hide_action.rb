@@ -30,14 +30,11 @@ class HideAction < Natural20::Action
   end
 
   # @param battle [Natural20::Battle]
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :hide
-        Natural20::EventManager.received_event({ source: item[:source], roll: item[:roll], event: :hide })
-        item[:source].hiding!(battle, item[:roll].result)
-      end
-
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :hide
+      Natural20::EventManager.received_event({ source: item[:source], roll: item[:roll], event: :hide })
+      item[:source].hiding!(battle, item[:roll].result)
       if item[:bonus_action]
         battle.consume(item[:source], :bonus_action)
       else
@@ -49,6 +46,7 @@ end
 
 class HideBonusAction < HideAction
   def self.can?(entity, battle)
-    battle && entity.any_class_feature?(%w[cunning_action nimble_escape]) && entity.total_bonus_actions(battle).positive?
+    battle && entity.any_class_feature?(%w[cunning_action
+                                           nimble_escape]) && entity.total_bonus_actions(battle).positive?
   end
 end

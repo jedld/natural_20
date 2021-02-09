@@ -27,7 +27,7 @@ module Natural20
     def validate
     end
 
-    def apply!(battle); end
+    def self.apply!(battle, item); end
 
     def resolve(session, map, opts = {}); end
 

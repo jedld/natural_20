@@ -7,3 +7,18 @@ classes:
 description: A high elf mage
 level: 1
 hit_die: inherit
+max_hp: 6
+ability:
+  str: 12
+  dex: 20
+  con: 16
+  int: 16
+  wis: 12
+  cha: 11
+spellbook:
+  - firebolt
+  - shield
+prepared_spells:
+  - firebolt
+  - magic_missile
+  - shield

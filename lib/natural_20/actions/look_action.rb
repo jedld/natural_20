@@ -40,24 +40,23 @@ class LookAction < Natural20::Action
       type: :look,
       die_roll: perception_check,
       die_roll_disadvantage: perception_check_disadvantage,
-      battle: opts[:battle]
+      battle: opts[:battle],
+      ui_callback: ui_callback
     }]
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :look
-        battle.entity_state_for(item[:source])[:active_perception] = item[:die_roll].result
-        battle.entity_state_for(item[:source])[:active_perception_disadvantage] = item[:die_roll_disadvantage].result
-        Natural20::EventManager.received_event({
-                                                 source: item[:source],
-                                                 perception_roll: item[:die_roll],
-                                                 event: :perception
-                                               })
-        ui_callback&.target_ui(item[:source], perception: item[:die_roll].result, look_mode: true)
-      end
+  def self.apply!(battle, item)
+    case (item[:type])
+    when :look
+      battle.entity_state_for(item[:source])[:active_perception] = item[:die_roll].result
+      battle.entity_state_for(item[:source])[:active_perception_disadvantage] = item[:die_roll_disadvantage].result
+      Natural20::EventManager.received_event({
+                                               source: item[:source],
+                                               perception_roll: item[:die_roll],
+                                               event: :perception
+                                             })
+      item[:ui_callback]&.target_ui(item[:source], perception: item[:die_roll].result, look_mode: true)
     end
   end
 end

@@ -22,23 +22,21 @@ class DisengageAction < Natural20::Action
     @result = [{
       source: @source,
       type: :disengage,
+      as_bonus_action: as_bonus_action,
       battle: opts[:battle]
     }]
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :disengage
-        Natural20::EventManager.received_event({ source: item[:source], event: :disengage })
-        item[:source].disengage!(battle)
-      end
-
-      if as_bonus_action
-        battle.entity_state_for(item[:source])[:bonus_action] -= 1
+  def self.apply!(battle, item)
+    case item[:type]
+    when :disengage
+      Natural20::EventManager.received_event({ source: item[:source], event: :disengage })
+      item[:source].disengage!(battle)
+      if item[:as_bonus_action]
+        battle.consume(item[:source], :bonus_action)
       else
-        battle.entity_state_for(item[:source])[:action] -= 1
+        battle.consume(item[:source], :action)
       end
     end
   end
@@ -48,6 +46,7 @@ class DisengageBonusAction < DisengageAction
   # @param entity [Natural20::Entity]
   # @param battle [Natural20::Battle]
   def self.can?(entity, battle)
-    battle && battle.combat? && entity.any_class_feature?(%w[cunning_action nimble_escape]) && entity.total_bonus_actions(battle) > 0
+    battle && battle.combat? && entity.any_class_feature?(%w[cunning_action
+                                                             nimble_escape]) && entity.total_bonus_actions(battle) > 0
   end
 end

@@ -14,9 +14,9 @@ RSpec.describe DisengageAction do
   it "auto build" do
     expect(@npc.dodge?(@battle)).to_not be
     cont = DisengageAction.build(session, @npc)
-    dodge_action = cont.next.call()
-    dodge_action.resolve(session, nil, battle: @battle)
-    dodge_action.apply!(@battle)
+    disengage_action = cont.next.call()
+    disengage_action.resolve(session, nil, battle: @battle)
+    DisengageAction.apply!(@battle, disengage_action.result.first)
     expect(@npc.disengage?(@battle)).to be
   end
 end

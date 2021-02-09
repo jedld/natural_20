@@ -27,7 +27,7 @@ RSpec.describe GroundInteractAction do
         [g, t.map { |i| [i, 1] }]
       end
       @action.resolve(session, @battle_map, battle: @battle)
-      @action.apply!(@battle)
+      @battle.commit(@action)
     end.to change { entity.item_count(inventory.name) }.from(0).to(1)
   end
 end

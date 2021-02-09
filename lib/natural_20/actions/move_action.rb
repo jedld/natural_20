@@ -1,7 +1,7 @@
 # typed: true
 class MoveAction < Natural20::Action
   include Natural20::MovementHelper
-  include Natural20::ActionDamage
+  extend Natural20::ActionDamage
 
   attr_accessor :move_path, :jump_index, :as_dash, :as_bonus_action
 
@@ -101,6 +101,8 @@ class MoveAction < Natural20::Action
           battle: battle,
           type: :move,
           path: grappled_entity_movement,
+          as_dash: as_dash,
+          as_bonus_action: as_bonus_action,
           move_cost: 0,
           position: grappled_entity_movement.last
         }
@@ -113,6 +115,8 @@ class MoveAction < Natural20::Action
       source: @source,
       map: map,
       battle: battle,
+      as_dash: as_dash,
+      as_bonus_action: as_bonus_action,
       type: :move,
       path: movement.movement,
       move_cost: movement_budget - movement.budget,
@@ -140,15 +144,12 @@ class MoveAction < Natural20::Action
     move_list
   end
 
-  def apply!(battle)
-    @result.each do |item|
+  def self.apply!(battle, item)
       case (item[:type])
       when :state
         item[:params].each do |k, v|
           item[:source].send(:"#{k}=", v)
         end
-      when :damage
-        damage_event(item, battle)
       when :acrobatics, :athletics
         if item[:success]
           Natural20::EventManager.received_event(source: item[:source], event: item[:type], success: true,
@@ -167,9 +168,9 @@ class MoveAction < Natural20::Action
 
       when :move
         item[:map].move_to!(item[:source], *item[:position], battle)
-        if as_dash && as_bonus_action
+        if item[:as_dash] && item[:as_bonus_action]
           battle.entity_state_for(item[:source])[:bonus_action] -= 1
-        elsif as_dash
+        elsif item[:as_dash]
           battle.entity_state_for(item[:source])[:action] -= 1
         elsif battle
           battle.entity_state_for(item[:source])[:movement] -= item[:move_cost] * battle.map.feet_per_grid
@@ -177,9 +178,8 @@ class MoveAction < Natural20::Action
 
         Natural20::EventManager.received_event({ event: :move, source: item[:source], position: item[:position], path: item[:path],
                                                  feet_per_grid: battle.map&.feet_per_grid,
-                                                 as_dash: as_dash, as_bonus: as_bonus_action })
+                                                 as_dash: item[:as_dash], as_bonus: item[:as_bonus_action] })
       end
-    end
   end
 
   private

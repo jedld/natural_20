@@ -88,23 +88,21 @@ class FirstAidAction < Natural20::Action
               end
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :first_aid
-        if item[:success]
-          item[:target].stable!
-          Natural20::EventManager.received_event(event: :first_aid,
-                                                 target: item[:target], source: @source,
-                                                 roll: item[:roll])
-        else
-          Natural20::EventManager.received_event(event: :first_aid_failure,
-                                                 target: item[:target], source: @source,
-                                                 roll: item[:roll])
-        end
-
-        battle.entity_state_for(item[:source])[:action] -= 1
+  def self.apply!(battle, item)
+    case item[:type]
+    when :first_aid
+      if item[:success]
+        item[:target].stable!
+        Natural20::EventManager.received_event(event: :first_aid,
+                                               target: item[:target], source: item[:source],
+                                               roll: item[:roll])
+      else
+        Natural20::EventManager.received_event(event: :first_aid_failure,
+                                               target: item[:target], source: item[:source],
+                                               roll: item[:roll])
       end
+
+      battle.consume(item[:source], :action)
     end
   end
 end

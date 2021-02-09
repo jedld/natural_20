@@ -43,15 +43,13 @@ class UseItemAction < Natural20::Action
     self
   end
 
-  def apply!(battle)
-    @result.each do |item|
-      case (item[:type])
-      when :use_item
-        Natural20::EventManager.received_event({ event: :use_item, source: item[:source], item: item[:item] })
-        item[:item].use!(item[:target], item)
-        item[:source].deduct_item(item[:item].name, 1) if item[:item].consumable?
-        battle.entity_state_for(item[:source])[:action] -= 1 if battle
-      end
+  def self.apply!(battle, item)
+    case item[:type]
+    when :use_item
+      Natural20::EventManager.received_event({ event: :use_item, source: item[:source], item: item[:item] })
+      item[:item].use!(item[:target], item)
+      item[:source].deduct_item(item[:item].name, 1) if item[:item].consumable?
+      battle.entity_state_for(item[:source])[:action] -= 1 if battle
     end
   end
 end

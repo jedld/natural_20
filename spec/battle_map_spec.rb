@@ -137,6 +137,7 @@ RSpec.describe Natural20::BattleMap do
 
   context 'other objects' do
     before do
+      String.disable_colorization true
       @battle_map = Natural20::BattleMap.new(session, 'fixtures/battle_sim_objects')
       @battle = Natural20::Battle.new(session, @battle_map)
       @map_renderer = Natural20::MapRenderer.new(@battle_map)
