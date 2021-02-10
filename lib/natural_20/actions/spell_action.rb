@@ -1,5 +1,7 @@
 class SpellAction < Natural20::Action
-  attr_accessor :target, :spell_action, :other_params
+  extend Natural20::ActionDamage
+
+  attr_accessor :target, :spell_action, :spell, :other_params
 
   def self.can?(entity, battle, _options = {})
     return false unless entity.has_spells?
@@ -32,33 +34,37 @@ class SpellAction < Natural20::Action
                        }
                      ],
                      next: lambda { |spell|
-                             spell_details = session.load_spell(spell)
-                             @spell_action = spell_details[:spell_class].constantize.new(spell, spell_details)
+                             @spell = session.load_spell(spell)
+                             @spell_action = @spell[:spell_class].constantize.new(spell, @spell)
                              @spell_action.build_map(self)
                            }
                    })
   end
 
-  def resolve(_session, map = nil, opts = {})
+  def resolve(_session, _map = nil, opts = {})
     battle = opts[:battle]
-    result_payload = {
-      source: @source,
-      target: target,
-      map: map,
-      battle: battle,
-      type: :cast_spell,
-      item: spell_action
-    }.merge(spell_action.resolve(@source, battle))
-    @result = [result_payload]
+    @result = spell_action.resolve(@source, battle, self)
     self
   end
 
   def self.apply!(battle, item)
+    Natural20::Spell.descendants.each do |klass|
+      klass.apply!(battle, item)
+    end
     case item[:type]
-    when :cast_spell
-      Natural20::EventManager.received_event({ event: :cast_spell, source: item[:source], item: item[:item] })
-      item[:item].use!(item[:target], item)
-      battle.entity_state_for(item[:source])[:action] -= 1 if battle
+    when :spell_damage
+      damage_event(item, battle)
+      consume_resource(battle, item)
+    end
+  end
+
+  # @param battle [Natural20::Battle]
+  # @param item [Hash]
+  def self.consume_resource(battle, item)
+    amt, resource = item.dig(:spell, :casting_time).split(':')
+    case resource
+    when 'action'
+      battle.consume(item[:source], :action)
     end
   end
 end

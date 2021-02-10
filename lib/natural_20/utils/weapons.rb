@@ -30,10 +30,10 @@ module Natural20::Weapons
     disadvantage << :armor_proficiency unless source.proficient_with_equipped_armor?
     advantage << :squeezed if target.squeezed?
     advantage << :being_helped if battle.help_with?(target)
-    disadvantage << :target_long_range if battle.map && battle.map.distance(source, target,
+    disadvantage << :target_long_range if battle.map && weapon && battle.map.distance(source, target,
                                                                             entity_1_pos: source_pos) > weapon[:range]
 
-    if weapon[:type] == 'ranged_attack' && battle.map
+    if weapon && weapon[:type] == 'ranged_attack' && battle.map
       disadvantage << :ranged_with_enemy_in_melee if battle.enemy_in_melee_range?(source, source_pos: source_pos)
       disadvantage << :target_is_prone_range if target.prone?
     end
@@ -43,8 +43,8 @@ module Natural20::Weapons
       advantage << :pack_tactics
     end
 
-    disadvantage << :small_creature_using_heavy if weapon[:properties]&.include?('heavy') && source.size == :small
-    advantage << :target_is_prone if weapon[:type] == 'melee_attack' && target.prone?
+    disadvantage << :small_creature_using_heavy if weapon && weapon[:properties]&.include?('heavy') && source.size == :small
+    advantage << :target_is_prone if weapon && weapon[:type] == 'melee_attack' && target.prone?
 
     advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source, entity_2_pos: source_pos)
     disadvantage << :invisible_attacker if battle.map && !battle.can_see?(source, target, entity_1_pos: source_pos)

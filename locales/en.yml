@@ -30,6 +30,7 @@ en:
     use_item: Use Item
   attack_status:
     being_helped: Being being_helped
+    invisible_attacker: Target is hidden/invisible
     prone: Target Prone
     ranged_with_enemy_in_melee: Ranged weapon with enemy in melee range
     small_creature_using_heavy: Heavy weapon used by small creature
@@ -39,12 +40,9 @@ en:
     target_is_prone_range: Ranged attack on prone target
     target_long_range: Long range penalty
     unseen_attacker: Attacker is unseen
-    invisible_attacker: Target is hidden/invisible
   back: Back
   battle_end: Battle ended in %{num} rounds
   battle_simulator: Battle Simulator
-  map_description: 'Battle Map (%{width}x%{length}) %{feet_per_grid}ft per square, pov %{pov}:'
-  character_action_prompt: '%{name} (%{token}) will'
   builder:
     ability_score:
       fixed: Fixed ability score 15, 14, 13, 12, 10, 8
@@ -112,6 +110,7 @@ en:
       masons_tools: Mason's Tools
       smiths_tools: Smith's Tools
     wis: Select Wisdom ability score
+  character_action_prompt: '%{name} (%{token}) will'
   character_builder: Character Builder ...
   character_sheet:
     ac: 'AC: %{ac}'
@@ -152,6 +151,8 @@ en:
     second_wind: Roll for second wind hp gain
     sneak_attack: Roll for sneak attack damage
     special_weapon_damage: Roll for special weapon additional damage
+    spells:
+      firebolt: Roll for Firebot spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
     thieves_tools: Roll for thieves tools (skill check)
@@ -233,6 +234,7 @@ en:
     thieves_cant: Thieves Cant
     undercommon: Undercommon
   manual_target: Target object using the map
+  map_description: 'Battle Map (%{width}x%{length}) %{feet_per_grid}ft per square, pov %{pov}:'
   missing_game: missing game.yml in the current folder
   multiple_target_prompt: Multiple targets at location(s) please select specific targets
   'no': 'No'
@@ -304,6 +306,8 @@ en:
   select_npcs: Select NPCs
   select_party_member: Select Party Member %{index}
   skip_hit_die: Skip Hit Die
+  spell:
+    firebolt: Firebolt
   tpk: The entire party has fallen. Game Over!
   unequip: Unequip
   validation:

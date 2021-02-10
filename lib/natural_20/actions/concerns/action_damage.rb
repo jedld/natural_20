@@ -1,6 +1,8 @@
 module Natural20::ActionDamage
   def damage_event(item, battle)
-    Natural20::EventManager.received_event({ source: item[:source], attack_roll: item[:attack_roll], target: item[:target], event: :attacked,
+    Natural20::EventManager.received_event({ source: item[:source],
+                                             attack_roll: item[:attack_roll],
+                                             target: item[:target], event: :attacked,
                                              attack_name: item[:attack_name],
                                              damage_type: item[:damage_type],
                                              advantage_mod: item[:advantage_mod],

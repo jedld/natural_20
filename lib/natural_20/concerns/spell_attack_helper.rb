@@ -1,0 +1,2 @@
+module Natural20::SpellAttackHelper
+end

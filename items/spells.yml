@@ -1,5 +1,6 @@
 ---
 firebolt:
+  name: Firebolt
   level: cantrip
   casting_time: 1:action
   duration: instant

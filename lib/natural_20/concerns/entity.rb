@@ -418,9 +418,9 @@ module Natural20
       !@properties[:prepared_spells].empty?
     end
 
-    def ranged_spell_attack!(battle, spell)
+    def ranged_spell_attack!(battle, spell, advantage: false, disadvantage: false)
       DieRoll.roll("1d20+#{spell_attack_modifier}", description: t('dice_roll.ranged_spell_attack', spell: spell),
-                                                    entity: self, battle: battle)
+                                                    entity: self, battle: battle, advantage: advantage, disadvantage: disadvantage)
     end
 
     def hiding?(battle)
