@@ -11,7 +11,7 @@ module Natural20
 
     attr_accessor :hp, :other_counters, :resistances, :experience_points, :class_properties
 
-    ACTION_LIST = %i[first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
+    ACTION_LIST = %i[spell first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
                      dash_bonus hide_bonus grapple escape_grapple drop_grapple shove push prone stand short_rest two_weapon_attack].freeze
 
     # @param session [Natural20::Session]
@@ -219,7 +219,7 @@ module Natural20
                              %w[ranged_attack melee_attack]
                            end
 
-      weapon_attacks = @properties[:equipped].map do |item|
+      weapon_attacks = @properties[:equipped]&.map do |item|
         weapon_detail = session.load_weapon(item)
         next if weapon_detail.nil?
         next unless valid_weapon_types.include?(weapon_detail[:type])
@@ -239,7 +239,7 @@ module Natural20
         end
 
         attacks
-      end.flatten.compact
+      end&.flatten&.compact || []
 
       unarmed_attack = AttackAction.new(session, self, :attack)
       unarmed_attack.using = 'unarmed_attack'
@@ -329,7 +329,7 @@ module Natural20
     end
 
     def two_weapon_attack_actions(battle)
-      @properties[:equipped].each do |item|
+      @properties[:equipped]&.each do |item|
         weapon_detail = session.load_weapon(item)
         next if weapon_detail.nil?
         next unless weapon_detail[:type] == 'melee_attack'

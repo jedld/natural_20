@@ -23,6 +23,7 @@ module Natural20
       @objects = {}
       @thing = {}
       @char_classes = {}
+      @spells = {}
       @settings = {
         manual_dice_roll: false
       }
@@ -122,6 +123,13 @@ module Natural20
         class_name = File.basename(fname, '.yml')
         [class_name, YAML.load_file(fname).deep_symbolize_keys!]
       end.to_h
+    end
+
+    def load_spell(spell)
+      @spells[spell.to_sym] ||= begin
+        spells = YAML.load_file(File.join(@root_path, 'items', "spells.yml")).deep_symbolize_keys!
+        spells[spell.to_sym]
+      end
     end
 
     def load_class(klass)

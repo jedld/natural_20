@@ -4,6 +4,31 @@ require 'natural_20/player_character'
 RSpec.describe Natural20::PlayerCharacter do
   let(:session) { Natural20::Session.new }
 
+  context 'wizard' do
+    before do
+      @player = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_mage.yml'))
+    end
+
+    specify '#has_spells?' do
+      expect(@player.has_spells?).to be
+    end
+
+    specify '#available_actions' do
+      expect(@player.available_actions(session,
+                                       @battle).map(&:to_s)).to eq ['Spell', 'Look', 'Attack', 'Move', 'Use item',
+                                                                    'Interact', 'Ground interact', 'Inventory', 'Grapple', 'Drop grapple', 'Shove', 'Push']
+    end
+
+    specify '#spell_attack_modifier' do
+      expect(@player.spell_attack_modifier).to eq(5)
+    end
+
+    specify '#ranged_spell_attack' do
+      attack = @player.ranged_spell_attack!(@battle, 'firebolt')
+      expect(attack.roller.roll_str).to eq('1d20+5')
+    end
+  end
+
   context 'fighter' do
     before do
       String.disable_colorization true

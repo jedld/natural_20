@@ -9,6 +9,23 @@ RSpec.describe Natural20::MapRenderer do
   end
 
   specify "able to render a map" do
-    expect(@map_renderer.render(line_of_sight: @fighter)).to eq("")
+    expect(@map_renderer.render(line_of_sight: @fighter)).to eq(
+      "···········****··\n" +
+      "G·······*********\n" +
+      "·······**********\n" +
+      "·········**g****·\n" +
+      "-----------------\n" +
+      "·················\n" +
+      "·················\n" +
+      "·················\n" +
+      "-----------------\n" +
+      "············*····\n" +
+      "····*····*******·\n" +
+      "··········******·\n" +
+      "········*******··\n" +
+      "········g········\n" +
+      "·················\n" +
+      "·················\n"
+    )
   end
 end

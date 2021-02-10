@@ -3,7 +3,7 @@ class LookAction < Natural20::Action
 
   # @param entity [Natural20::Entity]
   # @param battle [Natural20::Battle]
-  def self.can?(entity, battle)
+  def self.can?(entity, battle, options = {})
     battle.nil? || !battle.ongoing? || battle.entity_state_for(entity)[:active_perception].zero?
   end
 

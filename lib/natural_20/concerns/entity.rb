@@ -412,6 +412,17 @@ module Natural20
       entity_state[:statuses]&.include?(:dodge)
     end
 
+    def has_spells?
+      return false unless @properties[:prepared_spells]
+
+      !@properties[:prepared_spells].empty?
+    end
+
+    def ranged_spell_attack!(battle, spell)
+      DieRoll.roll("1d20+#{spell_attack_modifier}", description: t('dice_roll.ranged_spell_attack', spell: spell),
+                                                    entity: self, battle: battle)
+    end
+
     def hiding?(battle)
       entity_state = battle.entity_state_for(self)
       return false unless entity_state

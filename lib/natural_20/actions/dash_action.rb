@@ -9,7 +9,7 @@ class DashAction < Natural20::Action
                    })
   end
 
-  def self.can?(entity, battle)
+  def self.can?(entity, battle, _options = {})
     battle && entity.total_actions(battle).positive?
   end
 
@@ -37,7 +37,7 @@ class DashAction < Natural20::Action
 end
 
 class DashBonusAction < DashAction
-  def self.can?(entity, battle)
+  def self.can?(entity, battle, options = {})
     battle && entity.class_feature?('cunning_action') && entity.total_bonus_actions(battle) > 0
   end
 end

@@ -1,2 +1,18 @@
 ---
-  
+firebolt:
+  level: cantrip
+  casting_time: 1:action
+  duration: instant
+  school: evocation
+  range: 120
+  base_damage: 1d10
+  damage_increase:
+    - 5
+    - 11
+    - 17
+  damage_type: fire
+  type: ranged_attack
+  spell_class: Natural20::Firebolt
+  components:
+    - verbal
+    - sematic
