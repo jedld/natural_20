@@ -17,7 +17,9 @@ ability:
   cha: 8
 spellbook:
   - firebolt
+  - mage_armor
 prepared_spells:
   - firebolt
+  - mage_armor
 equipped:
 - dagger

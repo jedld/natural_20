@@ -155,7 +155,7 @@ module Natural20
 
       all_weapon_proficiencies = weapon_proficiencies
 
-      return true if all_weapon_proficiencies.include?(weapon[:name])
+      return true if all_weapon_proficiencies.include?(weapon[:name].underscore)
 
       all_weapon_proficiencies&.detect do |prof|
         weapon[:proficiency_type]&.include?(prof)

@@ -34,6 +34,10 @@ RSpec.describe Natural20::PlayerCharacter do
       end
     end
 
+    specify '#proficient_with_weapon?' do
+      expect(@player.proficient_with_weapon?('dagger')).to be
+    end
+
     context '#available_spells' do
       specify do
         expect(@player.available_spells(@battle).keys).to eq(['firebolt', "mage_armor"])

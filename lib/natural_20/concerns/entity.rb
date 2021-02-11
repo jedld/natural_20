@@ -1078,7 +1078,7 @@ module Natural20
       return true if weapon[:name] == 'Unarmed Attack'
 
       @properties[:weapon_proficiencies]&.detect do |prof|
-        weapon[:proficiency_type]&.include?(prof)
+        weapon[:proficiency_type]&.include?(prof) || weapon[:proficiency_type]&.include?(weapon[:name].underscore)
       end
     end
 
