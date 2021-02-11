@@ -26,10 +26,10 @@ en:
     push: Shove (Push Away)
     short_rest: Short Rest
     shove: Shove (Knock Prone)
-    stand: Stand Up
-    use_item: Use Item
     spell: Spellcasting
     spell_choice: '%{spell} - %{description}'
+    stand: Stand Up
+    use_item: Use Item
   attack_status:
     being_helped: Being being_helped
     invisible_attacker: Target is hidden/invisible
@@ -154,6 +154,10 @@ en:
     sneak_attack: Roll for sneak attack damage
     special_weapon_damage: Roll for special weapon additional damage
     spells:
+      disabled:
+        no_action: No more actions
+        no_bonus_action: No more bonus actions
+        no_spell_slot: No more spell slots
       firebolt: Roll for Firebot spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)

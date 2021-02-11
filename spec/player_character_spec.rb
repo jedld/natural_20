@@ -36,7 +36,7 @@ RSpec.describe Natural20::PlayerCharacter do
 
     context '#available_spells' do
       specify do
-        expect(@player.available_spells.keys).to eq(['firebolt'])
+        expect(@player.available_spells(@battle).keys).to eq(['firebolt'])
       end
     end
   end

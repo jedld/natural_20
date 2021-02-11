@@ -344,8 +344,15 @@ class CommandlineUI < Natural20::Controller
           targets.first
         when :select_spell
           spell = prompt.select("#{entity.name} cast Spell", per_page: TTY_PROMPT_PER_PAGE) do |q|
-            entity.available_spells.each do |k, details|
-              q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k
+
+            entity.available_spells(battle).each do |k, details|
+              if details[:disabled].empty?
+                q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k
+              else
+                q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k, disabled: details[:disabled].map { |d|
+                                                                                                                               t("spells.disabled.#{d}")
+                                                                                                                             }.join(', ')
+              end
             end
             q.choice t(:back).colorize(:blue), :back
           end

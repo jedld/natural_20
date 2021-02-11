@@ -384,17 +384,35 @@ module Natural20
       @spell_slots[character_class].fetch(level, 0)
     end
 
+    # Consumes a characters spell slot
+    def consume_spell_slot!(level, character_class = nil, qty = 1)
+      character_class = @spell_slots.keys.first if character_class.nil?
+      if @spell_slots[character_class][level]
+        @spell_slots[character_class][level] = [@spell_slots[character_class][level] - qty, 0].max
+      end
+    end
+
     def pc?
       true
     end
 
-    def available_spells
+    # Returns the available spells for the current user
+    # @param battle [Natural20::Battle]
+    # @return [Hash]
+    def available_spells(battle)
       spells = @properties.fetch(:cantrips, []) + @properties.fetch(:prepared_spells, [])
       spells.map do |spell|
         details = session.load_spell(spell)
         next unless details
 
-        [spell, details]
+        _qty, resource = details[:casting_time].split(':')
+
+        disable_reason = []
+        disable_reason << :no_action if resource == 'action' && battle.ongoing? && total_actions(battle).zero?
+        disable_reason << :no_bonus_action if resource == 'bonus_action' && battle.ongoing? && total_bonus_actions(battle).zero?
+        disable_reason << :no_spell_slot if details[:level].positive? && spell_slots(details[:level]).zero?
+
+        [spell, details.merge(disabled: disable_reason)]
       end.compact.to_h
     end
 
