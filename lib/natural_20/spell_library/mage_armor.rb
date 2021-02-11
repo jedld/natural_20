@@ -34,7 +34,10 @@ class Natural20::MageArmor < Natural20::Spell
       item[:target].register_effect(:ac_override, self, effect: item[:effect], source: item[:source],
                                                         duration: 8.hours.to_i)
       item[:target].register_event_hook(:equip, self, effect: item[:effect], effect: item[:effect],
+                                                      source: item[:source],
                                                       duration: 8.hours.to_i)
+      Natural20::EventManager.received_event(event: :spell_buf, spell: item[:effect], source: item[:source],
+                                             target: item[:target])
       SpellAction.consume_resource(battle, item)
     end
   end
@@ -43,6 +46,10 @@ class Natural20::MageArmor < Natural20::Spell
   # @param effect [Object]
   def self.ac_override(entity, _effect)
     13 + entity.dex_mod
+  end
+
+  def self.equip(entity, opts = {})
+    entity.dismiss_effect!(opts[:effect]) if entity.wearing_armor?
   end
 
   # @param entity [Natural20::Entity]

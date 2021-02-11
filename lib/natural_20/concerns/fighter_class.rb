@@ -1,5 +1,5 @@
 # typed: false
-require "natural_20/concerns/fighter_actions/second_wind_action"
+require 'natural_20/concerns/fighter_actions/second_wind_action'
 
 module Natural20::FighterClass
   attr_accessor :fighter_level, :second_wind_count
@@ -29,7 +29,7 @@ module Natural20::FighterClass
   end
 
   # hooks for the fighter class during a short rest
-  def short_rest_for_fighter
+  def short_rest_for_fighter(_battle)
     @second_wind_count = 1
   end
 end

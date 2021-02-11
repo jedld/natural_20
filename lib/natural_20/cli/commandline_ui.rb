@@ -320,6 +320,18 @@ class CommandlineUI < Natural20::Controller
     end
   end
 
+  def arcane_recovery_ui(entity, spell_levels)
+    choice = prompt.select(t('action.arcane_recovery', name: entity.name)) do |q|
+      spell_levels.sort.each do |level|
+        q.choice t(:spell_level, level: level), level
+      end
+      q.choice t('action.waive_arcane_recovery'), :waive
+    end
+    return nil if choice == :waive
+
+    choice
+  end
+
   # Show action UI
   # @param action [Natural20::Action]
   # @param entity [Entity]
@@ -344,7 +356,6 @@ class CommandlineUI < Natural20::Controller
           targets.first
         when :select_spell
           spell = prompt.select("#{entity.name} cast Spell", per_page: TTY_PROMPT_PER_PAGE) do |q|
-
             entity.available_spells(battle).each do |k, details|
               if details[:disabled].empty?
                 q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k

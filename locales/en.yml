@@ -1,6 +1,7 @@
 ---
 en:
   action:
+    arcane_recovery: Arcane Recovery for %{name}
     attack_action: '%{name} with %{weapon_name} -> Hit: +%{mod} Dmg: %{dmg}'
     attack_action_throw: '%{name} with %{weapon_name} (Throw) -> Hit: +%{mod} Dmg: %{dmg}'
     dash: Dash
@@ -30,6 +31,7 @@ en:
     spell_choice: '%{spell}'
     stand: Stand Up
     use_item: Use Item
+    waive_arcane_recovery: Skip Arcane Recovery
   attack_status:
     being_helped: Being being_helped
     invisible_attacker: Target is hidden/invisible
@@ -123,10 +125,12 @@ en:
     languages: 'Languages:'
     level: 'Level: %{level}'
     name: 'Name: %{name}'
+    proficiency_bonus: 'Proficiency Bonus: +%{bonus}'
     race: 'Race: %{race}'
     skill_mod: '%{prefix} %{skill} %{bonus}'
     skills: Skills
     speed: 'Speed: %{speed}ft.'
+    spell_attack: 'Spell Attack: +%{spell_attack}'
     subrace: 'Subrace: %{race}'
   character_status_line: 'HP: %{hp}/%{max_hp} actions: %{total_actions} bonus action: %{bonus_action}, movement: %{available_movement} ft. statuses: %{statuses}'
   dead_goblin_items: Dead Goblin's items
@@ -154,10 +158,6 @@ en:
     sneak_attack: Roll for sneak attack damage
     special_weapon_damage: Roll for special weapon additional damage
     spells:
-      disabled:
-        no_action: No more actions
-        no_bonus_action: No more bonus actions
-        no_spell_slot: No more spell slots
       firebolt: Roll for Firebot spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
@@ -211,6 +211,7 @@ en:
     shove_failure: '%{source_roll} < %{target_roll}. ${source} tried but failed to shove %{target} 5ft away'
     shove_success: '%{source_roll} >= %{target_roll}. ${source} shoves %{target} 5ft away'
     something: (something)
+    spell_buff: '%{source} casts %{spell} on %{target}.'
     status:
       prone: '%{name} is now prone.'
       stand: '%{name} stands up.'
@@ -314,6 +315,13 @@ en:
   skip_hit_die: Skip Hit Die
   spell:
     firebolt: Firebolt
+    mage_armor: Mage Armor
+  spell_level: Recover Spell Level %{level}
+  spells:
+    disabled:
+      no_action: '- No more actions'
+      no_bonus_action: '- No more bonus actions'
+      no_spell_slot: '- No more spell slots'
   tpk: The entire party has fallen. Game Over!
   unequip: Unequip
   validation:

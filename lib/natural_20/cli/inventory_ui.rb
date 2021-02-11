@@ -1,6 +1,8 @@
 module Natural20::InventoryUI
   include Natural20::Weapons
 
+  # Displays the character sheet of the specified entity
+  # @param entity [Natural20::Entity]
   def character_sheet(entity)
     puts t('character_sheet.name', name: entity.name)
     puts t('character_sheet.level', level: entity.level)
@@ -15,6 +17,8 @@ module Natural20::InventoryUI
     puts t('character_sheet.hp', current: entity.hp, max: entity.max_hp)
     puts t('character_sheet.ac', ac: entity.armor_class)
     puts t('character_sheet.speed', speed: entity.speed)
+    puts t('character_sheet.proficiency_bonus', bonus: entity.proficiency_bonus)
+    puts t('character_sheet.spell_attack', spell_attack: entity.spell_attack_modifier) if entity.has_spells?
     puts t('character_sheet.languages')
     entity.languages.each do |lang|
       puts "  #{t("language.#{lang}")}"

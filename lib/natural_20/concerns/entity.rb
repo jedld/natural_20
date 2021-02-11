@@ -5,9 +5,10 @@ module Natural20
 
     attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :effects,
                   :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks
+    attr_reader :casted_effects
 
-    ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma]
-    ATTRIBUTE_TYPES_ABBV = %w[str dex con int wis cha]
+    ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma].freeze
+    ATTRIBUTE_TYPES_ABBV = %w[str dex con int wis cha].freeze
     def label
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
     end
@@ -816,10 +817,18 @@ module Natural20
     # Equips an item
     # @param item_name [String,Symbol]
     def equip(item_name, ignore_inventory: false)
-      return @properties[:equipped] << item_name.to_s if ignore_inventory
+      @properties[:equipped] ||= []
+      if ignore_inventory
+        @properties[:equipped] << item_name.to_s
+        resolve_trigger(:equip)
+        return
+      end
 
       item = deduct_item(item_name)
-      @properties[:equipped] << item_name.to_s if item
+      if item
+        @properties[:equipped] << item_name.to_s
+        resolve_trigger(:equip)
+      end
     end
 
     # Checks if item can be equipped
@@ -1167,18 +1176,20 @@ module Natural20
       effect_descriptor = {
         handler: handler,
         method: method_name.nil? ? effect_type : method_name,
-        effect: effect
+        effect: effect,
+        source: source
       }
       effect_descriptor[:expiration] = @session.game_time + duration.to_i
       @effects[effect_type.to_sym] << effect_descriptor
     end
 
-    def register_event_hook(event_type, handler, method_name = nil, effect: nil, duration: nil)
+    def register_event_hook(event_type, handler, method_name = nil, source: nil, effect: nil, duration: nil)
       @entity_event_hooks[event_type.to_sym] ||= []
       event_hook_descriptor = {
         handler: handler,
         method: method_name.nil? ? event_type : method_name,
-        effect: effect
+        effect: effect,
+        source: source
       }
       event_hook_descriptor[:expiration] = @session.game_time + duration.to_i
       @entity_event_hooks[event_type.to_sym] << event_hook_descriptor
@@ -1186,11 +1197,12 @@ module Natural20
 
     def dismiss_effect!(effect)
       dismiss_count = 0
+      effect.source.casted_effects.delete(effect)
+
       @effects = @effects.map do |k, value|
         delete_effects = value.select do |f|
           f[:effect] == effect
         end
-
         dismiss_count += delete_effects.size
         [k, value - delete_effects]
       end.to_h
@@ -1228,7 +1240,15 @@ module Natural20
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end.last
 
-      active_effect[:handler].send(active_effect[:method], self, active_effect: active_effect[:effect]) if active_effect
+      active_effect[:handler].send(active_effect[:method], self, effect: active_effect[:effect]) if active_effect
+    end
+
+    def resolve_trigger(event_type)
+      active_hook = @entity_event_hooks[event_type.to_sym].reject do |effect|
+        effect[:expiration] && effect[:expiration] <= @session.game_time
+      end.last
+
+      active_hook[:handler].send(active_hook[:method], self, effect: active_hook[:effect]) if active_hook
     end
 
     # Localization helper

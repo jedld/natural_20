@@ -1,11 +1,16 @@
 class Natural20::Spell
   attr_accessor :errors
-  attr_reader :properties
+  attr_reader :properties, :source
 
-  def initialize(spell_name, details)
+  def initialize(source, spell_name, details)
     @name = spell_name
     @properties = details
+    @source = source
     @errors = []
+  end
+
+  def label
+    t(:"spell.#{@name}")
   end
 
   def self.apply!(battle, item); end

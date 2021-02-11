@@ -26,15 +26,23 @@ RSpec.describe SpellAction do
   end
 
   context 'mage armor' do
-    specify 'resolve and apply' do
+    before do
       expect(entity.armor_class).to eq(12)
-      puts Natural20::MapRenderer.new(@battle_map).render
-      action = SpellAction.build(session, entity).next.call('mage_armor').next.call(entity).next.call
-      action.resolve(session, @battle_map, battle: @battle)
-      expect(action.result.map { |s| s[:type] }).to eq([:mage_armor])
-      @battle.commit(action)
+      @action = SpellAction.build(session, entity).next.call('mage_armor').next.call(entity).next.call
+      @action.resolve(session, @battle_map, battle: @battle)
+      expect(@action.result.map { |s| s[:type] }).to eq([:mage_armor])
+      @battle.commit(@action)
+    end
+
+    specify 'resolve and apply' do
       expect(entity.armor_class).to eq(15)
-      expect(entity.dismiss_effect!(action.spell_action).positive?).to be
+      expect(entity.dismiss_effect!(@action.spell_action).positive?).to be
+      expect(entity.armor_class).to eq(12)
+    end
+
+    specify 'equip armor cancels effect' do
+      expect(entity.armor_class).to eq(15)
+      entity.equip('studded_leather', ignore_inventory: true)
       expect(entity.armor_class).to eq(12)
     end
   end

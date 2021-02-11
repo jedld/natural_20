@@ -180,7 +180,9 @@ module Natural20
                              output "#{index + 1}. #{decorate_name(entity)} #{initiative}"
                            end
                          },
-
+                         spell_buff: lambda { |event|
+                          output t('event.spell_buff', source: show_name(event), spell: event[:spell].label, target: event[:target]&.name)
+                        },
                          end_of_combat: lambda { |_event|
                                           output t('event.combat_end')
                                         },

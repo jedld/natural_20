@@ -155,7 +155,7 @@ module Natural20
 
       all_weapon_proficiencies = weapon_proficiencies
 
-      return true if all_weapon_proficiencies.include?(weapon[:name].underscore)
+      return true if all_weapon_proficiencies.include?(weapon[:name].to_s.underscore)
 
       all_weapon_proficiencies&.detect do |prof|
         weapon[:proficiency_type]&.include?(prof)
@@ -423,9 +423,8 @@ module Natural20
     # @param hit_die_num [Integer] number of hit die to use
     def short_rest!(battle, prompt: false)
       super
-
-      @class_properties.keys do |klass|
-        send(:"short_rest_for_#{klass}") if respond_to?(:"short_rest_for_#{klass}")
+      @class_properties.keys.each do |klass|
+        send(:"short_rest_for_#{klass}", battle) if respond_to?(:"short_rest_for_#{klass}")
       end
     end
 

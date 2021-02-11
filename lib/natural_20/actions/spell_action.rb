@@ -37,7 +37,7 @@ class SpellAction < Natural20::Action
                      ],
                      next: lambda { |spell|
                              @spell = session.load_spell(spell)
-                             @spell_action = @spell[:spell_class].constantize.new(spell, @spell)
+                             @spell_action = @spell[:spell_class].constantize.new(@source, spell, @spell)
                              @spell_action.build_map(self)
                            }
                    })
