@@ -3,15 +3,17 @@ class SpellAction < Natural20::Action
 
   attr_accessor :target, :spell_action, :spell, :other_params
 
-  def self.can?(entity, battle, _options = {})
+  def self.can?(entity, battle, options = {})
     return false unless entity.has_spells?
 
-    battle.nil? || !battle.ongoing? || can_cast?(entity, battle, spell)
+    battle.nil? || !battle.ongoing? || can_cast?(entity, battle, options[:spell])
   end
 
   # @param battle [Natural20::Battle]
   # @param spell [Symbol]
   def self.can_cast?(entity, battle, spell)
+    return true unless spell
+
     spell_details = battle.session.load_spell(spell)
     amt, resource = spell_details[:casting_time].split(':')
 
@@ -55,6 +57,14 @@ class SpellAction < Natural20::Action
     when :spell_damage
       damage_event(item, battle)
       consume_resource(battle, item)
+    when :spell_miss
+      consume_resource(battle, item)
+      Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
+        attack_name: item[:attack_name],
+        advantage_mod: item[:advantage_mod],
+        as_reaction: !!item[:as_reaction],
+        adv_info: item[:adv_info],
+        source: item[:source], target: item[:target], event: :miss })
     end
   end
 

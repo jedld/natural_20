@@ -486,6 +486,10 @@ module Natural20
       grappled? ? 0 : battle.entity_state_for(self)[:movement]
     end
 
+    def available_spells
+      []
+    end
+
     def speed
       @properties[:speed]
     end

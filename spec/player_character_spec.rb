@@ -27,6 +27,18 @@ RSpec.describe Natural20::PlayerCharacter do
       attack = @player.ranged_spell_attack!(@battle, 'firebolt')
       expect(attack.roller.roll_str).to eq('1d20+5')
     end
+
+    context '#spell_slots' do
+      specify 'return 1st level spell slots' do
+        expect(@player.spell_slots(1)).to eq(2)
+      end
+    end
+
+    context '#available_spells' do
+      specify do
+        expect(@player.available_spells.keys).to eq(['firebolt'])
+      end
+    end
   end
 
   context 'fighter' do

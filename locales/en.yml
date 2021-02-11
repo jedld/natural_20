@@ -28,6 +28,8 @@ en:
     shove: Shove (Knock Prone)
     stand: Stand Up
     use_item: Use Item
+    spell: Spellcasting
+    spell_choice: '%{spell} - %{description}'
   attack_status:
     being_helped: Being being_helped
     invisible_attacker: Target is hidden/invisible

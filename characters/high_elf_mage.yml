@@ -17,8 +17,7 @@ ability:
   cha: 11
 spellbook:
   - firebolt
-  - shield
 prepared_spells:
   - firebolt
-  - magic_missile
-  - shield
+equipped:
+- dagger

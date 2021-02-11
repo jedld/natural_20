@@ -9,7 +9,7 @@ module Natural20
     prepend Natural20::Lootable
     include Multiattack
 
-    attr_accessor :hp, :other_counters, :resistances, :experience_points, :class_properties
+    attr_accessor :hp, :other_counters, :resistances, :experience_points, :class_properties, :spell_slots
 
     ACTION_LIST = %i[spell first_aid look attack move dash hide help dodge disengage use_item interact ground_interact inventory disengage_bonus
                      dash_bonus hide_bonus grapple escape_grapple drop_grapple shove push prone stand short_rest two_weapon_attack].freeze
@@ -18,7 +18,7 @@ module Natural20
     def initialize(session, properties)
       @session = session
       @properties = properties.deep_symbolize_keys!
-
+      @spell_slots = {}
       @ability_scores = @properties[:ability]
       @equipped = @properties[:equipped]
       @race_properties = YAML.load_file(File.join(session.root_path, 'races',
@@ -318,6 +318,8 @@ module Natural20
           action = ShoveAction.new(session, self, type)
           action.knock_prone = true
           action
+        when :spell
+          SpellAction.new(session, self, type)
         when :two_weapon_attack
           two_weapon_attack_actions(battle)
         when :push
@@ -374,8 +376,26 @@ module Natural20
       false
     end
 
+    # Returns the number of spell slots
+    # @param level [Integer]
+    # @return [Integer]
+    def spell_slots(level, character_class = nil)
+      character_class = @spell_slots.keys.first if character_class.nil?
+      @spell_slots[character_class].fetch(level, 0)
+    end
+
     def pc?
       true
+    end
+
+    def available_spells
+      spells = @properties.fetch(:cantrips, []) + @properties.fetch(:prepared_spells, [])
+      spells.map do |spell|
+        details = session.load_spell(spell)
+        next unless details
+
+        [spell, details]
+      end.compact.to_h
     end
 
     # @param hit_die_num [Integer] number of hit die to use

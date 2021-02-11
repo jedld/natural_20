@@ -342,6 +342,17 @@ class CommandlineUI < Natural20::Controller
           return nil if targets.nil? || targets.empty?
 
           targets.first
+        when :select_spell
+          spell = prompt.select("#{entity.name} cast Spell", per_page: TTY_PROMPT_PER_PAGE) do |q|
+            entity.available_spells.each do |k, details|
+              q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k
+            end
+            q.choice t(:back).colorize(:blue), :back
+          end
+
+          return nil if spell == :back
+
+          spell
         when :select_weapon
           action.using || action.npc_action
         when :select_item

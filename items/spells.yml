@@ -1,7 +1,8 @@
 ---
 firebolt:
   name: Firebolt
-  level: cantrip
+  description: You hurl a mote of fire at a creature or object within range. A flammable object hit by this spell ignites if it isn't being worn or carried.
+  level: 0
   casting_time: 1:action
   duration: instant
   school: evocation
