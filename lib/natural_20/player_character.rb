@@ -386,6 +386,17 @@ module Natural20
       @spell_slots[character_class].fetch(level, 0)
     end
 
+    # Returns the number of spell slots
+    # @param level [Integer]
+    # @return [Integer]
+    def max_spell_slots(level, character_class = nil)
+      character_class = @spell_slots.keys.first if character_class.nil?
+
+      return send(:"max_slots_for_#{character_class}", level) if respond_to?(:"max_slots_for_#{character_class}")
+
+      0
+    end
+
     # Consumes a characters spell slot
     def consume_spell_slot!(level, character_class = nil, qty = 1)
       character_class = @spell_slots.keys.first if character_class.nil?

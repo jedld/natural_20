@@ -1171,6 +1171,12 @@ module Natural20
                                           description: t("dice_roll.#{save_type}_saving_throw"))
     end
 
+    def active_effects
+      @effects.values.flatten.reject do |effect|
+        effect[:expiration] && effect[:expiration] <= @session.game_time
+      end.uniq
+    end
+
     def register_effect(effect_type, handler, method_name = nil, effect: nil, source: nil, duration: nil)
       @effects[effect_type.to_sym] ||= []
       effect_descriptor = {
@@ -1193,6 +1199,14 @@ module Natural20
       }
       event_hook_descriptor[:expiration] = @session.game_time + duration.to_i
       @entity_event_hooks[event_type.to_sym] << event_hook_descriptor
+    end
+
+    def spell_slots(_level)
+      0
+    end
+
+    def max_spell_slots(_level)
+      0
     end
 
     def dismiss_effect!(effect)

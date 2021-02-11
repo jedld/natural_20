@@ -32,6 +32,20 @@ RSpec.describe Natural20::PlayerCharacter do
       specify 'return 1st level spell slots' do
         expect(@player.spell_slots(1)).to eq(2)
       end
+
+      specify 'return 9th level spell slots' do
+        expect(@player.spell_slots(9)).to eq(0)
+      end
+    end
+
+    context '#max_spell_slots' do
+      specify 'return 1st level spell slots' do
+        expect(@player.max_spell_slots(1)).to eq(2)
+      end
+
+      specify 'return 9th level max spell slots' do
+        expect(@player.max_spell_slots(9)).to eq(0)
+      end
     end
 
     specify '#proficient_with_weapon?' do
@@ -40,7 +54,7 @@ RSpec.describe Natural20::PlayerCharacter do
 
     context '#available_spells' do
       specify do
-        expect(@player.available_spells(@battle).keys).to eq(['firebolt', "mage_armor"])
+        expect(@player.available_spells(@battle).keys).to eq(['firebolt', "mage_armor", "magic_missile"])
       end
     end
   end

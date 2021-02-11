@@ -33,3 +33,12 @@ mage_armor:
   school: abjuration
   spell_class: Natural20::MageArmor
   type: buff
+magic_missile:
+  casting_time: 1:action
+  damage_type: force
+  level: 1
+  name: Magic Missile
+  range: 120
+  school: evocation
+  spell_class: Natural20::MagicMissile
+  type: force

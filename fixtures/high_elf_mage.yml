@@ -19,8 +19,10 @@ spellbook:
   - firebolt
   - shield
   - mage_armor
+  - magic_missile
 prepared_spells:
   - firebolt
   - mage_armor
   - magic_missile
   - shield
+  - magic_missile

@@ -18,8 +18,10 @@ ability:
 spellbook:
   - firebolt
   - mage_armor
+  - magic_missile
 prepared_spells:
   - firebolt
   - mage_armor
+  - magic_missile
 equipped:
 - dagger

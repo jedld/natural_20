@@ -59,7 +59,7 @@ module Natural20::WizardClass
             index
           end.compact
 
-          break if avail_levels.empty
+          break if avail_levels.empty?
 
           level = controller.arcane_recovery_ui(self, avail_levels)
           break if level.nil?
@@ -70,6 +70,10 @@ module Natural20::WizardClass
         end
       end
     end
+  end
+
+  def max_slots_for_wizard(level)
+    WIZARD_SPELL_SLOT_TABLE[wizard_level - 1][level] || 0
   end
 
   protected

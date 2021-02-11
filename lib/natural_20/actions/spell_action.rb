@@ -1,7 +1,7 @@
 class SpellAction < Natural20::Action
   extend Natural20::ActionDamage
 
-  attr_accessor :target, :spell_action, :spell, :other_params
+  attr_accessor :target, :spell_action, :spell, :other_params, :at_level
 
   def self.can?(entity, battle, options = {})
     return false unless entity.has_spells?
@@ -37,6 +37,8 @@ class SpellAction < Natural20::Action
                      ],
                      next: lambda { |spell|
                              @spell = session.load_spell(spell)
+                             raise "spell not found #{spell}" unless @spell
+
                              @spell_action = @spell[:spell_class].constantize.new(@source, spell, @spell)
                              @spell_action.build_map(self)
                            }

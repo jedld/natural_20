@@ -54,33 +54,37 @@ class CommandlineUI < Natural20::Controller
     selected_targets = []
     valid_targets = options[:targets] || battle.valid_targets_for(entity, action, target_types: options[:target_types],
                                                                                   range: options[:range], filter: options[:filter])
-    target = prompt.select("#{entity.name} targets") do |menu|
-      valid_targets.each do |target|
-        menu.choice target_name(entity, target, weapon: weapon_details), target
+    total_targets = options[:num] || 1
+    puts t(:"multiple_targets", total_targets: total_targets) if total_targets > 1
+    total_targets.times.each do |index|
+      target = prompt.select("Target #{index + 1}: #{entity.name} targets") do |menu|
+        valid_targets.each do |t|
+          menu.choice target_name(entity, t, weapon: weapon_details), t
+        end
+        menu.choice 'Manual - Use cursor to select a target instead', :manual
+        menu.choice 'Back', nil
       end
-      menu.choice 'Manual - Use cursor to select a target instead', :manual
-      menu.choice 'Back', nil
-    end
 
-    return nil if target == 'Back'
+      return nil if target == 'Back'
 
-    if target == :manual
-      valid_targets = options[:targets] || battle.valid_targets_for(entity, action,
-                                                                    target_types: options[:target_types], range: options[:range],
-                                                                    filter: options[:filter],
-                                                                    include_objects: true)
-      selected_targets = target_ui(entity, weapon: weapon_details, validation: lambda { |selected|
-                                                                                 selected_entities = map.thing_at(*selected)
+      if target == :manual
+        valid_targets = options[:targets] || battle.valid_targets_for(entity, action,
+                                                                      target_types: options[:target_types], range: options[:range],
+                                                                      filter: options[:filter],
+                                                                      include_objects: true)
+        selected_targets += target_ui(entity, weapon: weapon_details, validation: lambda { |selected|
+                                                                                    selected_entities = map.thing_at(*selected)
 
-                                                                                 if selected_entities.empty?
-                                                                                   return false
-                                                                                 end
+                                                                                    if selected_entities.empty?
+                                                                                      return false
+                                                                                    end
 
-                                                                                 selected_entities.detect do |selected_entity|
-                                                                                   valid_targets.include?(selected_entity)
-                                                                                 end
-                                                                               })
-    else
+                                                                                    selected_entities.detect do |selected_entity|
+                                                                                      valid_targets.include?(selected_entity)
+                                                                                    end
+                                                                                  })
+      end
+
       selected_targets << target
     end
 
@@ -184,7 +188,7 @@ class CommandlineUI < Natural20::Controller
     selected_targets = []
     targets = selected.flatten.select { |t| t.hp && t.hp.positive? }.flatten.uniq
 
-    if targets.size > num_select
+    if targets.size > 1
       loop do
         target = prompt.select(t('multiple_target_prompt')) do |menu|
           targets.flatten.uniq.each do |t|
@@ -332,6 +336,24 @@ class CommandlineUI < Natural20::Controller
     choice
   end
 
+  def spell_slots_ui(entity)
+    puts t(:spell_slots)
+    (1..9).each do |level|
+      next unless entity.max_spell_slots(level).positive?
+
+      used_slots = entity.max_spell_slots(level) - entity.spell_slots(level)
+      used = used_slots.times.map do
+        '■'
+      end
+
+      avail = entity.spell_slots(level).times.map do
+        '°'
+      end
+
+      puts t(:spell_level_slots, level: level, slots: (used + avail).join(' '))
+    end
+  end
+
   # Show action UI
   # @param action [Natural20::Action]
   # @param entity [Entity]
@@ -353,16 +375,20 @@ class CommandlineUI < Natural20::Controller
           targets = attack_ui(entity, action, p)
           return nil if targets.nil? || targets.empty?
 
-          targets.first
+          p[:num] > 1 ? targets : targets.first
         when :select_spell
+          spell_slots_ui(entity)
+
           spell = prompt.select("#{entity.name} cast Spell", per_page: TTY_PROMPT_PER_PAGE) do |q|
             entity.available_spells(battle).each do |k, details|
+              level_str = details[:level].zero? ? 'cantrip' : details[:level]
+              choice_label = t(:"action.spell_choice", spell: t("spell.#{k}"), level: level_str,
+                                                       description: details[:description])
               if details[:disabled].empty?
-                q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k
+                q.choice(choice_label, k)
               else
-                q.choice t(:"action.spell_choice", spell: t("spell.#{k}"), description: details[:description]), k, disabled: details[:disabled].map { |d|
-                                                                                                                               t("spells.disabled.#{d}")
-                                                                                                                             }.join(', ')
+                disable_reason = details[:disabled].map { |d| t("spells.disabled.#{d}") }.join(', ')
+                q.choice(choice_label, k, disabled: disable_reason)
               end
             end
             q.choice t(:back).colorize(:blue), :back
@@ -511,9 +537,11 @@ class CommandlineUI < Natural20::Controller
     loop do
       describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(line_of_sight: entity)
-      puts t(:character_status_line, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
+      puts t(:character_status_line, ac: entity.armor_class, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
                                      available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(','))
-
+      entity.active_effects.each do |effect|
+        puts t(:effect_line, effect_name: effect[:effect].label, source: effect[:source].name)
+      end
       action = prompt.select(t('character_action_prompt', name: entity.name, token: entity.token&.first), per_page: TTY_PROMPT_PER_PAGE,
                                                                                                           filter: true) do |menu|
         entity.available_actions(@session, battle).each do |a|

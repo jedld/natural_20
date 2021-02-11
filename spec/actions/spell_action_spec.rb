@@ -46,4 +46,15 @@ RSpec.describe SpellAction do
       expect(entity.armor_class).to eq(12)
     end
   end
+
+  context 'magic missile' do
+    specify do
+      expect(@npc.hp).to eq(8)
+      action = SpellAction.build(session, entity).next.call('magic_missile').next.call([@npc, @npc, @npc]).next.call
+      action.resolve(session, @battle_map, battle: @battle)
+      expect(action.result.map { |s| s[:type] }).to eq(%i[spell_damage spell_damage spell_damage])
+      @battle.commit(action)
+      expect(@npc.hp).to eq(0)
+    end
+  end
 end
