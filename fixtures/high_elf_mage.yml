@@ -9,16 +9,18 @@ level: 1
 hit_die: inherit
 max_hp: 6
 ability:
-  str: 12
-  dex: 20
-  con: 16
-  int: 16
+  str: 10
+  dex: 15
+  con: 14
+  int: 18
   wis: 12
-  cha: 11
+  cha: 8
 spellbook:
   - firebolt
   - shield
+  - mage_armor
 prepared_spells:
   - firebolt
+  - mage_armor
   - magic_missile
   - shield

@@ -1,20 +1,35 @@
 ---
 firebolt:
-  name: Firebolt
-  description: You hurl a mote of fire at a creature or object within range. A flammable object hit by this spell ignites if it isn't being worn or carried.
-  level: 0
-  casting_time: 1:action
-  duration: instant
-  school: evocation
-  range: 120
   base_damage: 1d10
+  casting_time: 1:action
+  components:
+    - verbal
+    - sematic
   damage_increase:
     - 5
     - 11
     - 17
   damage_type: fire
-  type: ranged_attack
+  description: You hurl a mote of fire at a creature or object within range. A flammable object hit by this spell ignites if it isn't being worn or carried.
+  duration: instant
+  level: 0
+  name: Firebolt
+  range: 120
+  school: evocation
   spell_class: Natural20::Firebolt
+  type: ranged_attack
+mage_armor:
+  casting_time: 1:action
   components:
     - verbal
     - sematic
+    - material
+  description: You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier. The spell ends if the target dons armor or if you dismiss the spell as an action.
+  duration: 8h
+  level: 1
+  materials:
+    - cured_leather
+  name: Mage Armor
+  school: abjuration
+  spell_class: Natural20::MageArmor
+  type: buff

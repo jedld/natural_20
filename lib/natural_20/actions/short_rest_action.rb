@@ -46,6 +46,7 @@ class ShortRestAction < Natural20::Action
       item[:targets].each do |entity|
         entity.short_rest!(battle, prompt: true)
       end
+      battle.session.increment_game_time!(60 * 60) # increment by an hour
     end
   end
 end

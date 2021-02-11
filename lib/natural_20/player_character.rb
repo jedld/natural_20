@@ -66,6 +66,8 @@ module Natural20
     end
 
     def armor_class
+      return eval_effect(:ac_override) if has_effect?(:ac_override)
+
       equipped_ac
     end
 
@@ -408,8 +410,10 @@ module Natural20
         _qty, resource = details[:casting_time].split(':')
 
         disable_reason = []
-        disable_reason << :no_action if resource == 'action' && battle.ongoing? && total_actions(battle).zero?
-        disable_reason << :no_bonus_action if resource == 'bonus_action' && battle.ongoing? && total_bonus_actions(battle).zero?
+        disable_reason << :no_action if resource == 'action' && battle && battle.ongoing? && total_actions(battle).zero?
+        if resource == 'bonus_action' && battle.ongoing? && total_bonus_actions(battle).zero?
+          disable_reason << :no_bonus_action
+        end
         disable_reason << :no_spell_slot if details[:level].positive? && spell_slots(details[:level]).zero?
 
         [spell, details.merge(disabled: disable_reason)]
@@ -439,7 +443,7 @@ module Natural20
     def equipped_ac
       @equipments ||= YAML.load_file(File.join(session.root_path, 'items', 'equipment.yml')).deep_symbolize_keys!
 
-      equipped_meta = @equipped.map { |e| @equipments[e.to_sym] }.compact
+      equipped_meta = @equipped&.map { |e| @equipments[e.to_sym] }&.compact || []
       armor = equipped_meta.detect do |equipment|
         equipment[:type] == 'armor'
       end

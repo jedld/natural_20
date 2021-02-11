@@ -15,6 +15,11 @@ module Natural20
       @session
     end
 
+    # @param session [Natural20::Session]
+    def self.set_session(session)
+      @session = session
+    end
+
     def initialize(root_path = nil)
       @root_path = root_path.presence || '.'
       @session_state = {}

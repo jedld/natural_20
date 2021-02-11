@@ -20,12 +20,12 @@ RSpec.describe Natural20::PlayerCharacter do
     end
 
     specify '#spell_attack_modifier' do
-      expect(@player.spell_attack_modifier).to eq(5)
+      expect(@player.spell_attack_modifier).to eq(6)
     end
 
     specify '#ranged_spell_attack' do
       attack = @player.ranged_spell_attack!(@battle, 'firebolt')
-      expect(attack.roller.roll_str).to eq('1d20+5')
+      expect(attack.roller.roll_str).to eq('1d20+6')
     end
 
     context '#spell_slots' do
@@ -36,7 +36,7 @@ RSpec.describe Natural20::PlayerCharacter do
 
     context '#available_spells' do
       specify do
-        expect(@player.available_spells(@battle).keys).to eq(['firebolt'])
+        expect(@player.available_spells(@battle).keys).to eq(['firebolt', "mage_armor"])
       end
     end
   end

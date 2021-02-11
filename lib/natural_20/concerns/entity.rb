@@ -3,8 +3,8 @@ module Natural20
   module Entity
     include EntityStateEvaluator
 
-    attr_accessor :entity_uid, :statuses, :color, :session, :death_saves,
-                  :death_fails, :current_hit_die, :max_hit_die
+    attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :effects,
+                  :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks
 
     ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma]
     ATTRIBUTE_TYPES_ABBV = %w[str dex con int wis cha]
@@ -864,6 +864,10 @@ module Natural20
       true
     end
 
+    def wearing_armor?
+      !!equipped_items.detect { |t| %w[armor shield].include?(t[:type]) }
+    end
+
     def hand_slots_required(item)
       return 0.0 if item.type == 'armor'
 
@@ -1158,7 +1162,74 @@ module Natural20
                                           description: t("dice_roll.#{save_type}_saving_throw"))
     end
 
+    def register_effect(effect_type, handler, method_name = nil, effect: nil, source: nil, duration: nil)
+      @effects[effect_type.to_sym] ||= []
+      effect_descriptor = {
+        handler: handler,
+        method: method_name.nil? ? effect_type : method_name,
+        effect: effect
+      }
+      effect_descriptor[:expiration] = @session.game_time + duration.to_i
+      @effects[effect_type.to_sym] << effect_descriptor
+    end
+
+    def register_event_hook(event_type, handler, method_name = nil, effect: nil, duration: nil)
+      @entity_event_hooks[event_type.to_sym] ||= []
+      event_hook_descriptor = {
+        handler: handler,
+        method: method_name.nil? ? event_type : method_name,
+        effect: effect
+      }
+      event_hook_descriptor[:expiration] = @session.game_time + duration.to_i
+      @entity_event_hooks[event_type.to_sym] << event_hook_descriptor
+    end
+
+    def dismiss_effect!(effect)
+      dismiss_count = 0
+      @effects = @effects.map do |k, value|
+        delete_effects = value.select do |f|
+          f[:effect] == effect
+        end
+
+        dismiss_count += delete_effects.size
+        [k, value - delete_effects]
+      end.to_h
+
+      @entity_event_hooks = @entity_event_hooks.map do |k, value|
+        delete_hooks = value.select do |f|
+          f[:effect] == effect
+        end
+        dismiss_count += delete_hooks.size
+        [k, value - delete_hooks]
+      end.to_h
+
+      dismiss_count
+    end
+
+    def add_casted_effect(effect)
+      @casted_effects << effect
+    end
+
     protected
+
+    def has_effect?(effect_type)
+      return false unless @effects.key?(effect_type.to_sym)
+      return false if @effects[effect_type.to_sym].empty?
+
+      active_effects = @effects[effect_type.to_sym].reject do |effect|
+        effect[:expiration] && effect[:expiration] <= @session.game_time
+      end
+
+      !active_effects.empty?
+    end
+
+    def eval_effect(effect_type)
+      active_effect = @effects[effect_type.to_sym].reject do |effect|
+        effect[:expiration] && effect[:expiration] <= @session.game_time
+      end.last
+
+      active_effect[:handler].send(active_effect[:method], self, active_effect: active_effect[:effect]) if active_effect
+    end
 
     # Localization helper
     # @param token [Symbol, String]
@@ -1171,6 +1242,9 @@ module Natural20
     def setup_attributes
       @death_saves = 0
       @death_fails = 0
+      @entity_event_hooks = {}
+      @effects = {}
+      @casted_effects = []
     end
 
     def on_take_damage(battle, _damage_params)

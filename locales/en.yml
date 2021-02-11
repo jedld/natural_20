@@ -27,7 +27,7 @@ en:
     short_rest: Short Rest
     shove: Shove (Knock Prone)
     spell: Spellcasting
-    spell_choice: '%{spell} - %{description}'
+    spell_choice: '%{spell}'
     stand: Stand Up
     use_item: Use Item
   attack_status:

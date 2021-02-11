@@ -53,10 +53,10 @@ module Natural20
     def self.standard_cli
       Natural20::EventManager.clear
       event_handlers = { died: lambda { |event|
-                                 puts "#{show_name(event)} died."
+                                 output "#{show_name(event)} died."
                                },
                          unconscious: lambda { |event|
-                                        puts "#{show_name(event)} unconscious."
+                                        output "#{show_name(event)} unconscious."
                                       },
                          attacked: lambda { |event|
                                      advantage_mod = event[:advantage_mod]
@@ -68,7 +68,7 @@ module Natural20
                                      if event[:cover_ac].try(:positive?)
                                        cover_str = " (behind cover +#{event[:cover_ac]} ac)"
                                      end
-
+                                     Time.at(82800).utc.strftime("%I:%M%p")
                                      advantage_str = if advantage_mod&.positive?
                                                        ' with advantage'.colorize(:green)
                                                      elsif advantage_mod&.negative?
@@ -77,7 +77,7 @@ module Natural20
                                                        ''
                                                      end
                                      str_token = event[:attack_roll] ? 'event.attack' : 'event.attack_no_roll'
-                                     puts t(str_token, opportunity: event[:as_reaction] ? 'Opportunity Attack: ' : '',
+                                     output t(str_token, opportunity: event[:as_reaction] ? 'Opportunity Attack: ' : '',
                                                        source: show_name(event),
                                                        target: "#{event[:target].name}#{cover_str}",
                                                        attack_name: event[:attack_name],
@@ -87,7 +87,7 @@ module Natural20
                                                        damage: damage_str)
                                    },
                          damage: lambda { |event|
-                                   puts "#{show_name(event)} #{event[:source].describe_health}"
+                                   output "#{show_name(event)} #{event[:source].describe_health}"
                                  },
                          miss: lambda { |event|
                                  advantage_mod = event[:advantage_mod]
@@ -98,115 +98,115 @@ module Natural20
                                                  else
                                                    ''
                                                  end
-                                 puts "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''} rolled #{advantage_str} #{event[:attack_roll]} ... #{event[:source].name&.colorize(:blue)} missed his attack #{event[:attack_name].colorize(:red)} on #{event[:target].name.colorize(:green)}"
+                                 output "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''} rolled #{advantage_str} #{event[:attack_roll]} ... #{event[:source].name&.colorize(:blue)} missed his attack #{event[:attack_name].colorize(:red)} on #{event[:target].name.colorize(:green)}"
                                },
                          initiative: lambda { |event|
-                                       puts "#{show_name(event)} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative."
+                                       output "#{show_name(event)} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative."
                                      },
                          move: lambda { |event|
-                                 puts "#{show_name(event)} moved #{(event[:path].size - 1) * event[:feet_per_grid]}ft."
+                                 output "#{show_name(event)} moved #{(event[:path].size - 1) * event[:feet_per_grid]}ft."
                                },
                          dodge: lambda { |event|
-                                  puts t('event.dodge', name: show_name(event))
+                                  output t('event.dodge', name: show_name(event))
                                 },
                          help: lambda { |event|
-                                 puts "#{show_name(event)} is helping to attack #{event[:target].name&.colorize(:red)}"
+                                 output "#{show_name(event)} is helping to attack #{event[:target].name&.colorize(:red)}"
                                },
                          second_wind: lambda { |event|
-                                        puts SecondWindAction.describe(event)
+                                        output SecondWindAction.describe(event)
                                       },
                          heal: lambda { |event|
-                                 puts "#{show_name(event)} heals for #{event[:value]}hp"
+                                 output "#{show_name(event)} heals for #{event[:value]}hp"
                                },
                          hit_die: lambda { |event|
-                           puts t('event.hit_die', source: show_name(event), roll: event[:roll].to_s,
+                           output t('event.hit_die', source: show_name(event), roll: event[:roll].to_s,
                                                    value: event[:roll].result)
                          },
                          object_interaction: lambda { |event|
                                                if event[:roll]
-                                                 puts "#{event[:roll]} = #{event[:roll].result} -> #{event[:reason]}"
+                                                 output "#{event[:roll]} = #{event[:roll].result} -> #{event[:reason]}"
                                                else
-                                                 puts (event[:reason]).to_s
+                                                 output (event[:reason]).to_s
                                                end
                                              },
                          perception: lambda { |event|
-                                       puts "#{show_name(event)} rolls #{event[:perception_roll]} on perception"
+                                       output "#{show_name(event)} rolls #{event[:perception_roll]} on perception"
                                      },
 
                          death_save: lambda { |event|
-                                       puts t('event.death_save', name: show_name(event), roll: event[:roll].to_s, value: event[:roll].result,
+                                       output t('event.death_save', name: show_name(event), roll: event[:roll].to_s, value: event[:roll].result,
                                                                   saves: event[:saves], fails: event[:fails]).colorize(:blue)
                                      },
 
                          death_fail: lambda { |event|
                                        if event[:roll]
-                                         puts t('event.death_fail', name: show_name(event), roll: event[:roll].to_s, value: event[:roll].result,
+                                         output t('event.death_fail', name: show_name(event), roll: event[:roll].to_s, value: event[:roll].result,
                                                                     saves: event[:saves], fails: event[:fails]).colorize(:red)
                                        else
-                                         puts t('event.death_fail_hit', name: show_name(event), saves: event[:saves],
+                                         output t('event.death_fail_hit', name: show_name(event), saves: event[:saves],
                                                                         fails: event[:fails]).colorize(:red)
                                        end
                                      },
                          great_weapon_fighting_roll: lambda { |event|
-                                                       puts t('event.great_weapon_fighting_roll', name: show_name(event),
+                                                       output t('event.great_weapon_fighting_roll', name: show_name(event),
                                                                                                   roll: event[:roll], prev_roll: event[:prev_roll])
                                                      },
                          feature_protection: lambda { |event|
-                                               puts t('event.feature_protection', source: event[:source]&.name,
+                                               output t('event.feature_protection', source: event[:source]&.name,
                                                                                   target: event[:target]&.name, attacker: event[:attacker]&.name)
                                              },
                          prone: lambda { |event|
-                                  puts t('event.status.prone', name: show_name(event))
+                                  output t('event.status.prone', name: show_name(event))
                                 },
 
                          stand: lambda { |event|
-                                  puts t('event.status.stand', name: show_name(event))
+                                  output t('event.status.stand', name: show_name(event))
                                 },
 
                          %i[acrobatics athletics] => lambda { |event|
                                                        if event[:success]
-                                                         puts t("event.#{event[:event]}.success", name: show_name(event), roll: event[:roll],
+                                                         output t("event.#{event[:event]}.success", name: show_name(event), roll: event[:roll],
                                                                                                   value: event[:roll].result)
                                                        else
-                                                         puts t("event.#{event[:event]}.failure", name: show_name(event), roll: event[:roll],
+                                                         output t("event.#{event[:event]}.failure", name: show_name(event), roll: event[:roll],
                                                                                                   value: event[:roll].result)
                                                        end
                                                      },
 
                          start_of_combat: lambda { |event|
-                           puts t('event.combat_start')
+                           output t('event.combat_start')
                            event[:combat_order].each_with_index do |entity_and_initiative, index|
                              entity, initiative = entity_and_initiative
-                             puts "#{index + 1}. #{decorate_name(entity)} #{initiative}"
+                             output "#{index + 1}. #{decorate_name(entity)} #{initiative}"
                            end
                          },
 
                          end_of_combat: lambda { |_event|
-                                          puts t('event.combat_end')
+                                          output t('event.combat_end')
                                         },
                          grapple_success: lambda { |event|
                            if event[:target_roll]
-                             puts t('event.grapple_success',
+                             output t('event.grapple_success',
                                     source: show_name(event), target: event[:target]&.name,
                                     source_roll: event[:source_roll],
                                     source_roll_value: event[:source_roll].result,
                                     target_roll: event[:target_roll],
                                     target_roll_value: event[:target_roll].result)
                            else
-                             puts t('event.grapple_success_no_roll',
+                             output t('event.grapple_success_no_roll',
                                     source: show_name(event), target: event[:target]&.name)
                            end
                          },
                          first_aid: lambda { |event|
-                           puts t('event.first_aid', name: show_name(event),
+                           output t('event.first_aid', name: show_name(event),
                                                      target: event[:target]&.name, roll: event[:roll], value: event[:roll].result)
                          },
                          first_aid_failure: lambda { |event|
-                                              puts t('event.first_aid_failure', name: show_name(event),
+                                              output t('event.first_aid_failure', name: show_name(event),
                                                                                 target: event[:target]&.name, roll: event[:roll], value: event[:roll].result)
                                             },
                          grapple_failure: lambda { |event|
-                           puts t('event.grapple_failure',
+                           output t('event.grapple_failure',
                                   source: show_name(event), target: event[:target]&.name,
                                   source_roll: event[:source_roll],
                                   source_roll_value: event[:source_roll].result,
@@ -214,11 +214,11 @@ module Natural20
                                   target_roll_value: event[:target_roll_value].result)
                          },
                          drop_grapple: lambda { |event|
-                                         puts t('event.drop_grapple',
+                                         output t('event.drop_grapple',
                                                 source: show_name(event), target: event[:target]&.name)
                                        },
                          flavor: lambda { |event|
-                                   puts t("event.flavor.#{event[:text]}", source: event[:source]&.name,
+                                   output t("event.flavor.#{event[:text]}", source: event[:source]&.name,
                                                                           target: event[:target]&.name)
                                  },
                          shove_success: lambda do |event|
@@ -230,9 +230,9 @@ module Natural20
                              target_roll_value: event[:target_roll].result
                            }
                            if event[:knock_prone]
-                             puts t('event.knock_prone_success', opts)
+                             output t('event.knock_prone_success', opts)
                            else
-                             puts t('event.shove_success', opts)
+                             output t('event.shove_success', opts)
                            end
                          end,
                          shove_failure: lambda do |event|
@@ -244,13 +244,13 @@ module Natural20
                                             target_roll_value: event[:target_roll].result
                                           }
                                           if event[:knock_prone]
-                                            puts t('event.knock_prone_failure', opts)
+                                            output t('event.knock_prone_failure', opts)
                                           else
-                                            puts t('event.shove_failure', opts)
+                                            output t('event.shove_failure', opts)
                                           end
                                         end,
                          %i[escape_grapple_success escape_grapple_failure] => lambda { |event|
-                                                                                puts t("event.#{event[:event]}",
+                                                                                output t("event.#{event[:event]}",
                                                                                        source: show_name(event), target: event[:target]&.name,
                                                                                        source_roll: event[:source_roll],
                                                                                        source_roll_value: event[:source_roll].result,
@@ -265,6 +265,10 @@ module Natural20
     # @param event [Hash]
     def self.show_name(event)
       decorate_name(event[:source])
+    end
+
+    def self.output(string)
+      puts "[#{Session.current_session&.game_time || 0}] #{string}"
     end
 
     # @param event [Hash]
