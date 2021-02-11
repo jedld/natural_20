@@ -352,7 +352,7 @@ module Natural20
       entity_state[:statuses].delete(:dodge)
       entity_state[:statuses].delete(:disengage)
       battle.dismiss_help_actions_for(self)
-
+      cleanup_effects
       entity_state
     end
 
@@ -1197,7 +1197,7 @@ module Natural20
 
     def dismiss_effect!(effect)
       dismiss_count = 0
-      effect.source.casted_effects.delete(effect)
+      effect.source.casted_effects.reject! { |f| f[:effect] == effect }
 
       @effects = @effects.map do |k, value|
         delete_effects = value.select do |f|
@@ -1224,6 +1224,26 @@ module Natural20
 
     protected
 
+    def cleanup_effects
+      @effects = @effects.map do |k, value|
+        delete_effects = value.select do |f|
+          f[:expiration] && f[:expiration] <= @session.game_time
+        end
+        [k, value - delete_effects]
+      end.to_h
+
+      @entity_event_hooks = @entity_event_hooks.map do |k, value|
+        delete_hooks = value.select do |f|
+          f[:expiration] && f[:expiration] <= @session.game_time
+        end
+        [k, value - delete_hooks]
+      end.to_h
+
+      @casted_effects = @casted_effects.select do |f|
+        f[:expiration].blank? || f[:expiration] > @session.game_time
+      end
+    end
+
     def has_effect?(effect_type)
       return false unless @effects.key?(effect_type.to_sym)
       return false if @effects[effect_type.to_sym].empty?
@@ -1244,6 +1264,8 @@ module Natural20
     end
 
     def resolve_trigger(event_type)
+      return unless @entity_event_hooks[event_type.to_sym]
+
       active_hook = @entity_event_hooks[event_type.to_sym].reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end.last
