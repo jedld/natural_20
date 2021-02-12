@@ -1302,7 +1302,7 @@ module Natural20
     # @param options [Hash]
     # @return [String]
     def t(token, options = {})
-      I18n.t(token, options)
+      I18n.t(token, **options)
     end
 
     def setup_attributes

@@ -288,7 +288,7 @@ module Natural20
     end
 
     def self.t(token, options = {})
-      I18n.t(token, options)
+      I18n.t(token, **options)
     end
   end
 end

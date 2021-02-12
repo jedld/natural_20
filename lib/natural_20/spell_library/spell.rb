@@ -26,6 +26,6 @@ class Natural20::Spell
   protected
 
   def t(token, options = {})
-    I18n.t(token, options)
+    I18n.t(token, **options)
   end
 end

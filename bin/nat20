@@ -16,7 +16,7 @@ require 'irb/completion'
 Natural20::EventManager.standard_cli
 
 def t(token, options = {})
-  I18n.t(token, options)
+  I18n.t(token, **options)
 end
 
 def training_dummy

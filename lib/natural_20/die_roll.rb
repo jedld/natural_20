@@ -69,7 +69,7 @@ module Natural20
     end
 
     def t(key, options = {})
-      I18n.t(key, options)
+      I18n.t(key, **options)
     end
   end
 
@@ -325,7 +325,7 @@ module Natural20
     end
 
     def self.t(key, options = {})
-      I18n.t(key, options)
+      I18n.t(key, **options)
     end
   end
 end

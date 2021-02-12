@@ -540,7 +540,7 @@ module Natural20
     protected
 
     def t(key, options = {})
-      I18n.t(key, options)
+      I18n.t(key, **options)
     end
 
     def check_action_serialization(action)

@@ -34,7 +34,7 @@ module Natural20
     protected
 
     def t(k, options = {})
-      I18n.t(k, options)
+      I18n.t(k, **options)
     end
   end
 end
