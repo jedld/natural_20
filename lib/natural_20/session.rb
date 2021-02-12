@@ -133,7 +133,7 @@ module Natural20
     def load_spell(spell)
       @spells[spell.to_sym] ||= begin
         spells = YAML.load_file(File.join(@root_path, 'items', "spells.yml")).deep_symbolize_keys!
-        spells[spell.to_sym].merge(id: spell)
+        spells[spell.to_sym]&.merge(id: spell)
       end
     end
 
