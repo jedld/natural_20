@@ -2,8 +2,8 @@
 en:
   action:
     arcane_recovery: Arcane Recovery for %{name}
-    attack_action: '%{name} with %{weapon_name} -> Hit: +%{mod} Dmg: %{dmg}'
-    attack_action_throw: '%{name} with %{weapon_name} (Throw) -> Hit: +%{mod} Dmg: %{dmg}'
+    attack_action: '%{name} with %{weapon_name} -> Hit: %{mod} Dmg: %{dmg}'
+    attack_action_throw: '%{name} with %{weapon_name} (Throw) -> Hit: %{mod} Dmg: %{dmg}'
     dash: Dash
     dash_bonus: Bonus Action -> Dash
     disengage: Disengage

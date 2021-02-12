@@ -50,7 +50,7 @@ module Natural20
         end
 
         description = prompt.multiline(t('builder.description')) do |q|
-          q.default t('buider.default_description')
+          q.default t('builder.default_description')
         end
 
         @values[:description] = description.is_a?(Array) ? description.join("\n") : description

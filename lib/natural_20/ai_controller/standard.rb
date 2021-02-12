@@ -205,7 +205,7 @@ module AiController
         if has_ranged_weapon?(entity)
           range_weight = 2.0
         else
-          melee_weight = 2.0
+          melee_weight = 2.1
         end
 
         # defense_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25

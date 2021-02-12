@@ -31,7 +31,7 @@ module Natural20::Weapons
     advantage << :squeezed if target.squeezed?
     advantage << :being_helped if battle.help_with?(target)
     disadvantage << :target_long_range if battle.map && weapon && battle.map.distance(source, target,
-                                                                            entity_1_pos: source_pos) > weapon[:range]
+                                                                                      entity_1_pos: source_pos) > weapon[:range]
 
     if weapon && weapon[:type] == 'ranged_attack' && battle.map
       disadvantage << :ranged_with_enemy_in_melee if battle.enemy_in_melee_range?(source, source_pos: source_pos)
@@ -43,7 +43,9 @@ module Natural20::Weapons
       advantage << :pack_tactics
     end
 
-    disadvantage << :small_creature_using_heavy if weapon && weapon[:properties]&.include?('heavy') && source.size == :small
+    if weapon && weapon[:properties]&.include?('heavy') && source.size == :small
+      disadvantage << :small_creature_using_heavy
+    end
     advantage << :target_is_prone if weapon && weapon[:type] == 'melee_attack' && target.prone?
 
     advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source, entity_2_pos: source_pos)
@@ -73,6 +75,6 @@ module Natural20::Weapons
       damage_mod += 2
     end
 
-    "#{damage_roll}+#{damage_mod}"
+    "#{damage_roll}#{damage_mod >= 0 ? "+#{damage_mod}" : damage_mod}"
   end
 end

@@ -31,7 +31,7 @@ class AttackAction < Natural20::Action
 
       i18n_token = thrown ? 'action.attack_action_throw' : 'action.attack_action'
 
-      t(i18n_token, name: @action_type.to_s.humanize, weapon_name: weapon[:name], mod: attack_mod,
+      t(i18n_token, name: @action_type.to_s.humanize, weapon_name: weapon[:name], mod: attack_mod >= 0 ? "+#{attack_mod}" : attack_mod,
                     dmg: damage_modifier(@source, weapon, second_hand: second_hand))
     end
   end
