@@ -178,7 +178,13 @@ class AttackAction < Natural20::Action
 
     npc_action = @source.npc_actions.detect { |a| a[:name].downcase == using.downcase } if @source.npc? && using
 
-    if npc_action
+    if @source.npc?
+
+      if npc_action.nil?
+        npc_action = @source.properties[actions].detect do |action|
+          action[:name].downcase == using.to_s.downcase
+        end
+      end
       weapon = npc_action
       attack_name = npc_action[:name]
       attack_mod = npc_action[:attack]
@@ -205,6 +211,8 @@ class AttackAction < Natural20::Action
 
     # handle the lucky feat
     attack_roll = attack_roll.reroll(lucky: true) if @source.class_feature?('lucky') && attack_roll.nat_1?
+
+    after_attack_roll_hook(battle, target, source, attack_roll)
 
     if @source.class_feature?('sneak_attack') && (weapon[:properties]&.include?('finesse') || weapon[:type] == 'ranged_attack') && (with_advantage? || battle.enemy_in_melee_range?(
       target, [@source]
@@ -321,6 +329,28 @@ class AttackAction < Natural20::Action
   # @return [Integer]
   def calculate_cover_ac(map, target)
     cover_calculation(map, @source, target)
+  end
+
+  # @param battle [Natural20::Battle]
+  # @param target [Natural20::Entity]
+  # @param source [Natural20::Entity]
+  def after_attack_roll_hook(battle, target, source, attack_roll)
+    # check prepared spells of target for a possible reaction
+    events = target.prepared_spells.map do |spell|
+      spell_details = session.load_spell(spell)
+      _qty, resource = spell_details[:casting_time].split(':')
+      next unless target.has_reaction?(battle)
+      next unless resource == 'reaction'
+
+      spell_class = spell_details[:spell_class].constantize
+      spell_class.after_attack_roll(battle, target, source, attack_roll) if spell_class.respond_to?(:after_attack_roll)
+    end.flatten.compact
+
+    events.each do |item|
+      Natural20::Action.descendants.each do |klass|
+        klass.apply!(battle, item)
+      end
+    end
   end
 
   protected

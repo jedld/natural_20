@@ -45,6 +45,28 @@ RSpec.describe SpellAction do
       entity.equip('studded_leather', ignore_inventory: true)
       expect(entity.armor_class).to eq(12)
     end
+
+    context 'shield' do
+      specify do
+        expect do
+          @action = SpellAction.build(session, entity).next.call('shield').next.call
+          @action.resolve(session, @battle_map, battle: @battle)
+          @battle.commit(@action)
+        end.to change(entity, :armor_class).from(15).to(20)
+      end
+
+      specify 'auto cast shield reaction' do
+        expect do
+          entity.reset_turn!(@battle)
+          action = AttackAction.build(session, @npc).next.call(entity).next.call('Shortbow').next.call
+          action.resolve(session, @battle_map, battle: @battle)
+          @battle.commit(@action)
+        end.to change(entity, :armor_class).from(15).to(20)
+        expect do
+          entity.reset_turn!(@battle)
+        end.to change(entity, :armor_class).from(20).to(15)
+      end
+    end
   end
 
   context 'magic missile' do

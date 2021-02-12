@@ -39,6 +39,7 @@ class SpellAction < Natural20::Action
                              spell, at_level = spell_choice
                              @spell = session.load_spell(spell)
                              raise "spell not found #{spell}" unless @spell
+
                              self.at_level = at_level
                              @spell_action = @spell[:spell_class].constantize.new(@source, spell, @spell)
                              @spell_action.build_map(self)
@@ -79,6 +80,8 @@ class SpellAction < Natural20::Action
     case resource
     when 'action'
       battle.consume(item[:source], :action)
+    when 'reaction'
+      battle.consume(item[:source], :reaction)
     end
 
     item[:source].consume_spell_slot!(spell_level) if spell_level.positive?

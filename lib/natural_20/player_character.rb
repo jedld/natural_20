@@ -66,9 +66,16 @@ module Natural20
     end
 
     def armor_class
-      return eval_effect(:ac_override) if has_effect?(:ac_override)
-
-      equipped_ac
+      current_ac = if has_effect?(:ac_override)
+                     eval_effect(:ac_override, armor_class: equipped_ac)
+                   else
+                     equipped_ac
+                   end
+      if has_effect?(:ac_bonus)
+        current_ac + eval_effect(:ac_bonus)
+      else
+        current_ac
+      end
     end
 
     def level
@@ -409,12 +416,15 @@ module Natural20
       true
     end
 
+    def prepared_spells
+      @properties.fetch(:cantrips, []) + @properties.fetch(:prepared_spells, [])
+    end
+
     # Returns the available spells for the current user
     # @param battle [Natural20::Battle]
     # @return [Hash]
     def available_spells(battle)
-      spells = @properties.fetch(:cantrips, []) + @properties.fetch(:prepared_spells, [])
-      spells.map do |spell|
+      prepared_spells.map do |spell|
         details = session.load_spell(spell)
         next unless details
 

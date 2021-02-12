@@ -352,6 +352,7 @@ module Natural20
       entity_state[:statuses].delete(:dodge)
       entity_state[:statuses].delete(:disengage)
       battle.dismiss_help_actions_for(self)
+      resolve_trigger(:start_of_turn)
       cleanup_effects
       entity_state
     end
@@ -1197,7 +1198,7 @@ module Natural20
         effect: effect,
         source: source
       }
-      event_hook_descriptor[:expiration] = @session.game_time + duration.to_i
+      event_hook_descriptor[:expiration] = @session.game_time + duration.to_i if duration
       @entity_event_hooks[event_type.to_sym] << event_hook_descriptor
     end
 
@@ -1269,12 +1270,12 @@ module Natural20
       !active_effects.empty?
     end
 
-    def eval_effect(effect_type)
+    def eval_effect(effect_type, opts = {})
       active_effect = @effects[effect_type.to_sym].reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end.last
 
-      active_effect[:handler].send(active_effect[:method], self, effect: active_effect[:effect]) if active_effect
+      active_effect[:handler].send(active_effect[:method], self, opts.merge(effect: active_effect[:effect])) if active_effect
     end
 
     def resolve_trigger(event_type)

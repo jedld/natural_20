@@ -137,6 +137,10 @@ module Natural20
       true
     end
 
+    def prepared_spells
+      @properties.fetch(:prepared_spells, [])
+    end
+
     def generate_npc_attack_actions(battle, opportunity_attack: false)
       actions = []
 

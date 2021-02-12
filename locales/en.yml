@@ -330,6 +330,7 @@ en:
     firebolt: Firebolt
     mage_armor: Mage Armor
     magic_missile: Magic Missile
+    shield: Shield
   spell_level: Recover Spell Level %{level}
   spell_level_slots: 'level %{level}: %{slots}'
   spell_slots: Spell Slots

@@ -43,3 +43,15 @@ magic_missile:
   spell_class: Natural20::MagicMissile
   type: force
   higher_level: true
+shield:
+  casting_time: 1:reaction
+  level: 1
+  name: Shield
+  range: 0
+  duration: 1R
+  school: abjuration
+  spell_class: Natural20::Shield
+  components:
+    - verbal
+    - sematic
+  type: warding
