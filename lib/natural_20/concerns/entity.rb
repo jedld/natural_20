@@ -57,7 +57,7 @@ module Natural20
 
       if unconscious?
         @statuses.delete(:stable)
-        @death_fails += if damage_params[:attack_roll].nat_20?
+        @death_fails += if damage_params[:attack_roll]&.nat_20?
                           2
                         else
                           1
@@ -1235,6 +1235,15 @@ module Natural20
 
     def add_casted_effect(effect)
       @casted_effects << effect
+    end
+
+    def has_spell_effect?(spell)
+      active_effects = @effects.values.flatten.reject do |effect|
+        effect[:expiration] && effect[:expiration] <= @session.game_time
+      end
+      !!active_effects.detect { |effect|
+        effect[:effect].id.to_sym == spell.to_sym
+      }
     end
 
     protected

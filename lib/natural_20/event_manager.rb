@@ -91,9 +91,9 @@ module Natural20
                                  },
                          miss: lambda { |event|
                                  advantage_mod = event[:advantage_mod]
-                                 advantage_str = if advantage_mod.positive?
+                                 advantage_str = if advantage_mod&.positive?
                                                    ' with advantage'.colorize(:green)
-                                                 elsif advantage_mod.negative?
+                                                 elsif advantage_mod&.negative?
                                                    ' with disadvantage'.colorize(:red)
                                                  else
                                                    ''

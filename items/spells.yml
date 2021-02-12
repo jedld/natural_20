@@ -40,6 +40,7 @@ magic_missile:
   name: Magic Missile
   range: 120
   school: evocation
+  description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range.
   spell_class: Natural20::MagicMissile
   type: force
   higher_level: true

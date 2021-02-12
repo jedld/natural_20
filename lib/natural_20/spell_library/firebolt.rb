@@ -1,6 +1,7 @@
 class Natural20::Firebolt < Natural20::Spell
   include Natural20::Cover
   include Natural20::Weapons
+  include Natural20::SpellAttackHelper
 
   def build_map(action)
     OpenStruct.new({
@@ -30,21 +31,7 @@ class Natural20::Firebolt < Natural20::Spell
   def resolve(entity, battle, spell_action)
     target = spell_action.target
 
-    # DnD 5e advantage/disadvantage checks
-    advantage_mod, adv_info = target_advantage_condition(battle, entity, target, @properties)
-
-    attack_roll = entity.ranged_spell_attack!(battle, @properties[:name], advantage: advantage_mod.positive?,
-                                                                          disadvantage: advantage_mod.negative?)
-
-    cover_ac_adjustments = 0
-    hit = if attack_roll.nat_20?
-            true
-          elsif attack_roll.nat_1?
-            false
-          else
-            cover_ac_adjustments = calculate_cover_ac(battle.map, entity, target) if battle.map
-            attack_roll.result >= (target.armor_class + cover_ac_adjustments)
-          end
+    hit, attack_roll, advantage_mod, cover_ac_adjustments = evaluate_spell_attack(battle, entity, target, @properties)
 
     if hit
       level = 1
@@ -81,15 +68,5 @@ class Natural20::Firebolt < Natural20::Spell
         spell: @properties
       }]
     end
-  end
-
-  protected
-
-  # Computes cover armor class adjustment
-  # @param map [Natural20::BattleMap]
-  # @param target [Natural20::Entity]
-  # @return [Integer]
-  def calculate_cover_ac(map, entity, target)
-    cover_calculation(map, entity, target)
   end
 end

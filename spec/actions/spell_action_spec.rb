@@ -10,6 +10,7 @@ RSpec.describe SpellAction do
     @battle = Natural20::Battle.new(session, @battle_map)
     @npc = @battle_map.entity_at(5, 5)
     @battle.add(entity, :a, position: [0, 5])
+
     entity.reset_turn!(@battle)
   end
 
@@ -65,6 +66,25 @@ RSpec.describe SpellAction do
         expect do
           entity.reset_turn!(@battle)
         end.to change(entity, :armor_class).from(20).to(15)
+      end
+
+      context 'completely deflects magic missle' do
+        let(:entity_2) { Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_mage.yml')) }
+        before do
+          @battle.add(entity_2, :b, position: [3, 5], token: 'Q')
+          entity_2.reset_turn!(@battle)
+        end
+
+        specify do
+          puts Natural20::MapRenderer.new(@battle_map).render
+          expect do
+            action = SpellAction.build(session,
+                                       entity_2).next.call('magic_missile').next.call([entity, entity,
+                                                                                       entity]).next.call
+            action.resolve(session, @battle_map, battle: @battle)
+            @battle.commit(action)
+          end.to_not change(entity, :hp)
+        end
       end
     end
   end

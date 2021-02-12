@@ -2,6 +2,7 @@
 class AttackAction < Natural20::Action
   include Natural20::Cover
   include Natural20::Weapons
+  include Natural20::AttackHelper
   extend Natural20::ActionDamage
 
   attr_accessor :target, :using, :npc_action, :as_reaction, :thrown, :second_hand
@@ -211,8 +212,8 @@ class AttackAction < Natural20::Action
 
     # handle the lucky feat
     attack_roll = attack_roll.reroll(lucky: true) if @source.class_feature?('lucky') && attack_roll.nat_1?
-
-    after_attack_roll_hook(battle, target, source, attack_roll)
+    target_ac, _cover_ac = effective_ac(battle, target)
+    after_attack_roll_hook(battle, target, source, attack_roll, target_ac)
 
     if @source.class_feature?('sneak_attack') && (weapon[:properties]&.include?('finesse') || weapon[:type] == 'ranged_attack') && (with_advantage? || battle.enemy_in_melee_range?(
       target, [@source]
@@ -247,8 +248,8 @@ class AttackAction < Natural20::Action
           elsif attack_roll.nat_1?
             false
           else
-            cover_ac_adjustments = calculate_cover_ac(battle.map, target) if battle.map
-            attack_roll.result >= (target.armor_class + cover_ac_adjustments)
+            target_ac, cover_ac_adjustments = effective_ac(battle, target)
+            attack_roll.result >= target_ac
           end
 
     if hit
@@ -321,36 +322,6 @@ class AttackAction < Natural20::Action
     end
 
     self
-  end
-
-  # Computes cover armor class adjustment
-  # @param map [Natural20::BattleMap]
-  # @param target [Natural20::Entity]
-  # @return [Integer]
-  def calculate_cover_ac(map, target)
-    cover_calculation(map, @source, target)
-  end
-
-  # @param battle [Natural20::Battle]
-  # @param target [Natural20::Entity]
-  # @param source [Natural20::Entity]
-  def after_attack_roll_hook(battle, target, source, attack_roll)
-    # check prepared spells of target for a possible reaction
-    events = target.prepared_spells.map do |spell|
-      spell_details = session.load_spell(spell)
-      _qty, resource = spell_details[:casting_time].split(':')
-      next unless target.has_reaction?(battle)
-      next unless resource == 'reaction'
-
-      spell_class = spell_details[:spell_class].constantize
-      spell_class.after_attack_roll(battle, target, source, attack_roll) if spell_class.respond_to?(:after_attack_roll)
-    end.flatten.compact
-
-    events.each do |item|
-      Natural20::Action.descendants.each do |klass|
-        klass.apply!(battle, item)
-      end
-    end
   end
 
   protected

@@ -38,18 +38,19 @@ class Natural20::Shield < Natural20::Spell
   # @param entity [Natural20::Entity]
   # @param attacker [Natural20::Entity]
   # @param attack_roll [Natural20::DieRoll]
-  def self.after_attack_roll(battle, entity, _attacker, attack_roll)
-    if attack_roll.result.between?(entity.armor_class, entity.armor_class + 4)
-      spell = battle.session.load_spell('shield')
-      [{
+  # @return [Array<Array<Hash>,Symbol>]
+  def self.after_attack_roll(battle, entity, _attacker, attack_roll, effective_ac, opts = {})
+    spell = battle.session.load_spell('shield')
+    if attack_roll.nil? || attack_roll.result.between?(entity.armor_class, effective_ac + 4)
+      [[{
         type: :shield,
         target: entity,
         source: entity,
         effect: Natural20::Shield.new(entity, 'shield', spell),
         spell: spell
-      }]
+      }], false]
     else
-      []
+      [[], false]
     end
   end
 

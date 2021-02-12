@@ -13,6 +13,10 @@ class Natural20::Spell
     t(:"spell.#{@name}")
   end
 
+  def id
+    @properties[:id]
+  end
+
   def self.apply!(battle, item); end
 
   def validate!(_action)
