@@ -35,10 +35,11 @@ class SpellAction < Natural20::Action
                          type: :select_spell
                        }
                      ],
-                     next: lambda { |spell|
+                     next: lambda { |spell_choice|
+                             spell, at_level = spell_choice
                              @spell = session.load_spell(spell)
                              raise "spell not found #{spell}" unless @spell
-
+                             self.at_level = at_level
                              @spell_action = @spell[:spell_class].constantize.new(@source, spell, @spell)
                              @spell_action.build_map(self)
                            }

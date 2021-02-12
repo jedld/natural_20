@@ -3,9 +3,9 @@ name: Crysania
 race: elf
 subrace: high_elf
 classes:
-  wizard: 1
+  wizard: 3
 description: A high elf mage
-level: 1
+level: 3
 hit_die: inherit
 max_hp: 6
 ability:

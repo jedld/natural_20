@@ -42,3 +42,4 @@ magic_missile:
   school: evocation
   spell_class: Natural20::MagicMissile
   type: force
+  higher_level: true

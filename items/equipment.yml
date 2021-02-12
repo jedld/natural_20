@@ -24,11 +24,21 @@ chain_shirt:
   subtype: light
   type: armor
   weight: 13
+component_pouch:
+  cost: 25
+  name: Component Pouch
+  type: other
+  weight: 2
 copper_piece:
   cost: 0.01
   name: Copper Piece (cp)
   type: currency
   weight: 0.02
+crystal:
+  cost: 10
+  name: Crystal
+  type: arcane_focus
+  weight: 1
 electronum:
   cost: 0.5
   name: Electronum (ep)
@@ -53,6 +63,11 @@ leather:
   subtype: light
   type: armor
   weight: 10
+orb:
+  cost: 20
+  name: Orb
+  type: arcane_focus
+  weight: 3
 padded:
   ac: 11
   cost: 5
@@ -67,6 +82,11 @@ platinum:
   name: platinum (pp)
   type: currency
   weight: 0.02
+rod:
+  cost: 10
+  name: Rod
+  type: arcane_focus
+  weight: 2
 ruby_gem:
   cost: 5000
   name: Ruby Gemstone
@@ -82,6 +102,11 @@ silver_piece:
   name: Silver Piece (sp)
   type: currency
   weight: 0.02
+staff:
+  cost: 5
+  name: Staff
+  type: arcane_focus
+  weight: 4
 studded_leather:
   ac: 12
   cost: 45
@@ -93,6 +118,11 @@ thieves_tools:
   cost: 25
   name: Thieves Tools
   type: tool
+  weight: 1
+wand:
+  cost: 10
+  name: Wand
+  type: arcane_focus
   weight: 1
 wooden_door_key:
   cost: 0.05

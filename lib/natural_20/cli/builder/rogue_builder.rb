@@ -1,9 +1,9 @@
 module Natural20::RogueBuilder
-  def rogue_builder
+  def rogue_builder(_build_values)
     @class_values ||= {
       attributes: [],
       saving_throw_proficiencies: %w[dexterity intelligence],
-      equipped: ['leather','dagger','dagger'],
+      equipped: %w[leather dagger dagger],
       inventory: [],
       tools: ['thieves_tools'],
       expertise: []
@@ -13,7 +13,7 @@ module Natural20::RogueBuilder
       @values[:skills].each do |skill|
         q.choice t("builder.skill.#{skill}"), skill
       end
-      q.choice t("builder.skill.thieves_tools"), 'thieves_tools'
+      q.choice t('builder.skill.thieves_tools'), 'thieves_tools'
     end
 
     starting_equipment = []
@@ -36,17 +36,17 @@ module Natural20::RogueBuilder
         }
       when :shortbow_and_quiver
         @class_values[:inventory] += [{
-          type: "shortbow",
+          type: 'shortbow',
           qty: 1
         },
-        {
-          type: 'arrows',
-          qty: 20
-        }]
+                                      {
+                                        type: 'arrows',
+                                        qty: 20
+                                      }]
       end
     end
 
-    shortswords = starting_equipment.select { |a| a == :shortword}.size
+    shortswords = starting_equipment.select { |a| a == :shortword }.size
     if shortswords > 0
       @class_values[:inventory] << {
         type: 'shortsword',

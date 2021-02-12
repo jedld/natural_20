@@ -1,5 +1,5 @@
 module Natural20::FighterBuilder
-  def fighter_builder
+  def fighter_builder(build_values)
     @class_values ||= {
       attributes: [],
       saving_throw_proficiencies: %w[strength constitution],

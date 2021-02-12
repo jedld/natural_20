@@ -1,9 +1,11 @@
 require 'natural_20/cli/builder/fighter_builder'
 require 'natural_20/cli/builder/rogue_builder'
+require 'natural_20/cli/builder/wizard_builder'
 module Natural20
   class CharacterBuilder
     include Natural20::FighterBuilder
     include Natural20::RogueBuilder
+    include Natural20::WizardBuilder
     include Natural20::InventoryUI
 
     attr_reader :session, :battle
@@ -47,9 +49,11 @@ module Natural20
           end
         end
 
-        @values[:description] = prompt.multiline(t('builder.description')) do |q|
+        description = prompt.multiline(t('builder.description')) do |q|
           q.default t('buider.default_description')
-        end.join("\n")
+        end
+
+        @values[:description] = description.is_a?(Array) ? description.join("\n") : description
 
         races = session.load_races
         @values[:race] = prompt.select(t('builder.select_race')) do |q|
@@ -140,7 +144,8 @@ module Natural20
 
         class_skills_selector
 
-        send(:"#{k}_builder")
+        send(:"#{k}_builder", @values)
+
         @values.merge!(@class_values)
         @pc = Natural20::PlayerCharacter.new(session, @values)
         character_sheet(@pc)
