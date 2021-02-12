@@ -72,6 +72,9 @@ module Natural20::WizardBuilder
         q.choice t(:"spell.#{spell}"), spell
       end
     end
+
+    @values[:max_hp] = 6 + modifier_table(@values.dig(:ability, :con))
+
     @class_values
   end
 end
