@@ -22,6 +22,7 @@ Features:
  Supported Classes;
  - Fighter
  - Rogue
+ - Wizard
  - More to come
 
 ## Installation
