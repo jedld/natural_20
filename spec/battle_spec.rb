@@ -104,7 +104,7 @@ RSpec.describe Natural20::Battle do
       Natural20::EventManager.standard_cli
       srand(1000)
       @battle.start
-      @fighter.take_damage!(damage: Natural20::DieRoll.new([20], 80))
+      @fighter.take_damage!(Natural20::DieRoll.new([20], 80).result)
       expect(@fighter.unconscious?).to be
       expect(@battle.ongoing?).to be
       @battle.while_active(3) do |entity|
@@ -118,7 +118,7 @@ RSpec.describe Natural20::Battle do
       Natural20::EventManager.standard_cli
       srand(2000)
       @battle.start
-      @fighter.take_damage!(damage: Natural20::DieRoll.new([20], 80))
+      @fighter.take_damage!(Natural20::DieRoll.new([20], 80).result)
       expect(@fighter.unconscious?).to be
       @battle.while_active(3) do |entity|
         false
@@ -131,7 +131,7 @@ RSpec.describe Natural20::Battle do
 
       srand(1004)
       @battle.start
-      @fighter.take_damage!(damage: Natural20::DieRoll.new([20], 80))
+      @fighter.take_damage!(Natural20::DieRoll.new([20], 80).result)
       expect(@fighter.unconscious?).to be
       @battle.while_active(3) do |entity|
         false

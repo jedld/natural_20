@@ -4,7 +4,7 @@ module Natural20::SpellAttackHelper
 
   def evaluate_spell_attack(battle, entity, target, spell_properties)
     # DnD 5e advantage/disadvantage checks
-    advantage_mod, adv_info = target_advantage_condition(battle, entity, target, spell_properties)
+    advantage_mod, _adv_info = target_advantage_condition(battle, entity, target, spell_properties)
 
     attack_roll = entity.ranged_spell_attack!(battle, spell_properties[:name], advantage: advantage_mod.positive?,
                                                                                disadvantage: advantage_mod.negative?)

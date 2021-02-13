@@ -33,7 +33,7 @@ class Natural20::MageArmor < Natural20::Spell
       item[:source].add_casted_effect({ target: item[:target], effect: item[:effect], expiration: battle.session.game_time + 8.hours.to_i })
       item[:target].register_effect(:ac_override, self, effect: item[:effect], source: item[:source],
                                                         duration: 8.hours.to_i)
-      item[:target].register_event_hook(:equip, self, effect: item[:effect], effect: item[:effect],
+      item[:target].register_event_hook(:equip, self, effect: item[:effect],
                                                       source: item[:source],
                                                       duration: 8.hours.to_i)
       Natural20::EventManager.received_event(event: :spell_buf, spell: item[:effect], source: item[:source],

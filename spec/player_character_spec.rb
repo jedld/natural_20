@@ -54,7 +54,7 @@ RSpec.describe Natural20::PlayerCharacter do
 
     context '#available_spells' do
       specify do
-        expect(@player.available_spells(@battle).keys).to eq(%w[firebolt mage_armor magic_missile shield])
+        expect(@player.available_spells(@battle)).to eq(%w[firebolt mage_armor magic_missile])
       end
     end
   end
@@ -211,20 +211,20 @@ RSpec.describe Natural20::PlayerCharacter do
 
     context '#take_damage!' do
       specify 'unconscious' do
-        @player.take_damage!(damage: Natural20::DieRoll.new([20], 80))
+        @player.take_damage!(Natural20::DieRoll.new([20], 80).result)
         expect(@player.unconscious?).to be
         expect(@player.dead?).to_not be
       end
 
       specify 'healing should revive unconscious entity' do
-        @player.take_damage!(damage: Natural20::DieRoll.new([20], 80))
+        @player.take_damage!(Natural20::DieRoll.new([20], 80).result)
         expect(@player.unconscious?).to be
         @player.heal!(10)
         expect(@player.unconscious?).to_not be
       end
 
       specify 'lethal damage' do
-        @player.take_damage!(damage: Natural20::DieRoll.new([20], 200))
+        @player.take_damage!(Natural20::DieRoll.new([20], 200).result)
         expect(@player.dead?).to be
       end
     end
@@ -236,7 +236,7 @@ RSpec.describe Natural20::PlayerCharacter do
     specify '#short_rest!' do
       srand(1000)
       Natural20::EventManager.standard_cli
-      @player.take_damage!(damage: 4)
+      @player.take_damage!(4)
       expect(@player.hit_die).to eq(10 => 1)
       expect do
         @player.short_rest!(@battle)

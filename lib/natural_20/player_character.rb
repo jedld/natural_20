@@ -423,7 +423,7 @@ module Natural20
     # Returns the available spells for the current user
     # @param battle [Natural20::Battle]
     # @return [Hash]
-    def available_spells(battle)
+    def spell_list(battle)
       prepared_spells.map do |spell|
         details = session.load_spell(spell)
         next unless details
@@ -432,6 +432,8 @@ module Natural20
 
         disable_reason = []
         disable_reason << :no_action if resource == 'action' && battle && battle.ongoing? && total_actions(battle).zero?
+        disable_reason << :reaction_only if resource == 'reaction'
+
         if resource == 'bonus_action' && battle.ongoing? && total_bonus_actions(battle).zero?
           disable_reason << :no_bonus_action
         end
@@ -439,6 +441,14 @@ module Natural20
 
         [spell, details.merge(disabled: disable_reason)]
       end.compact.to_h
+    end
+
+    # @param battle [Natural20::Battle]
+    # @return [Array<String>]
+    def available_spells(battle)
+      spell_list(battle).reject do |_k, v|
+        !v[:disabled].empty?
+      end.keys
     end
 
     # @param hit_die_num [Integer] number of hit die to use

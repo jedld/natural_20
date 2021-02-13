@@ -33,6 +33,14 @@ module Natural20
       @properties[:expertise]&.include?(prof.to_s)
     end
 
+    def damage_vulnerabilities
+      @properties.fetch(:damage_vulnerabilities, [])
+    end
+
+    def vulnerable_to?(damage_type)
+      damage_vulnerabilities.include?(damage_type.to_s)
+    end
+
     def heal!(amt)
       return if dead?
 
@@ -45,19 +53,15 @@ module Natural20
       Natural20::EventManager.received_event({ source: self, event: :heal, previous: prev_hp, new: @hp, value: amt })
     end
 
-    # @option damage_params damage [Natural20::DieRoll]
-    # @option damage_params sneak_attack [Natural20::DieRoll]
+    # @param dmg [Integer]
     # @param battle [Natural20::Battle]
-    def take_damage!(damage_params, battle = nil)
-      dmg = damage_params[:damage].is_a?(Natural20::DieRoll) ? damage_params[:damage].result : damage_params[:damage]
-      dmg += damage_params[:sneak_attack].result unless damage_params[:sneak_attack].nil?
-
-      dmg = (dmg / 2.to_f).floor if resistant_to?(damage_params[:damage_type])
+    # @param critical [Boolean]
+    def take_damage!(dmg, battle: nil, critical: false)
       @hp -= dmg
 
       if unconscious?
         @statuses.delete(:stable)
-        @death_fails += if damage_params[:attack_roll]&.nat_20?
+        @death_fails += if critical
                           2
                         else
                           1
@@ -81,8 +85,6 @@ module Natural20
       end
 
       @hp = 0 if @hp <= 0
-
-      on_take_damage(battle, damage_params) if battle
 
       Natural20::EventManager.received_event({ source: self, event: :damage, value: dmg })
     end
@@ -1241,9 +1243,9 @@ module Natural20
       active_effects = @effects.values.flatten.reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end
-      !!active_effects.detect { |effect|
+      !!active_effects.detect do |effect|
         effect[:effect].id.to_sym == spell.to_sym
-      }
+      end
     end
 
     protected
@@ -1284,7 +1286,10 @@ module Natural20
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end.last
 
-      active_effect[:handler].send(active_effect[:method], self, opts.merge(effect: active_effect[:effect])) if active_effect
+      if active_effect
+        active_effect[:handler].send(active_effect[:method], self,
+                                     opts.merge(effect: active_effect[:effect]))
+      end
     end
 
     def resolve_trigger(event_type)

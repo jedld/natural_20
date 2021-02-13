@@ -16,7 +16,7 @@ class Natural20::Shield < Natural20::Spell
       item[:target].register_effect(:ac_bonus, self, effect: item[:effect], source: item[:source],
                                                      duration: 8.hours.to_i)
 
-      item[:target].register_event_hook(:start_of_turn, self, effect: item[:effect], effect: item[:effect],
+      item[:target].register_event_hook(:start_of_turn, self, effect: item[:effect],
                                                               source: item[:source])
       Natural20::EventManager.received_event(event: :spell_buf, spell: item[:effect], source: item[:source],
                                              target: item[:source])
@@ -39,7 +39,7 @@ class Natural20::Shield < Natural20::Spell
   # @param attacker [Natural20::Entity]
   # @param attack_roll [Natural20::DieRoll]
   # @return [Array<Array<Hash>,Symbol>]
-  def self.after_attack_roll(battle, entity, _attacker, attack_roll, effective_ac, opts = {})
+  def self.after_attack_roll(battle, entity, _attacker, attack_roll, effective_ac, _opts = {})
     spell = battle.session.load_spell('shield')
     if attack_roll.nil? || attack_roll.result.between?(entity.armor_class, effective_ac + 4)
       [[{

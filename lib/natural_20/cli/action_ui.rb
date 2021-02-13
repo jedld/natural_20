@@ -158,7 +158,7 @@ module Natural20::ActionUI
   end
 
   def spell_choice(entity, battle, menu)
-    entity.available_spells(battle).each do |k, details|
+    entity.spell_list(battle).each do |k, details|
       available_levels = if details[:higher_level]
                            (details[:level]..9).select { |lvl| entity.max_spell_slots(lvl).positive? }
                          else

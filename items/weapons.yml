@@ -296,6 +296,24 @@ scimitar:
   subtype: weapon
   type: melee_attack
   weight: 3
+shortsword:
+  cost: 25
+  damage: 1d6
+  damage_type: piercing
+  meta:
+    noise_source: 5
+    noise_target: 5
+  modifiers: null
+  name: Scimitar
+  proficiency_type:
+    - martial
+  properties:
+    - finesse
+    - light
+  range: 5
+  subtype: weapon
+  type: melee_attack
+  weight: 3
 shortbow:
   ammo: arrows
   cost: 25

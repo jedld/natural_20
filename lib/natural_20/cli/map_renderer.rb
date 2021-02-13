@@ -103,7 +103,7 @@ module Natural20
       token = if tokens[col_index][row_index]&.fetch(:entity)&.dead?
                 '`'.colorize(color: DEFAULT_TOKEN_COLOR)
               elsif tokens[col_index][row_index]
-                if any_line_of_sight?(line_of_sight, tokens[col_index][row_index][:entity])
+                if line_of_sight.nil? || any_line_of_sight?(line_of_sight, tokens[col_index][row_index][:entity])
                   npc_token(col_index,
                             row_index)
                 end

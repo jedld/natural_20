@@ -57,7 +57,7 @@ RSpec.describe AttackAction do
         it 'allows for two weapon fighting' do
           puts Natural20::MapRenderer.new(@battle_map).render
           expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack)
-          expect(@character.equipped_items.map(&:label)).to eq(["Dagger", "Dagger"])
+          expect(@character.equipped_items.map(&:label)).to eq(%w[Dagger Dagger])
           action = AttackAction.build(session, @character).next.call(@npc).next.call('dagger').next.call
           @battle.action!(action)
           @battle.commit(action)
@@ -99,6 +99,36 @@ RSpec.describe AttackAction do
           @battle.action!(action)
           @battle.commit(action)
         end.to change(@npc, :hp).from(59).to(52)
+      end
+    end
+
+    context 'resistances and vulnerabilities' do
+      before do
+        Natural20::EventManager.standard_cli
+        @npc = session.npc(:skeleton, overrides: { max_hp: 100 })
+        @battle.add(@npc, :b, position: [1, 0])
+        @battle.add(@character, :a, position: [2, 0])
+      end
+
+      context 'handle resistances and vulnerabilites' do
+        specify 'attack with normal weapon' do
+          srand(1000)
+          expect do
+            puts Natural20::MapRenderer.new(@battle_map, @battle).render
+            @action = AttackAction.build(session, @character).next.call(@npc).next.call('dagger').next.call
+            @action.resolve(session, @battle_map, battle: @battle)
+            @battle.commit(@action)
+          end.to change(@npc, :hp).from(100).to(87)
+        end
+        specify 'attack with vulnerable weapon' do
+          srand(1000)
+          expect do
+            puts Natural20::MapRenderer.new(@battle_map, @battle).render
+            @action = AttackAction.build(session, @character).next.call(@npc).next.call('light_hammer').next.call
+            @action.resolve(session, @battle_map, battle: @battle)
+            @battle.commit(@action)
+          end.to change(@npc, :hp).from(100).to(82)
+        end
       end
     end
 
@@ -262,7 +292,7 @@ RSpec.describe AttackAction do
                                                             'dagger')).to eq([[], [:invisible_attacker]])
       end
 
-      specify "can attack invisible" do
+      specify 'can attack invisible' do
         @battle.action!(@action)
         @battle.commit(@action)
         expect(@action.result.last[:attack_roll].roller.disadvantage).to be

@@ -1,0 +1,66 @@
+---
+kind: Skeleton
+description: |
+  Skeletons arise when animated by dark magic. They heed the summons of spellcasters who call them from their stony tombs
+  and ancient battlefields, or rise of their own accord in places saturated with death and loss, awakened by stirrings of
+  necromantic energy or the presence of corrupting evil.
+size: medium
+race:
+- undead
+alignment: lawful_evil
+default_ac: 13
+max_hp: 13
+hp_die: 2d8+4
+speed: 30
+passive_perception: 9
+darkvision: 60
+token:
+ - $
+color: light_magenta
+ability:
+  str: 10
+  dex: 14
+  con: 15
+  int: 6
+  wis: 8
+  cha: 5
+languages:
+- common
+cr: 0.25
+xp: 50
+proficiency_bonus: 2
+damage_vulnerabilities:
+  - bludgeoning
+damage_immunities:
+  - poison
+condition_immunities:
+  - exhaustion
+  - poisoned
+actions:
+- name: Short Sword
+  type: melee_attack
+  if: equipped:shortsword
+  range: 5
+  targets: 1
+  attack: 4
+  damage: 5
+  damage_die: 1d6+2
+  damage_type: piercing
+- name: Shortbow
+  type: ranged_attack
+  if: equipped:shortbow
+  range: 80
+  range_max: 320
+  targets: 1
+  attack: 4
+  damage: 5
+  damage_die: 1d6
+  damage_mod: 2
+  damage_type: piercing
+  ammo: arrows
+equipped:
+  - shortsword
+  - shortbow
+default_inventory:
+- type: arrows
+  qty: 20

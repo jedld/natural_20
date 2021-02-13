@@ -6,6 +6,16 @@ RSpec.describe Natural20::Npc do
     Natural20::Session.new
   end
 
+  context 'skeleton npc' do
+    before do
+      @npc = session.npc(:skeleton)
+    end
+
+    specify '#damage_vulnerabilities' do
+      expect(@npc.damage_vulnerabilities).to eq(["bludgeoning"])
+    end
+  end
+
   context 'goblin npc' do
     before do
       @npc = session.npc(:goblin, name: 'Spark')
@@ -60,7 +70,7 @@ RSpec.describe Natural20::Npc do
     specify '#short_rest!' do
       srand(1000)
       Natural20::EventManager.standard_cli
-      @npc.take_damage!(damage: 4)
+      @npc.take_damage!(4)
       expect(@npc.hit_die).to eq(6 => 2)
       expect do
         @npc.short_rest!(@battle)
