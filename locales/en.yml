@@ -167,6 +167,7 @@ en:
     special_weapon_damage: Roll for special weapon additional damage
     spells:
       firebolt: Roll for Firebot spell damage
+      chilltouch: Roll for Chill Touch spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
     thieves_tools: Roll for thieves tools (skill check)
