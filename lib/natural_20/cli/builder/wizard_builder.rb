@@ -67,7 +67,7 @@ module Natural20::WizardBuilder
 
     prepared_spells_count = modifier_table(build_values[:ability][:int]) + 1
 
-    @class_values[:prepared_spells] = prompt.multi_select(t('builder.wizard.select_prepared_spells'), min: prepared_spells_count, max: prepared_spells_count) do |q|
+    @class_values[:prepared_spells] += prompt.multi_select(t('builder.wizard.select_prepared_spells'), min: prepared_spells_count, max: prepared_spells_count) do |q|
       @class_values[:spellbook].each do |spell|
         q.choice t(:"spell.#{spell}"), spell
       end

@@ -331,12 +331,14 @@ en:
     firebolt: Firebolt
     mage_armor: Mage Armor
     magic_missile: Magic Missile
+    chill_touch: Chill Touch
     shield: Shield
   spell_level: Recover Spell Level %{level}
   spell_level_slots: 'level %{level}: %{slots}'
   spell_slots: Spell Slots
   spells:
     disabled:
+      reaction_only: ' (Reaction)'
       no_action: '- No more actions'
       no_bonus_action: '- No more bonus actions'
       no_spell_slot: '- No more spell slots'
