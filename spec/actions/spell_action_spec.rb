@@ -26,6 +26,44 @@ RSpec.describe SpellAction do
     end
   end
 
+  context 'chill touch' do
+    specify 'resolve and apply' do
+      puts Natural20::MapRenderer.new(@battle_map).render
+      action = SpellAction.build(session, entity).next.call('chill_touch').next.call(@npc).next.call
+      action.resolve(session, @battle_map, battle: @battle)
+      expect(action.result.map { |s| s[:type] }).to eq(%i[spell_damage chill_touch])
+      expect { @battle.commit(action) }.to change(@npc, :hp).from(8).to(3)
+      expect(@npc.has_spell_effect?(:chill_touch)).to be
+
+      # target cannot heal until effect ends
+      expect do
+        @npc.heal!(100)
+      end.to_not change(@npc, :hp)
+
+      # drop effect until next turn
+      entity.reset_turn!(@battle)
+      expect do
+        @npc.heal!(100)
+      end.to change(@npc, :hp)
+    end
+
+    context 'applies disadvantage on undead' do
+      include Natural20::Weapons
+
+      before do
+        @npc = session.npc(:skeleton)
+        @battle.add(@npc, :b, position: [5, 5])
+      end
+      specify do
+        puts Natural20::MapRenderer.new(@battle_map).render
+        action = SpellAction.build(session, entity).next.call('chill_touch').next.call(@npc).next.call
+        action.resolve(session, @battle_map, battle: @battle)
+        expect { @battle.commit(action) }.to change(@npc, :hp).from(13).to(8)
+        expect(target_advantage_condition(@battle, @npc, entity, nil)).to eq([-1, [[], [:chill_touch_disadvantage]]])
+      end
+    end
+  end
+
   context 'mage armor' do
     before do
       expect(entity.armor_class).to eq(12)

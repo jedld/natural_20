@@ -44,13 +44,17 @@ module Natural20
     def heal!(amt)
       return if dead?
 
+      amt = eval_effect(:heal_override, heal: amt) if has_effect?(:heal_override)
+
       prev_hp = @hp
       @death_saves = 0
       @death_fails = 0
       @hp = [max_hp, @hp + amt].min
 
-      conscious!
-      Natural20::EventManager.received_event({ source: self, event: :heal, previous: prev_hp, new: @hp, value: amt })
+      if @hp.positive? && amt.positive?
+        conscious! if unconscious?
+        Natural20::EventManager.received_event({ source: self, event: :heal, previous: prev_hp, new: @hp, value: amt })
+      end
     end
 
     # @param dmg [Integer]
@@ -1188,7 +1192,7 @@ module Natural20
         effect: effect,
         source: source
       }
-      effect_descriptor[:expiration] = @session.game_time + duration.to_i
+      effect_descriptor[:expiration] = @session.game_time + duration.to_i if duration
       @effects[effect_type.to_sym] << effect_descriptor
     end
 
@@ -1243,9 +1247,14 @@ module Natural20
       active_effects = @effects.values.flatten.reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end
+
       !!active_effects.detect do |effect|
         effect[:effect].id.to_sym == spell.to_sym
       end
+    end
+
+    def undead?
+      @properties[:race]&.include?('undead')
     end
 
     protected

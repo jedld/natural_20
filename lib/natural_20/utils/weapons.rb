@@ -24,6 +24,11 @@ module Natural20::Weapons
     advantage = []
     disadvantage = []
 
+    if source.send(:has_effect?, :attack_advantage_modifier)
+      advantage_mod, disadvantage_mod = source.send(:eval_effect, :attack_advantage_modifier)
+      advantage += advantage_mod
+      disadvantage += disadvantage_mod
+    end
     disadvantage << :prone if source.prone?
     disadvantage << :squeezed if source.squeezed?
     disadvantage << :target_dodge if target.dodge?(battle)

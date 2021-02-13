@@ -1,6 +1,6 @@
 class Natural20::Spell
-  attr_accessor :errors
-  attr_reader :properties, :source
+  attr_accessor :errors, :action
+  attr_reader :properties, :source, :target
 
   def initialize(source, spell_name, details)
     @name = spell_name

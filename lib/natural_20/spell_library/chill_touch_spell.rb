@@ -39,8 +39,8 @@ class Natural20::ChillTouchSpell < Natural20::Spell
       level += 1 if entity.level >= 11
       level += 1 if entity.level >= 17
 
-      damage_roll = Natural20::DieRoll.roll("#{level}d10", crit: attack_roll.nat_20?, battle: battle, entity: entity,
-                                                           description: t('dice_roll.spells.chilltouch'))
+      damage_roll = Natural20::DieRoll.roll("#{level}d8", crit: attack_roll.nat_20?, battle: battle, entity: entity,
+                                                          description: t('dice_roll.spells.chilltouch'))
       [{
         source: entity,
         target: target,
@@ -53,7 +53,13 @@ class Natural20::ChillTouchSpell < Natural20::Spell
         cover_ac: cover_ac_adjustments,
         type: :spell_damage,
         spell: @properties
-      }]
+      },
+       {
+         source: entity,
+         target: target,
+         type: :chill_touch,
+         effect: self
+       }]
     else
       [{
         type: :spell_miss,
@@ -67,6 +73,33 @@ class Natural20::ChillTouchSpell < Natural20::Spell
         cover_ac: cover_ac_adjustments,
         spell: @properties
       }]
+    end
+  end
+
+  # cancel all healing
+  def self.heal_override(_entity, _opt = {})
+    0
+  end
+
+  # @param entity [Natural20::Entity]
+  def self.start_of_turn(_entity, opt = {})
+    opt[:effect].action.target.dismiss_effect!(opt[:effect])
+  end
+
+  def self.attack_advantage_modifier(entity, opt = {})
+    [[], [:chill_touch_disadvantage]]
+  end
+
+  # @param battle [Natural20::Battle]
+  def self.apply!(_battle, item)
+    case item[:type]
+    when :chill_touch
+      item[:source].add_casted_effect(target: item[:target], effect: item[:effect])
+      item[:target].register_effect(:heal_override, self, effect: item[:effect], source: item[:source])
+      item[:source].register_event_hook(:start_of_turn, self, effect: item[:effect])
+      if item[:target].undead?
+        item[:target].register_effect(:attack_advantage_modifier, self, effect: item[:effect], source: item[:source])
+      end
     end
   end
 end
