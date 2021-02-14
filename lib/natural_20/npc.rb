@@ -78,10 +78,6 @@ module Natural20
       @properties[:default_ac]
     end
 
-    def speed
-      @properties[:speed]
-    end
-
     def available_actions(session, battle, opportunity_attack: false)
       return %i[end] if unconscious?
 

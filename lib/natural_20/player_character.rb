@@ -91,11 +91,18 @@ module Natural20
     end
 
     def speed
-      if subrace
-        return (@race_properties.dig(:subrace, subrace.to_sym,
-                                     :base_speed) || @race_properties[:base_speed])
+      effective_speed = if subrace
+                          (@race_properties.dig(:subrace, subrace.to_sym,
+                                                :base_speed) || @race_properties[:base_speed])
+                        else
+                          @race_properties[:base_speed]
+                        end
+
+      if has_effect?(:speed_override)
+        effective_speed = eval_effect(:speed_override, stacked: true,
+                                                       value: @properties[:speed])
       end
-      @race_properties[:base_speed]
+      effective_speed
     end
 
     def race

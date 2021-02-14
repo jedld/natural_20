@@ -45,6 +45,26 @@ RSpec.describe SpellAction do
     end
   end
 
+  context 'ray of frost' do
+    before do
+      @npc = session.npc(:skeleton)
+      @battle.add(@npc, :b, position: [0, 6])
+      @npc.reset_turn!(@battle)
+    end
+
+    specify do
+      srand(1001)
+      puts Natural20::MapRenderer.new(@battle_map).render
+      action = SpellAction.build(session, entity).next.call('ray_of_frost').next.call(@npc).next.call
+      action.resolve(session, @battle_map, battle: @battle)
+      expect(action.result.map { |s| s[:type] }).to eq([:spell_damage, :ray_of_frost])
+      expect { @battle.commit(action) }.to change(@npc, :hp).from(13).to(7)
+      expect(@npc.speed).to eq(20)
+      entity.reset_turn!(@battle)
+      expect(@npc.speed).to eq(30)
+    end
+  end
+
   context 'chill touch' do
     specify 'resolve and apply' do
       puts Natural20::MapRenderer.new(@battle_map).render

@@ -499,6 +499,8 @@ module Natural20
     end
 
     def speed
+      return eval_effect(:speed_override, stacked: true, value: @properties[:speed]) if has_effect?(:speed_override)
+
       @properties[:speed]
     end
 
@@ -1296,13 +1298,19 @@ module Natural20
     end
 
     def eval_effect(effect_type, opts = {})
-      active_effect = @effects[effect_type.to_sym].reject do |effect|
+      active_effects = @effects[effect_type.to_sym].reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
-      end.last
+      end
 
-      if active_effect
-        active_effect[:handler].send(active_effect[:method], self,
-                                     opts.merge(effect: active_effect[:effect]))
+      active_effects = [active_effects.last] unless opts[:stacked]
+
+      unless active_effects.empty?
+        result = opts[:value]
+        active_effects.each do |active_effect|
+          result = active_effect[:handler].send(active_effect[:method], self,
+                                                opts.merge(effect: active_effect[:effect], value: result))
+        end
+        result
       end
     end
 

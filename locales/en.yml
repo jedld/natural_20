@@ -170,6 +170,7 @@ en:
       chilltouch: Roll for Chill Touch spell damage
       firebolt: Roll for Firebot spell damage
       generic_damage: Roll for %{spell} spell damage
+      ray_of_frost: Roll for Ray Of Frost damage
       shocking_grasp: Roll for Shocking Grap spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
@@ -335,6 +336,7 @@ en:
     firebolt: Firebolt
     mage_armor: Mage Armor
     magic_missile: Magic Missile
+    ray_of_frost: Ray Of Frost
     shield: Shield
     shocking_grasp: Shocking Grasp
   spell_level: Recover Spell Level %{level}
