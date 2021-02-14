@@ -9,6 +9,7 @@ module Natural20::Navigation
     cur_pos_x, cur_pos_y = map.entity_or_object_pos(entity)
 
     compute.build_structures(cur_pos_x, cur_pos_y)
+
     compute.path
 
     candidate_squares = [[[cur_pos_x, cur_pos_y], 0]]

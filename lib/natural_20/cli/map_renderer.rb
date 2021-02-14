@@ -23,14 +23,12 @@ module Natural20
       viewport_size ||= map.size
 
       top_x, top_y = top_position
-      top_x = map.size[0] - top_x < viewport_size[0] ? map.size[0] - viewport_size[0] : top_x if viewport_size
-      top_y = map.size[0] - top_y < viewport_size[1] ? map.size[1] - viewport_size[1] : top_y if viewport_size
 
-      right_x = top_x + viewport_size[0] >= map.size[1] ? map.size[1] - 1 : top_x + viewport_size[0]
-      right_y = top_y + viewport_size[1] >= map.size[0] ? map.size[0] - 1 : top_y + viewport_size[1]
+      right_x = top_x + viewport_size[0] - 1 > map.size[0] - 1 ? map.size[0] - 1 : top_x + viewport_size[0] - 1
+      right_y = top_y + viewport_size[1] - 1 > map.size[1] - 1 ? map.size[1] - 1 : top_y + viewport_size[1] - 1
 
-      (top_x..right_x).map do |row_index|
-        (top_y..right_y).map do |col_index|
+      (top_y..right_y).map do |row_index|
+        (top_x..right_x).map do |col_index|
           c = map.base_map[col_index][row_index]
           display = render_position(c, col_index, row_index, path: path, override_path_char: path_char, entity: entity, line_of_sight: line_of_sight,
                                                              update_on_drop: update_on_drop, acrobatics_checks: acrobatics_checks,

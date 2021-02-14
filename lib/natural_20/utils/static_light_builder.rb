@@ -25,9 +25,14 @@ module Natural20
 
     def build_map
       max_x, max_y = @map.size
-      max_y.times.map do |y|
-        max_x.times.map do |x|
-          @lights.inject(@base_illumniation) do |intensity, light|
+
+      light_map = max_x.times.map do
+        max_y.times.map { @base_illumniation }
+      end
+
+      max_x.times.each do |x|
+        max_y.times.each do |y|
+          light_map[x][y] = @lights.inject(@base_illumniation) do |intensity, light|
             light_pos_x, light_pos_y = light[:position]
             bright_light = light.fetch(:bright, 10) / @map.feet_per_grid
             dim_light = light.fetch(:dim, 5) / @map.feet_per_grid
@@ -41,7 +46,9 @@ module Natural20
                         end
           end
         end
-      end.transpose
+      end
+
+      light_map
     end
 
     # @param pos_x [Integer]

@@ -37,7 +37,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activesupport"
   spec.add_dependency "random_name_generator"
   spec.add_dependency "colorize"
-  spec.add_dependency "pqueue"
   spec.add_dependency "i18n"
   spec.add_dependency "bond"
   if RUBY_ENGINE == "ruby"

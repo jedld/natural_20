@@ -408,6 +408,7 @@ class CommandlineUI < Natural20::Controller
     Natural20::EventManager.set_context(battle, battle.current_party)
 
     result = battle.while_active do |entity|
+
       start_combat = false
       if battle.has_controller_for?(entity)
         cycles = 0
@@ -416,7 +417,6 @@ class CommandlineUI < Natural20::Controller
           cycles += 1
           session.save_game(battle)
           action = battle.move_for(entity)
-
           if action.nil?
 
             unless battle.current_party.include?(entity)

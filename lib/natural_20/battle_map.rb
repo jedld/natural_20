@@ -23,27 +23,47 @@ module Natural20
       @feet_per_grid = @properties[:grid_size] || 5
 
       # terrain layer
-      @base_map = @properties.dig(:map, :base).map do |lines|
-        lines.each_char.map.to_a
-      end.transpose
-      @size = [@base_map.size, @base_map.first.size]
+
+      base = @properties.dig(:map, :base)
+
+      @size = [base.first.size, base.size]
+
+      @base_map = @size[0].times.map do
+        @size[1].times.map do
+          nil
+        end
+      end
+
+      @properties.dig(:map, :base).each_with_index.map do |lines, cur_y|
+        lines.each_char.map.each_with_index do |c, cur_x|
+          @base_map[cur_x][cur_y] = c
+        end
+      end
 
       # terrain layer 2
-      @base_map_1 = if @properties.dig(:map, :base_1).blank?
-                      @size[0].times.map do
-                        @size[1].times.map { nil }
-                      end
-                    else
-                      @properties.dig(:map, :base_1).map do |lines|
-                        lines.each_char.map { |c| c == '.' ? nil : c }
-                      end.transpose
-                    end
+      @base_map_1 = @size[0].times.map do
+        @size[1].times.map { nil }
+      end
+
+      unless @properties.dig(:map, :base_1).blank?
+        @properties.dig(:map, :base_1).each_with_index do |lines, cur_y|
+          lines.each_char.map.each_with_index do |c, cur_x|
+            @base_map_1[cur_x][cur_y] = (c == '.' ? nil : c)
+          end
+        end
+      end
 
       # meta layer
       if @properties.dig(:map, :meta)
-        @meta_map = @properties.dig(:map, :meta).map do |lines|
-          lines.each_char.map.to_a
-        end.transpose
+        @meta_map = @size[0].times.map do
+          @size[1].times.map { nil }
+        end
+
+        @properties.dig(:map, :meta).each_with_index do |lines, cur_y|
+          lines.each_char.map.each_with_index do |c, cur_x|
+            @meta_map[cur_x][cur_y] = c
+          end
+        end
       end
 
       @legend = @properties[:legend] || {}

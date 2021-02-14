@@ -1,5 +1,3 @@
-# typed: false
-require 'pqueue'
 module AiController
   MAX_DISTANCE = 4_000_000
   # Path finding algorithm
@@ -16,7 +14,7 @@ module AiController
     end
 
     def build_structures(source_x, source_y)
-      @pq = PQueue.new([]) { |a, b| a[1] < b[1] }
+      @pq = PriorityQueue.new
       @visited_nodes = Set.new
 
       @distances = @max_x.times.map do
@@ -115,7 +113,7 @@ module AiController
         move_cost = override_move_cost || @map.difficult_terrain?(@entity, node[0], node[1], @battle) ? 2 : 1
         current_distance = distance + move_cost
         distances[node[0]][node[1]] = current_distance if distances[node[0]][node[1]] > current_distance
-        pq << [node, distances[node[0]][node[1]]]
+        pq.add_node node, distances[node[0]][node[1]]
       end
     end
 
