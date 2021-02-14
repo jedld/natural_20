@@ -12,7 +12,7 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#damage_vulnerabilities' do
-      expect(@npc.damage_vulnerabilities).to eq(["bludgeoning"])
+      expect(@npc.damage_vulnerabilities).to eq(['bludgeoning'])
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#equipped_items' do
-      expect(@npc.equipped_items.map(&:name)).to eq(%i[scimitar shortbow])
+      expect(@npc.equipped_items.map(&:name)).to eq(%i[scimitar shortbow leather_armor shield])
     end
 
     specify '#unequip' do

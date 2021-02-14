@@ -869,8 +869,12 @@ module Natural20
       false
     end
 
+    def equipped_armor
+      equipped_items.select { |t| %w[armor shield].include?(t[:type]) }
+    end
+
     def proficient_with_equipped_armor?
-      shields_and_armor = equipped_items.select { |t| %w[armor shield].include?(t[:type]) }
+      shields_and_armor = equipped_armor
       return true if shields_and_armor.empty?
 
       shields_and_armor.each do |item|
@@ -974,6 +978,7 @@ module Natural20
         two_handed: item[:properties].try(:include?, 'two_handed'),
         light_properties: item[:light],
         proficiency_type: item[:proficiency_type],
+        metallic: !!item[:metallic],
         qty: 1,
         equipped: true,
         weight: item[:weight]

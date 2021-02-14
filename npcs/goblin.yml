@@ -59,6 +59,8 @@ actions:
 equipped:
   - scimitar
   - shortbow
+  - leather_armor
+  - shield
 default_inventory:
 - type: arrows
   qty: 20

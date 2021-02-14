@@ -15,12 +15,14 @@ chain_mail:
   name: Chain Mail
   subtype: heavy
   type: armor
+  metallic: true
   weight: 55
 chain_shirt:
   ac: 13
   cost: 50
   mod_cap: 2
   name: Chain Shirt
+  metallic: true
   subtype: light
   type: armor
   weight: 13
@@ -56,7 +58,7 @@ healing_potion:
   name: Potion of Healing
   type: potion
   usable: true
-leather:
+leather_armor:
   ac: 11
   cost: 10
   name: Leather
@@ -96,6 +98,7 @@ shield:
   bonus_ac: 2
   name: Shield
   type: shield
+  metallic: true
   weight: 6
 silver_piece:
   cost: 0.1

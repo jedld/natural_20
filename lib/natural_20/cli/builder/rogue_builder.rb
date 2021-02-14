@@ -3,7 +3,7 @@ module Natural20::RogueBuilder
     @class_values ||= {
       attributes: [],
       saving_throw_proficiencies: %w[dexterity intelligence],
-      equipped: %w[leather dagger dagger],
+      equipped: %w[leather_armor dagger dagger],
       inventory: [],
       tools: ['thieves_tools'],
       expertise: []

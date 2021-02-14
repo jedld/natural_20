@@ -38,7 +38,7 @@ token:
 equipped:
 - rapier
 - longbow
-- leather
+- leather_armor
 - shield
 inventory:
 - type: spear

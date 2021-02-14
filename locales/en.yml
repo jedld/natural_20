@@ -37,6 +37,7 @@ en:
     invisible_attacker: Target is hidden/invisible
     prone: Target Prone
     ranged_with_enemy_in_melee: Ranged weapon with enemy in melee range
+    shocking_grasp_metallic: Target wearing metal armor for Shocking Grasp
     small_creature_using_heavy: Heavy weapon used by small creature
     squeezed: Target is squeezing into a tight location
     target_dodge: Target is Dodging
@@ -166,8 +167,10 @@ en:
     sneak_attack: Roll for sneak attack damage
     special_weapon_damage: Roll for special weapon additional damage
     spells:
-      firebolt: Roll for Firebot spell damage
       chilltouch: Roll for Chill Touch spell damage
+      firebolt: Roll for Firebot spell damage
+      generic_damage: Roll for %{spell} spell damage
+      shocking_grasp: Roll for Shocking Grap spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
     thieves_tools: Roll for thieves tools (skill check)
@@ -328,20 +331,21 @@ en:
   select_party_member: Select Party Member %{index}
   skip_hit_die: Skip Hit Die
   spell:
+    chill_touch: Chill Touch
     firebolt: Firebolt
     mage_armor: Mage Armor
     magic_missile: Magic Missile
-    chill_touch: Chill Touch
     shield: Shield
+    shocking_grasp: Shocking Grasp
   spell_level: Recover Spell Level %{level}
   spell_level_slots: 'level %{level}: %{slots}'
   spell_slots: Spell Slots
   spells:
     disabled:
-      reaction_only: ' (Reaction)'
       no_action: '- No more actions'
       no_bonus_action: '- No more bonus actions'
       no_spell_slot: '- No more spell slots'
+      reaction_only: ' (Reaction)'
   tpk: The entire party has fallen. Game Over!
   unequip: Unequip
   validation:

@@ -1,9 +1,9 @@
 # reusable utility methods for weapon calculations
 module Natural20::Weapons
   # Check all the factors that affect advantage/disadvantage in attack rolls
-  def target_advantage_condition(battle, source, target, weapon, source_pos: nil)
+  def target_advantage_condition(battle, source, target, weapon, source_pos: nil, overrides: {})
     advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon,
-                                                                     source_pos: source_pos)
+                                                                     source_pos: source_pos, overrides: overrides)
 
     return [0, [advantages, disadvantages]] if advantages.empty? && disadvantages.empty?
     return [0, [advantages, disadvantages]] if !advantages.empty? && !disadvantages.empty?
@@ -19,10 +19,10 @@ module Natural20::Weapons
   # @param target [Natural20::Entity]
   # @option weapon type [String]
   # @return [Array]
-  def compute_advantages_and_disadvantages(battle, source, target, weapon, source_pos: nil)
+  def compute_advantages_and_disadvantages(battle, source, target, weapon, source_pos: nil, overrides: {})
     weapon = battle.session.load_weapon(weapon) if weapon.is_a?(String) || weapon.is_a?(Symbol)
-    advantage = []
-    disadvantage = []
+    advantage = overrides.fetch(:advantage, [])
+    disadvantage = overrides.fetch(:disadvantage, [])
 
     if source.send(:has_effect?, :attack_advantage_modifier)
       advantage_mod, disadvantage_mod = source.send(:eval_effect, :attack_advantage_modifier)

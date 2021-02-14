@@ -26,6 +26,25 @@ RSpec.describe SpellAction do
     end
   end
 
+  context 'shocking grasp' do
+    before do
+      @npc = session.npc(:skeleton)
+      @battle.add(@npc, :b, position: [0, 6])
+      @npc.reset_turn!(@battle)
+    end
+
+    specify do
+      srand(1001)
+      puts Natural20::MapRenderer.new(@battle_map).render
+      action = SpellAction.build(session, entity).next.call('shocking_grasp').next.call(@npc).next.call
+      action.resolve(session, @battle_map, battle: @battle)
+      expect(action.result.map { |s| s[:type] }).to eq([:spell_damage, :shocking_grasp])
+      expect(@npc.has_reaction?(@battle)).to be
+      expect { @battle.commit(action) }.to change(@npc, :hp).from(13).to(11)
+      expect(@npc.has_reaction?(@battle)).to_not be
+    end
+  end
+
   context 'chill touch' do
     specify 'resolve and apply' do
       puts Natural20::MapRenderer.new(@battle_map).render
