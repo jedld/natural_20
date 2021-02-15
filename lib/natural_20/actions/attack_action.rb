@@ -210,6 +210,8 @@ class AttackAction < Natural20::Action
                                                                 advantage: with_advantage?,
                                                                 description: t('dice_roll.attack'), entity: @source, battle: battle)
 
+    @source.send(:resolve_trigger, :attack_resolved, target: target)
+
     # handle the lucky feat
     attack_roll = attack_roll.reroll(lucky: true) if @source.class_feature?('lucky') && attack_roll.nat_1?
     target_ac, _cover_ac = effective_ac(battle, target)

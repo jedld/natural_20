@@ -38,7 +38,7 @@ RSpec.describe SpellAction do
       puts Natural20::MapRenderer.new(@battle_map).render
       action = SpellAction.build(session, entity).next.call('shocking_grasp').next.call(@npc).next.call
       action.resolve(session, @battle_map, battle: @battle)
-      expect(action.result.map { |s| s[:type] }).to eq([:spell_damage, :shocking_grasp])
+      expect(action.result.map { |s| s[:type] }).to eq(%i[spell_damage shocking_grasp])
       expect(@npc.has_reaction?(@battle)).to be
       expect { @battle.commit(action) }.to change(@npc, :hp).from(13).to(11)
       expect(@npc.has_reaction?(@battle)).to_not be
@@ -57,7 +57,7 @@ RSpec.describe SpellAction do
       puts Natural20::MapRenderer.new(@battle_map).render
       action = SpellAction.build(session, entity).next.call('ray_of_frost').next.call(@npc).next.call
       action.resolve(session, @battle_map, battle: @battle)
-      expect(action.result.map { |s| s[:type] }).to eq([:spell_damage, :ray_of_frost])
+      expect(action.result.map { |s| s[:type] }).to eq(%i[spell_damage ray_of_frost])
       expect { @battle.commit(action) }.to change(@npc, :hp).from(13).to(7)
       expect(@npc.speed).to eq(20)
       entity.reset_turn!(@battle)
@@ -174,6 +174,27 @@ RSpec.describe SpellAction do
       expect(action.result.map { |s| s[:type] }).to eq(%i[spell_damage spell_damage spell_damage])
       @battle.commit(action)
       expect(@npc.hp).to eq(0)
+    end
+  end
+
+  context 'true strike' do
+    include Natural20::Weapons
+
+    before do
+      @npc = session.npc(:skeleton)
+      @battle.add(@npc, :b, position: [0, 6])
+      @npc.reset_turn!(@battle)
+
+      @action = SpellAction.build(session, entity).next.call('true_strike').next.call(@npc).next.call
+      @action.resolve(session, @battle_map, battle: @battle)
+      expect(@action.result.map { |s| s[:type] }).to eq([:true_strike])
+      @battle.commit(@action)
+    end
+
+    specify do
+      entity.reset_turn!(@battle)
+      conditions = target_advantage_condition(@battle, entity, @npc, @action.spell)
+      expect(conditions).to eq([1, [[:true_strike_advantage], []]])
     end
   end
 end

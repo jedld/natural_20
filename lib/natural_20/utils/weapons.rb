@@ -25,7 +25,7 @@ module Natural20::Weapons
     disadvantage = overrides.fetch(:disadvantage, [])
 
     if source.send(:has_effect?, :attack_advantage_modifier)
-      advantage_mod, disadvantage_mod = source.send(:eval_effect, :attack_advantage_modifier)
+      advantage_mod, disadvantage_mod = source.send(:eval_effect, :attack_advantage_modifier, target: target)
       advantage += advantage_mod
       disadvantage += disadvantage_mod
     end
@@ -35,7 +35,7 @@ module Natural20::Weapons
     disadvantage << :armor_proficiency unless source.proficient_with_equipped_armor?
     advantage << :squeezed if target.squeezed?
     advantage << :being_helped if battle.help_with?(target)
-    disadvantage << :target_long_range if battle.map && weapon && battle.map.distance(source, target,
+    disadvantage << :target_long_range if battle.map && weapon && weapon[:range] && battle.map.distance(source, target,
                                                                                       entity_1_pos: source_pos) > weapon[:range]
 
     if weapon && weapon[:type] == 'ranged_attack' && battle.map

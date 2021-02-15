@@ -128,6 +128,10 @@ class CommandlineUI < Natural20::Controller
           map.perception_on(thing, entity, perception).each do |note|
             prompt.say("  #{note}")
           end
+
+          thing.active_effects.each do |effect|
+            puts "  #{t(:effect_line, effect_name: effect[:effect].label, source: effect[:source].name)}"
+          end
           health_description = thing.try(:describe_health)
           prompt.say("  #{health_description}") unless health_description.blank?
         end

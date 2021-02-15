@@ -13,6 +13,8 @@ module Natural20::SpellAttackHelper
       battle, target
     )
 
+    entity.send(:resolve_trigger, :attack_resolved, target: target)
+
     force_miss = after_attack_roll_hook(battle, target,
                                         source, attack_roll, target_ac, spell: spell_properties)
     if !force_miss
@@ -28,6 +30,7 @@ module Natural20::SpellAttackHelper
     else
       hit = false
     end
+
     [hit, attack_roll, advantage_mod, cover_ac_adjustments]
   end
 end

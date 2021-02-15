@@ -17,7 +17,7 @@ firebolt:
   casting_time: 1:action
   components:
     - verbal
-    - sematic
+    - somatic
   damage_increase:
     - 5
     - 11
@@ -36,7 +36,7 @@ ray_of_frost:
   casting_time: 1:action
   components:
     - verbal
-    - sematic
+    - somatic
   damage_increase:
     - 5
     - 11
@@ -57,7 +57,7 @@ shocking_grasp:
   casting_time: 1:action
   components:
     - verbal
-    - sematic
+    - somatic
   damage_increase:
     - 5
     - 11
@@ -76,11 +76,24 @@ shocking_grasp:
   range: 5
   school: evocation
   type: melee_attack
+true_strike:
+  casting_time: 1:action
+  concentration: true
+  range: 30
+  components:
+    - somatic
+  description: |
+    You point a finger at a target in range. Your magic grants you a brief insight into the target's defenses. On your next turn, you gain advantage on your first attack roll against the target, provided that this spell hasn't ended.
+  duration: 1R
+  level: 0
+  name: True Strike
+  school: divination
+  type: foreknowledge
 mage_armor:
   casting_time: 1:action
   components:
     - verbal
-    - sematic
+    - somatic
     - material
   description: You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier. The spell ends if the target dons armor or if you dismiss the spell as an action.
   duration: 8h
@@ -112,5 +125,5 @@ shield:
   spell_class: Natural20::Shield
   components:
     - verbal
-    - sematic
+    - somatic
   type: warding

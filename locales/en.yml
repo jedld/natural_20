@@ -337,6 +337,7 @@ en:
     mage_armor: Mage Armor
     magic_missile: Magic Missile
     ray_of_frost: Ray Of Frost
+    true_strike: True Strike
     shield: Shield
     shocking_grasp: Shocking Grasp
   spell_level: Recover Spell Level %{level}

@@ -4,7 +4,7 @@ module Natural20
     include EntityStateEvaluator
 
     attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :effects,
-                  :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks
+                  :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks, :concentration
     attr_reader :casted_effects
 
     ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma].freeze
@@ -1224,9 +1224,15 @@ module Natural20
     end
 
     def dismiss_effect!(effect)
-      dismiss_count = 0
-      effect.source.casted_effects.reject! { |f| f[:effect] == effect }
+      @concentration = nil if @concentration == effect
 
+      effect.action.target.remove_effect(effect) if effect.action.target
+      remove_effect(effect)
+    end
+
+    def remove_effect(effect)
+      effect.source.casted_effects.reject! { |f| f[:effect] == effect }
+      dismiss_count = 0
       @effects = @effects.map do |k, value|
         delete_effects = value.select do |f|
           f[:effect] == effect
@@ -1264,15 +1270,21 @@ module Natural20
       @properties[:race]&.include?('undead')
     end
 
+    def concentration_on!(effect)
+      dismiss_effect!(effect) if @concentration
+
+      @concentration = effect
+    end
+
     protected
 
     def cleanup_effects
-      @effects = @effects.map do |k, value|
+      @effects.each do |_k, value|
         delete_effects = value.select do |f|
           f[:expiration] && f[:expiration] <= @session.game_time
         end
-        [k, value - delete_effects]
-      end.to_h
+        delete_effects.each { |e| dismiss_effect!(e) }
+      end
 
       @entity_event_hooks = @entity_event_hooks.map do |k, value|
         delete_hooks = value.select do |f|
@@ -1281,9 +1293,9 @@ module Natural20
         [k, value - delete_hooks]
       end.to_h
 
-      @casted_effects = @casted_effects.select do |f|
-        f[:expiration].blank? || f[:expiration] > @session.game_time
-      end
+      @casted_effects.select do |f|
+        f[:expiration] && f[:expiration] <= @session.game_time
+      end.each { |e| dismiss_effect!(e[:effect]) }
     end
 
     def has_effect?(effect_type)
@@ -1314,14 +1326,14 @@ module Natural20
       end
     end
 
-    def resolve_trigger(event_type)
+    def resolve_trigger(event_type, opts = {})
       return unless @entity_event_hooks[event_type.to_sym]
 
       active_hook = @entity_event_hooks[event_type.to_sym].reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end.last
 
-      active_hook[:handler].send(active_hook[:method], self, effect: active_hook[:effect]) if active_hook
+      active_hook[:handler].send(active_hook[:method], self, opts.merge(effect: active_hook[:effect])) if active_hook
     end
 
     # Localization helper
@@ -1338,6 +1350,7 @@ module Natural20
       @entity_event_hooks = {}
       @effects = {}
       @casted_effects = []
+      @concentration = nil
     end
 
     def on_take_damage(battle, _damage_params)

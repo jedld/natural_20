@@ -391,6 +391,7 @@ module Natural20
           current_turn.reset_turn!(self)
           next if block.call(current_turn)
         end
+        current_turn.send(:resolve_trigger, :end_of_turn)
 
         return :tpk if tpk?
 

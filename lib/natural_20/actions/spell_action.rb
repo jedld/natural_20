@@ -39,7 +39,7 @@ class SpellAction < Natural20::Action
                              spell, at_level = spell_choice
                              @spell = session.load_spell(spell)
                              raise "spell not found #{spell}" unless @spell
-
+                             self.spell = @spell
                              self.at_level = at_level
                              spell_class = @spell[:spell_class].blank? ? "Natural20::#{spell.to_s.classify}Spell" : @spell[:spell_class]
                              @spell_action = spell_class.constantize.new(@source, spell, @spell)
