@@ -167,7 +167,7 @@ en:
     sneak_attack: Roll for sneak attack damage
     special_weapon_damage: Roll for special weapon additional damage
     spells:
-      chilltouch: Roll for Chill Touch spell damage
+      chill_touch: Roll for Chill Touch spell damage
       firebolt: Roll for Firebolt spell damage
       generic_damage: Roll for %{spell} spell damage
       ray_of_frost: Roll for Ray Of Frost damage

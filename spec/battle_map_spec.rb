@@ -229,6 +229,7 @@ RSpec.describe Natural20::BattleMap do
       let(:npc) { @battle_map.entity_at(5, 5) }
 
       it 'has the correct statuses' do
+        srand(1000)
         @battle.add(npc, :b)
         npc.reset_turn!(@battle)
         expect(npc.hiding?(@battle)).to be
@@ -243,7 +244,7 @@ RSpec.describe Natural20::BattleMap do
                                                       movement: 30,
                                                       reaction: 1,
                                                       statuses: Set[:hiding],
-                                                      stealth: 7,
+                                                      stealth: 26,
                                                       two_weapon: nil,
                                                       target_effect: {}
                                                     })
@@ -257,6 +258,30 @@ RSpec.describe Natural20::BattleMap do
     end
 
     it 'generates static light map' do
+    end
+  end
+
+  context 'map 2' do
+    before do
+      String.disable_colorization true
+      @battle_map = Natural20::BattleMap.new(session, 'fixtures/game_map_sample')
+      @map_renderer = Natural20::MapRenderer.new(@battle_map)
+    end
+
+    specify do
+      expect(@battle_map.object_at(11, 1).token).to eq(['o'])
+      expect(@map_renderer.send(:object_token, 11, 1)).to eq('o')
+      expect(@map_renderer.render).to eq(
+        "☐···\\\/····║·g··\n" +
+        "····└┘····#oo··\n" +
+        "###··####=#··O┐\n" +
+        "··║··#g^^g#··└┘\n" +
+        "·#####^^g☐#··oo\n" +
+        "·····║^^og#····\n" +
+        "####=#########=\n" +
+        "··#·`·^Ý^<║···$\n" +
+        "··║···^^^<#··$·\n"
+      )
     end
   end
 end

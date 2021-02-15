@@ -40,11 +40,11 @@ class Natural20::ChillTouchSpell < Natural20::Spell
       level += 1 if entity.level >= 17
 
       damage_roll = Natural20::DieRoll.roll("#{level}d8", crit: attack_roll.nat_20?, battle: battle, entity: entity,
-                                                          description: t('dice_roll.spells.chilltouch'))
+                                                          description: t('dice_roll.spells.chill_touch'))
       [{
         source: entity,
         target: target,
-        attack_name: t('spell.chilltouch'),
+        attack_name: t('spell.chill_touch'),
         damage_type: @properties[:damage_type],
         attack_roll: attack_roll,
         damage_roll: damage_roll,

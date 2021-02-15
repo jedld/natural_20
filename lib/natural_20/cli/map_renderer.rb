@@ -85,16 +85,12 @@ module Natural20
                         athletics_checks: [])
       background_color = render_light(col_index, row_index)
       default_ground = "\u00B7".encode('utf-8').colorize(color: DEFAULT_TOKEN_COLOR, background: background_color)
-      c = case c
-          when '.', '?'
-            default_ground
+
+      token = object_token(col_index, row_index)
+      c = if token
+            token == :inherit ? c : (token&.colorize(background: background_color) || default_ground)
           else
-            token = object_token(col_index, row_index)
-            if token && token != :inherit
-              token&.colorize(background: background_color) || default_ground
-            else
-              c
-            end
+            default_ground
           end
 
       # render map layer

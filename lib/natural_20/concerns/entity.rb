@@ -1186,6 +1186,8 @@ module Natural20
     end
 
     def active_effects
+      return [] unless @effects
+
       @effects.values.flatten.reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end.uniq
@@ -1200,7 +1202,7 @@ module Natural20
         source: source
       }
       effect_descriptor[:expiration] = @session.game_time + duration.to_i if duration
-      @effects[effect_type.to_sym] << effect_descriptor
+      @effects[effect_type.to_sym] << effect_descriptor unless @effects[effect_type.to_sym].include?(effect_descriptor)
     end
 
     def register_event_hook(event_type, handler, method_name = nil, source: nil, effect: nil, duration: nil)
@@ -1226,8 +1228,9 @@ module Natural20
     def dismiss_effect!(effect)
       @concentration = nil if @concentration == effect
 
-      effect.action.target.remove_effect(effect) if effect.action.target
-      remove_effect(effect)
+      dismiss_count = effect.action.target.remove_effect(effect) if effect.action.target
+
+      dismiss_count + remove_effect(effect)
     end
 
     def remove_effect(effect)

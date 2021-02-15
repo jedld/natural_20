@@ -11,11 +11,6 @@ module Natural20::ActionDamage
                    else
                      dmg
                    end
-
-    item[:target].take_damage!(total_damage, battle: battle, critical: item[:attack_roll]&.nat_20?)
-
-    item[:target].send(:on_take_damage, battle, item) if battle && total_damage.positive?
-
     Natural20::EventManager.received_event({ source: item[:source],
                                              attack_roll: item[:attack_roll],
                                              target: item[:target],
@@ -32,5 +27,8 @@ module Natural20::ActionDamage
                                              vulnerable: target.vulnerable_to?(item[:damage_type]),
                                              value: dmg,
                                              total_damage: total_damage })
+    item[:target].take_damage!(total_damage, battle: battle, critical: item[:attack_roll]&.nat_20?)
+
+    item[:target].send(:on_take_damage, battle, item) if battle && total_damage.positive?
   end
 end
