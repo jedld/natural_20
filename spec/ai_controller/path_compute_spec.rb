@@ -74,6 +74,7 @@ RSpec.describe AiController::PathCompute do
         "······#\n" +
         "·······\n"
       )
+      expect(@npc.melee_squares(@battle_map, adjacent_only: true).sort).to eq([[0, 0], [0, 3], [1, 0], [1, 3], [2, 0], [2, 1], [2, 2], [2, 3]])
       expect(@path_compute.compute_path(0, 1, 0,
                                         4)).to eq([[0, 1], [1, 1], [2, 1], [3, 2], [4, 3], [3, 4], [2, 4], [1, 4], [0, 4]])
       expect(@map_renderer.render(path: @path_compute.compute_path(0, 1, 0, 4), path_char: '+')).to eq("#######\n" +

@@ -65,8 +65,12 @@ module Natural20
                                      damage = (event[:damage_roll]).to_s
                                      damage_str = "#{[damage,
                                                       sneak].compact.join(' + sneak ')} = #{event[:value]} #{event[:damage_type]}"
-                                     damage_str += " (resistant) #{event[:total_damage]}".colorize(:green) if event[:resistant]
-                                     damage_str += " (vulnerable) #{event[:total_damage]}".colorize(:green) if event[:vulnerable]
+                                     if event[:resistant]
+                                       damage_str += " (resistant) #{event[:total_damage]}".colorize(:green)
+                                     end
+                                     if event[:vulnerable]
+                                       damage_str += " (vulnerable) #{event[:total_damage]}".colorize(:green)
+                                     end
 
                                      if event[:cover_ac].try(:positive?)
                                        cover_str = " (behind cover +#{event[:cover_ac]} ac)"
@@ -101,7 +105,7 @@ module Natural20
                                                  else
                                                    ''
                                                  end
-                                 output "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''} rolled #{advantage_str} #{event[:attack_roll]} ... #{event[:source].name&.colorize(:blue)} missed his attack #{event[:attack_name].colorize(:red)} on #{event[:target].name.colorize(:green)}"
+                                 output "#{event[:as_reaction] ? 'Opportunity Attack: ' : ''} rolled #{advantage_str} #{event[:attack_roll]} ... #{event[:source].name&.colorize(:blue)} missed #{event[:source].pronoun(true)} attack #{event[:attack_name].colorize(:red)} on #{event[:target].name.colorize(:green)}"
                                },
                          initiative: lambda { |event|
                                        output "#{show_name(event)} rolled a #{event[:roll]} = (#{event[:value]}) with dex tie break for initiative."
@@ -112,6 +116,10 @@ module Natural20
                          dodge: lambda { |event|
                                   output t('event.dodge', name: show_name(event))
                                 },
+                         hide: lambda { |event|
+                                 output t('event.hide', name: show_name(event), roll: event[:roll].to_s,
+                                                        roll_value: event[:roll].result)
+                               },
                          help: lambda { |event|
                                  output "#{show_name(event)} is helping to attack #{event[:target].name&.colorize(:red)}"
                                },

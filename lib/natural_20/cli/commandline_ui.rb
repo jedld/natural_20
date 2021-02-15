@@ -424,8 +424,8 @@ class CommandlineUI < Natural20::Controller
           if action.nil?
 
             unless battle.current_party.include?(entity)
-              describe_map(battle.map, line_of_sight: battle.current_party)
-              puts @renderer.render(line_of_sight: battle.current_party, path: move_path)
+              describe_map(battle.map, line_of_sight: battle.available_party_members)
+              puts @renderer.render(line_of_sight: battle.available_party_members, path: move_path)
             end
             prompt.keypress(t(:end_turn, name: entity.name)) unless battle.current_party.include? entity
             move_path = []

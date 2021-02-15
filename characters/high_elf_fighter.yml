@@ -2,6 +2,7 @@
 name: Gomerin
 race: elf
 subrace: high_elf
+pronoun: he/him/his
 classes:
   fighter: 1
 description: A high elf fighter seeking for glory

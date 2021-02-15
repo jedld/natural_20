@@ -49,4 +49,7 @@ class HideBonusAction < HideAction
     battle && entity.any_class_feature?(%w[cunning_action
                                            nimble_escape]) && entity.total_bonus_actions(battle).positive?
   end
+
+  # @param battle [Natural20::Battle]
+  def self.apply!(battle, item); end
 end

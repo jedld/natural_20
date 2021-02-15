@@ -33,10 +33,19 @@ module Natural20::Navigation
   # @param opponents [Array<Natural20::Entity>]
   def evaluate_square(map, battle, entity, opponents)
     melee_attack_squares = {}
+    vulnerable_squares = {}
+
     opponents.each do |opp|
-      opp.melee_squares(map).each do |pos|
+      map.entity_squares(opp).each do |pos|
         melee_attack_squares[pos] ||= 0
         melee_attack_squares[pos] += 1
+      end
+    end
+
+    opponents.each do |opp|
+      opp.melee_squares(map, adjacent_only: true).each do |pos|
+        vulnerable_squares[pos] ||= 0
+        vulnerable_squares[pos] += 1
       end
     end
 
@@ -59,9 +68,12 @@ module Natural20::Navigation
       mobility = 0.0
       support = 0.0
 
-      if melee_attack_squares.key?(d)
+      entity_melee_squares = entity.melee_squares(map, target_position: d, adjacent_only: true)
+
+      defense -= 0.05 * vulnerable_squares[d] if vulnerable_squares.key?(d)
+
+      if entity_melee_squares.detect { |p| melee_attack_squares.key?(p) }
         melee_offence += 0.2
-        defense -= 0.05 * melee_attack_squares[d]
         if attack_options
           opponents.each do |opp|
             adv, _adv_info = target_advantage_condition(battle, entity, opp, attack_options, source_pos: d)

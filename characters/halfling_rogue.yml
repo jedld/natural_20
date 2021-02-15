@@ -2,6 +2,7 @@
 name: RumbleBelly
 race: halfling
 subrace: lightfoot
+pronoun: he/him/his
 classes:
   rogue: 1
 description: A halfling rogue with a dark past

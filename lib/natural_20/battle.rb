@@ -476,6 +476,10 @@ module Natural20
       @current_party && !@current_party.detect(&:conscious?)
     end
 
+    def available_party_members
+      @current_party.select(&:conscious?)
+    end
+
     def battle_ends?
       groups_present = @entities.keys.reject do |a|
                          a.dead? || a.unconscious?

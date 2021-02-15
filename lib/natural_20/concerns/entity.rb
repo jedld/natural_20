@@ -9,6 +9,15 @@ module Natural20
 
     ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma].freeze
     ATTRIBUTE_TYPES_ABBV = %w[str dex con int wis cha].freeze
+
+    def pronoun(object = false)
+      return (object ? t(:"pronoun.his") : t(:"pronoun.he")) if @properties[:pronoun].blank?
+
+      p1, p2, p3 = @properties[:pronoun].split('/')
+
+      t(:"pronoun.#{object ? p2 : p1}")
+    end
+
     def label
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
     end
@@ -218,28 +227,52 @@ module Natural20
     # @param map [Natural20::BattleMap]
     # @param target_position [Array<Integer,Integer>]
     # @param adjacent_only [Boolean] If false uses melee distance otherwise uses fixed 1 square away
-    def melee_squares(map, target_position: nil, adjacent_only: false)
+    def melee_squares(map, target_position: nil, adjacent_only: false, squeeze: false)
       result = []
-      step = adjacent_only ? 1 : melee_distance / map.feet_per_grid
-      cur_x, cur_y = target_position || map.entity_or_object_pos(self)
-      (-step..step).each do |x_off|
-        (-step..step).each do |y_off|
-          next if x_off.zero? && y_off.zero?
+      if adjacent_only
+        cur_x, cur_y = target_position || map.entity_or_object_pos(self)
+        entity_squares = map.entity_squares_at_pos(self, cur_x, cur_y, squeeze)
+        entity_squares.each do |sq|
+          (-1..1).each do |x_off|
+            (-1..1).each do |y_off|
+              next if x_off.zero? && y_off.zero?
 
-          # adjust melee position based on token size
-          adjusted_x_off = x_off
-          adjusted_y_off = y_off
+              # adjust melee position based on token size
+              adjusted_x_off = x_off
+              adjusted_y_off = y_off
 
-          adjusted_x_off -= token_size - 1 if x_off.negative?
-          adjusted_y_off -= token_size - 1 if y_off.negative?
+              position = [sq[0] + adjusted_x_off, sq[1] + adjusted_y_off]
 
-          position = [cur_x + adjusted_x_off, cur_y + adjusted_y_off]
+              if entity_squares.include?(position) || result.include?(position) || position[0].negative? || position[0] >= map.size[0] || position[1].negative? || position[1] >= map.size[1]
+                next
+              end
 
-          if position[0].negative? || position[0] >= map.size[0] || position[1].negative? || position[1] >= map.size[1]
-            next
+              result << position
+            end
           end
+        end
+      else
+        step = melee_distance / map.feet_per_grid
+        cur_x, cur_y = target_position || map.entity_or_object_pos(self)
+        (-step..step).each do |x_off|
+          (-step..step).each do |y_off|
+            next if x_off.zero? && y_off.zero?
 
-          result << position
+            # adjust melee position based on token size
+            adjusted_x_off = x_off
+            adjusted_y_off = y_off
+
+            adjusted_x_off -= token_size - 1 if x_off.negative?
+            adjusted_y_off -= token_size - 1 if y_off.negative?
+
+            position = [cur_x + adjusted_x_off, cur_y + adjusted_y_off]
+
+            if position[0].negative? || position[0] >= map.size[0] || position[1].negative? || position[1] >= map.size[1]
+              next
+            end
+
+            result << position
+          end
         end
       end
       result

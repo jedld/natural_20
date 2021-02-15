@@ -2,6 +2,7 @@
 name: Crysania
 race: elf
 subrace: high_elf
+pronoun: she/her/hers
 classes:
   wizard: 1
 description: A high elf mage with a mysterious noble background

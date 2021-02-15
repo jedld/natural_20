@@ -62,6 +62,7 @@ en:
     description: Enter a description for your character
     dex: Select Dexterity ability score
     enter_name: Enter name for your character
+    enter_name_pronoun: Enter pronouns to be used for your character
     fighter:
       archery: Archery - You gain a +2 bonus to attack rolls you make with ranged weapons.
       defense: Defence - While you are wearing armor, you gain a +1 bonus to AC.
@@ -73,6 +74,11 @@ en:
       select_starting_weapon: Select starting weapon set
       two_weapon_fighting: Two-Weapon Fighting - When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.
     int: Select Intelligence ability score
+    pronoun:
+      he: he/him/his
+      she: she/her/hers
+      they: they/them/their
+      ze: ze/hir/hirs
     races:
       dark_elf: Dark Elf
       high_elf: High Elf
@@ -218,6 +224,7 @@ en:
     grapple_failure: '%{source} failed to grapple %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success_no_roll: '%{source} successfully grappled %{target}'
+    hide: '%{name} attempts to hide. Stealth roll = %{roll} = %{roll_value}'
     great_weapon_fighting_roll: 'Great Weapon Fighting (reroll): %{prev_roll} -> %{roll}'
     hit_die: '%{source} rolls hit die %{roll} = %{value}'
     knock_prone_failure: '%{source_roll} < %{target_roll}. %{source} tried but failed to knock %{target} prone'
@@ -327,6 +334,14 @@ en:
     terrain_and_surroundings: Terrain and Surroundings
     using_darkvision: 'Using darkvision:'
   prompt_dice_roller: Dice Roll (ex. d20, d8+1) (a) >
+  pronoun:
+    he: he
+    hers: hers
+    him: him
+    his: his
+    she: she
+    them: them
+    they: they
   save_already_present: A save game is already present. This will overwrite your game. Are you sure?
   select_npcs: Select NPCs
   select_party_member: Select Party Member %{index}
@@ -337,9 +352,9 @@ en:
     mage_armor: Mage Armor
     magic_missile: Magic Missile
     ray_of_frost: Ray Of Frost
-    true_strike: True Strike
     shield: Shield
     shocking_grasp: Shocking Grasp
+    true_strike: True Strike
   spell_level: Recover Spell Level %{level}
   spell_level_slots: 'level %{level}: %{slots}'
   spell_slots: Spell Slots

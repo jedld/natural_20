@@ -34,6 +34,13 @@ module Natural20
           q.modify :capitalize
         end
 
+        @values[:pronoun] = prompt.select(t('builder.enter_name_pronoun')) do |q|
+          q.choice t(:"builder.pronoun.he"), 'he/him/his'
+          q.choice t(:"builder.pronoun.she"), 'she/her/hers'
+          q.choice t(:"builder.pronoun.they"), 'they/them/their'
+          q.choice t(:"builder.pronoun.ze"), 'ze/hir/hirs'
+        end
+
         @values[:token] = [prompt.ask(t('builder.token'), default: @values[:name][0])]
         @values[:color] = prompt.select(t('builder.token_color')) do |q|
           %i[

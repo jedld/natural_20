@@ -129,6 +129,7 @@ module AiController
 
       if enemy_positions.empty? && investigate_location.empty? && LookAction.can?(entity, battle)
         action = LookAction.new(battle.session, entity, :look)
+        puts "#{entity.name}: Where are you?"
         return action
       end
 
@@ -147,6 +148,7 @@ module AiController
 
       # movement planner if no more attack options and enemies are in sight
       if valid_actions.empty? && !enemy_positions.empty?
+
         valid_actions += generate_moves_for_positions(battle, entity, enemy_positions)
       end
 
