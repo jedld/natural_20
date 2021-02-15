@@ -168,10 +168,10 @@ en:
     special_weapon_damage: Roll for special weapon additional damage
     spells:
       chilltouch: Roll for Chill Touch spell damage
-      firebolt: Roll for Firebot spell damage
+      firebolt: Roll for Firebolt spell damage
       generic_damage: Roll for %{spell} spell damage
       ray_of_frost: Roll for Ray Of Frost damage
-      shocking_grasp: Roll for Shocking Grap spell damage
+      shocking_grasp: Roll for Shocking Grasp spell damage
     stealth: Rolling for stealth check
     strength_check: Roll for strength (skill check)
     thieves_tools: Roll for thieves tools (skill check)

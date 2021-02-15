@@ -15,13 +15,16 @@ ability:
   int: 18
   wis: 12
   cha: 8
-spellbook:
-  - firebolt
-  - mage_armor
-  - magic_missile
-prepared_spells:
-  - firebolt
-  - mage_armor
-  - magic_missile
+:prepared_spells:
+- chill_touch
+- firebolt
+- ray_of_frost
+- mage_armor
+- magic_missile
+- shield
+:spellbook:
+- mage_armor
+- magic_missile
+- shield
 equipped:
 - dagger
