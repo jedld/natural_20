@@ -20,7 +20,6 @@ module Natural20::ActionDamage
                                              advantage_mod: item[:advantage_mod],
                                              as_reaction: item[:as_reaction],
                                              damage_roll: item[:damage],
-                                             total_damage: total_damage,
                                              sneak_attack: item[:sneak_attack],
                                              adv_info: item[:adv_info],
                                              resistant: target.resistant_to?(item[:damage_type]),

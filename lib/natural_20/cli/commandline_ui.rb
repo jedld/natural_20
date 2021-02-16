@@ -233,8 +233,10 @@ class CommandlineUI < Natural20::Controller
         puts "movement #{movement_cost}"
       end
       describe_map(battle.map, line_of_sight: entity)
+      puts Benchmark.measure {
       puts @renderer.render(entity: entity, line_of_sight: entity, path: path, update_on_drop: true,
                             acrobatics_checks: movement.acrobatics_check_locations, athletics_checks: movement.athletics_check_locations)
+      }
       prompt.say('(warning) token cannot end its movement in this square') unless @map.placeable?(entity, *path.last,
                                                                                                   battle)
       prompt.say('(warning) need to perform a jump over this terrain') if @map.jump_required?(entity, *path.last)
@@ -377,6 +379,8 @@ class CommandlineUI < Natural20::Controller
     loop do
       describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(line_of_sight: entity)
+
+
       puts t(:character_status_line, ac: entity.armor_class, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
                                      available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(','))
       entity.active_effects.each do |effect|

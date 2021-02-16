@@ -132,26 +132,26 @@ module Natural20
 
     def load_spell(spell)
       @spells[spell.to_sym] ||= begin
-        spells = YAML.load_file(File.join(@root_path, 'items', "spells.yml")).deep_symbolize_keys!
+        spells = load_yaml_file('items', 'spells')
         spells[spell.to_sym]&.merge(id: spell)
       end
     end
 
     def load_class(klass)
       @char_classes[klass.to_sym] ||= begin
-        YAML.load_file(File.join(@root_path, 'char_classes', "#{klass}.yml")).deep_symbolize_keys!
+        load_yaml_file('char_classes', klass)
       end
     end
 
     def load_weapon(weapon)
       @weapons[weapon.to_sym] ||= begin
-        weapons = YAML.load_file(File.join(@root_path, 'items', 'weapons.yml')).deep_symbolize_keys!
+        weapons = load_yaml_file('items', 'weapons')
         weapons[weapon.to_sym]
       end
     end
 
     def load_weapons
-      YAML.load_file(File.join(@root_path, 'items', 'weapons.yml')).deep_symbolize_keys!
+      load_yaml_file('items', 'weapons')
     end
 
     def load_thing(item)
@@ -162,20 +162,29 @@ module Natural20
 
     def load_equipment(item)
       @equipment[item.to_sym] ||= begin
-        equipment = YAML.load_file(File.join(@root_path, 'items', 'equipment.yml')).deep_symbolize_keys!
+        equipment = load_yaml_file('items', 'equipment')
         equipment[item.to_sym]
       end
     end
 
     def load_object(object_name)
       @objects[object_name.to_sym] ||= begin
-        objects = YAML.load_file(File.join(@root_path, 'items', 'objects.yml')).deep_symbolize_keys!
+        objects = load_yaml_file('items', 'objects')
         objects[object_name.to_sym]
       end
     end
 
     def t(token, options = {})
       I18n.t(token, **options)
+    end
+
+    protected
+
+    # @param category [String]
+    # @param resource [String]
+    # @return [Hash]
+    def load_yaml_file(category, resource)
+      YAML.load_file(File.join(@root_path, category, "#{resource}.yml")).deep_symbolize_keys!
     end
   end
 end

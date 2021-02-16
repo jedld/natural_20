@@ -13,7 +13,7 @@ module Natural20::Cover
 
     source_squares.map do |source_pos|
       target_squares.map do |target_pos|
-        cover_characteristics = map.line_of_sight?(*source_pos, *target_pos, nil, true, naturally_stealthy)
+        cover_characteristics = map.line_of_sight?(*source_pos, *target_pos, inclusive: true, entity: naturally_stealthy)
         next 0 unless cover_characteristics
 
         max_ac = 0

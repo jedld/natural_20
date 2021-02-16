@@ -132,10 +132,10 @@ module Natural20
     end
 
     def location_is_visible?(update_on_drop, pos_x, pos_y, path)
-      return @map.line_of_sight?(path.last[0], path.last[1], col_index, row_index, nil, false) unless update_on_drop
+      return @map.line_of_sight?(path.last[0], path.last[1], col_index, row_index, inclusive: false) unless update_on_drop
 
       @map.line_of_sight?(path.last[0], path.last[1], pos_x, pos_y,
-                          1, false) || @map.line_of_sight?(path.first[0], path.first[1], pos_x, pos_y, nil, false)
+                          distance: 1, inclusive: false) || @map.line_of_sight?(path.first[0], path.first[1], pos_x, pos_y, inclusive: false)
     end
 
     def any_line_of_sight?(line_of_sight, entity)

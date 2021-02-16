@@ -37,9 +37,13 @@ module Natural20
             bright_light = light.fetch(:bright, 10) / @map.feet_per_grid
             dim_light = light.fetch(:dim, 5) / @map.feet_per_grid
 
-            intensity + if @map.line_of_sight?(x, y, light_pos_x, light_pos_y, bright_light, false)
+            in_bright, in_dim = @map.light_in_sight?(x, y, light_pos_x, light_pos_y, min_distance: bright_light,
+                                                                                     distance: bright_light + dim_light,
+                                                                                     inclusive: false)
+
+            intensity + if in_bright
                           1.0
-                        elsif @map.line_of_sight?(x, y, light_pos_x, light_pos_y, bright_light + dim_light, false)
+                        elsif in_dim
                           0.5
                         else
                           0.0
@@ -66,9 +70,12 @@ module Natural20
 
         light_pos_x, light_pos_y = @map.entity_or_object_pos(entity)
 
-        intensity + if @map.line_of_sight?(pos_x, pos_y, light_pos_x, light_pos_y, bright_light, false)
+        in_bright, in_dim = @map.light_in_sight?(pos_x, pos_y, light_pos_x, light_pos_y, min_distance: bright_light,
+                                                                                         distance: bright_light + dim_light,
+                                                                                         inclusive: false)
+        intensity + if in_bright
                       1.0
-                    elsif @map.line_of_sight?(pos_x, pos_y, light_pos_x, light_pos_y, bright_light + dim_light, false)
+                    elsif in_dim
                       0.5
                     else
                       0.0

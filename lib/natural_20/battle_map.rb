@@ -349,7 +349,7 @@ module Natural20
       raise 'cannot find entity' if @entities[entity].nil?
 
       pos1_x, pos1_y = @entities[entity]
-      line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
+      line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance: distance)
     end
 
     # Test to see if an entity can see a square
@@ -367,7 +367,7 @@ module Natural20
       entity_1_squares.each do |pos1|
         pos1_x, pos1_y = pos1
         return true if [pos1_x, pos1_y] == [pos2_x, pos2_y]
-        next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, nil, false)
+        next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, inclusive: false)
 
         location_illumnination = light_at(pos2_x, pos2_y)
         max_illumniation = [location_illumnination, max_illumniation].max
@@ -405,7 +405,7 @@ module Natural20
           pos2_x, pos2_y = pos2
           next if pos1_x >= size[0] || pos1_x.negative? || pos1_y >= size[1] || pos1_y.negative?
           next if pos2_x >= size[0] || pos2_x.negative? || pos2_y >= size[1] || pos2_y.negative?
-          next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance)
+          next unless line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance: distance)
 
           location_illumnination = light_at(pos2_x, pos2_y)
           max_illumniation = [location_illumnination, max_illumniation].max
@@ -423,6 +423,8 @@ module Natural20
 
     def light_at(pos_x, pos_y)
       if @light_map
+        return @light_map[pos_x][pos_y] if @light_map[pos_x][pos_y] >= 1.0
+
         @light_map[pos_x][pos_y] + @light_builder.light_at(pos_x, pos_y)
       else
         @light_builder.light_at(pos_x, pos_y)
@@ -671,8 +673,9 @@ module Natural20
     # @param pos2_y [Integer]
     # @param distance [Integer]
     # @return [Array<Array<Integer,Integer>>] Cover characteristics if there is LOS
-    def line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance = nil, inclusive = false, entity = false)
+    def line_of_sight?(pos1_x, pos1_y, pos2_x, pos2_y, distance: nil, inclusive: false, entity: false)
       squares = squares_in_path(pos1_x, pos1_y, pos2_x, pos2_y, inclusive: inclusive)
+
       squares.each_with_index.map do |s, index|
         return nil if distance && index == (distance - 1)
         return nil if opaque?(*s)
@@ -680,6 +683,27 @@ module Natural20
 
         [cover_at(*s, entity), s]
       end
+    end
+
+    # Computes one of sight between two points
+    # @param pos1_x [Integer]
+    # @param pos1_y [Integer]
+    # @param pos2_x [Integer]
+    # @param pos2_y [Integer]
+    # @param distance [Integer]
+    # @return [Array<Array<Integer,Integer>>] Cover characteristics if there is LOS
+    def light_in_sight?(pos1_x, pos1_y, pos2_x, pos2_y, min_distance: nil, distance: nil, inclusive: false, entity: false)
+      squares = squares_in_path(pos1_x, pos1_y, pos2_x, pos2_y, inclusive: inclusive)
+      min_distance_reached = true
+
+      squares.each_with_index.each do |s, index|
+        min_distance_reached = false if min_distance && index >= (min_distance - 1)
+        return [false, false] if distance && index >= (distance - 1)
+        return [false, false] if opaque?(*s)
+        return [false, false] if cover_at(*s) == :total
+      end
+
+      [min_distance_reached, true]
     end
 
     # @param pos_x [Integer]
