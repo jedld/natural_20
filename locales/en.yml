@@ -95,6 +95,7 @@ en:
       select_starting_weapon_2: Select second weapon set
     select_languages: Select languages
     select_race: Please select a racetargets.first -race
+    select_subrace: Select a subrace
     skill:
       acrobatics: Acrobatics
       animal_handling: Animal Handling
@@ -224,8 +225,8 @@ en:
     grapple_failure: '%{source} failed to grapple %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success: '%{source} successfully grappled %{target}. %{source_roll} = %{source_roll_value} vs %{target_roll} = %{target_roll_value}'
     grapple_success_no_roll: '%{source} successfully grappled %{target}'
-    hide: '%{name} attempts to hide. Stealth roll = %{roll} = %{roll_value}'
     great_weapon_fighting_roll: 'Great Weapon Fighting (reroll): %{prev_roll} -> %{roll}'
+    hide: '%{name} attempts to hide. Stealth roll = %{roll} = %{roll_value}'
     hit_die: '%{source} rolls hit die %{roll} = %{value}'
     knock_prone_failure: '%{source_roll} < %{target_roll}. %{source} tried but failed to knock %{target} prone'
     knock_prone_success: '%{source_roll} >= %{target_roll}. %{source} knocks %{target} prone'
@@ -349,6 +350,7 @@ en:
   skip_hit_die: Skip Hit Die
   spell:
     chill_touch: Chill Touch
+    expeditious_retreat: Expeditious Retreat
     firebolt: Firebolt
     mage_armor: Mage Armor
     magic_missile: Magic Missile
