@@ -37,7 +37,13 @@ class DashAction < Natural20::Action
 end
 
 class DashBonusAction < DashAction
+  # @param entity [Natural20::Entity]
+  # @param battle [Natural20::Battle]
   def self.can?(entity, battle, options = {})
-    battle && entity.class_feature?('cunning_action') && entity.total_bonus_actions(battle) > 0
+    battle && (entity.class_feature?('cunning_action') || entity.send(:eval_effect, :dash_override)) && entity.total_bonus_actions(battle) > 0
+  end
+
+
+  def self.apply!(battle, item)
   end
 end

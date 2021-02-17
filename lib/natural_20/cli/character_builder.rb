@@ -117,7 +117,8 @@ module Natural20
         ability_scores = if ability_method == :random
                            6.times.map do |index|
                              r = 4.times.map do |_x|
-                               die_roll = Natural20::DieRoll.roll('1d6', battle: battle,
+                               die_roll = Natural20::DieRoll.roll('1d6', controller: self,
+                                                                         battle: @battle,
                                                                          description: t('dice_roll.ability_score', roll_num: index + 1))
                                die_roll.result
                              end.sort.reverse

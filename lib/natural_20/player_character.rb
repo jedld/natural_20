@@ -212,6 +212,8 @@ module Natural20
     end
 
     def melee_distance
+      return 5 unless @properties[:equipped]
+
       (@properties[:equipped].map do |item|
         weapon_detail = session.load_weapon(item)
         next if weapon_detail.nil?

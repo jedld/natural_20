@@ -12,6 +12,17 @@ chill_touch:
   name: Chill Touch
   damage_type: necrotic
   type: ranged_attack
+expeditious_retreat:
+  casting_time: 1:bonus_action
+  level: 1
+  name: Expeditious Retreat
+  range: 0
+  duration: 10m
+  school: transmutation
+  components:
+    - verbal
+    - somatic
+  type: movement
 firebolt:
   base_damage: 1d10
   casting_time: 1:action

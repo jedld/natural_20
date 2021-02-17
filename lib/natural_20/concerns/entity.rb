@@ -1346,6 +1346,8 @@ module Natural20
     end
 
     def eval_effect(effect_type, opts = {})
+      return unless has_effect?(effect_type)
+
       active_effects = @effects[effect_type.to_sym].reject do |effect|
         effect[:expiration] && effect[:expiration] <= @session.game_time
       end

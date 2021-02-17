@@ -49,6 +49,7 @@ require 'natural_20/spell_library/chill_touch_spell'
 require 'natural_20/spell_library/shocking_grasp_spell'
 require 'natural_20/spell_library/ray_of_frost_spell'
 require 'natural_20/spell_library/true_strike_spell'
+require 'natural_20/spell_library/expeditious_retreat_spell'
 require 'natural_20/actions/spell_action'
 require 'natural_20/battle'
 require 'natural_20/utils/ray_tracer'
@@ -78,5 +79,4 @@ require 'yaml'
 module Natural20
   class Error < StandardError; end
 
-  # Your code goes here...
 end

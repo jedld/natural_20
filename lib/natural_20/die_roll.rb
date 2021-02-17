@@ -17,7 +17,8 @@ module Natural20
   class Roller
     attr_reader :roll_str, :crit, :advantage, :disadvantage, :description, :entity, :battle
 
-    def initialize(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
+    # @param battle [Natural20::Battle]
+    def initialize(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil, controller: nil)
       @roll_str = roll_str
       @crit = crit
       @advantage = advantage
@@ -25,6 +26,7 @@ module Natural20
       @description = description
       @entity = entity
       @battle = battle
+      @controller = controller
     end
 
     # @param lucky [Boolean] This is a lucky feat reroll
@@ -55,12 +57,12 @@ module Natural20
       rolls = if advantage || disadvantage
                 if battle
                   battle.roll_for(entity, die_sides, number_of_die, description, advantage: advantage,
-                                                                                 disadvantage: disadvantage)
+                                                                                 disadvantage: disadvantage, controller: @controller)
                 else
                   number_of_die.times.map { [(1..die_sides).to_a.sample, (1..die_sides).to_a.sample] }
                 end
               elsif battle
-                battle.roll_for(entity, die_sides, number_of_die, description)
+                battle.roll_for(entity, die_sides, number_of_die, description, controller: @controller)
               else
                 number_of_die.times.map { (1..die_sides).to_a.sample }
               end
@@ -298,9 +300,9 @@ module Natural20
     # @param disadvantage [Boolean] Roll with disadvantage, roll twice and select the lowest
     # @param battle [Natural20::Battle]
     # @return [Natural20::DieRoll]
-    def self.roll(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil)
+    def self.roll(roll_str, crit: false, disadvantage: false, advantage: false, description: nil, entity: nil, battle: nil, controller: nil)
       roller = Roller.new(roll_str, crit: crit, disadvantage: disadvantage, advantage: advantage,
-                                    description: description, entity: entity, battle: battle)
+                                    description: description, entity: entity, battle: battle, controller: controller)
       roller.roll
     end
 

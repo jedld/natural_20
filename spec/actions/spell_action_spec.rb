@@ -103,6 +103,17 @@ RSpec.describe SpellAction do
     end
   end
 
+  context "expeditious_retreat" do
+    specify do
+
+      @action = SpellAction.build(session, entity).next.call('expeditious_retreat').next.call
+      @action.resolve(session, @battle_map, battle: @battle)
+      expect(@action.result.map { |s| s[:type] }).to eq([:expeditious_retreat])
+      @battle.commit(@action)
+      expect(entity.available_actions(session, @battle).map(&:action_type)).to include :dash_bonus
+    end
+  end
+
   context 'mage armor' do
     before do
       expect(entity.armor_class).to eq(12)
