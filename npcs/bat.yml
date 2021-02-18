@@ -1,0 +1,39 @@
+---
+kind: Bat
+description: It's a bat
+size: tiny
+race:
+- beast
+alignment: unaligned
+default_ac: 12
+max_hp: 1
+hp_die: 1d4-1
+speed: 5
+speed_fly: 30
+passive_perception: 11
+blindsight: 60
+token:
+ - v
+color: green
+ability:
+  str: 2
+  dex: 15
+  con: 8
+  int: 2
+  wis: 12
+  cha: 4
+cr: 0
+xp: 10
+proficiency_bonus: 2
+attributes:
+- echolocation
+- keen_hearing
+actions:
+- name: Bite
+  type: melee_attack
+  range: 5
+  targets: 1
+  attack: 0
+  damage: 1
+  damage_die: 1
+  damage_type: piercing
