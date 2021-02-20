@@ -1,28 +1,46 @@
 ---
 chill_touch:
   casting_time: 1:action
-  school: necromancy
+  damage_type: necrotic
   description: |
     You create a ghostly, skeletal hand in the space of a creature within range. Make a ranged spell attack against the creature to assail it with the chill of the grave. On a hit, the target takes 1d8 necrotic damage, and it can't regain hit points until the start of your next turn. Until then, the hand clings to the target.
     If you hit an undead target, it also has disadvantage on attack rolls against you until the end of your next turn.
     This spell's damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8).
-  range: 120
   duration: 1R
   level: 0
   name: Chill Touch
-  damage_type: necrotic
+  range: 120
+  school: necromancy
   type: ranged_attack
 expeditious_retreat:
   casting_time: 1:bonus_action
-  level: 1
-  name: Expeditious Retreat
-  range: 0
-  duration: 10m
-  school: transmutation
   components:
     - verbal
     - somatic
+  duration: 10m
+  level: 1
+  name: Expeditious Retreat
+  range: 0
+  school: transmutation
   type: movement
+find_familiar:
+  casting_time: 1:hour
+  components:
+    - verbal
+    - somatic
+    - material
+  description: |
+    You gain the service of a familiar, a spirit that takes an animal form you choose: bat, cat, crab, frog (toad), hawk, lizard, octopus, owl, poisonous snake, fish (quipper), rat, raven, sea horse, spider, or weasel.
+    Appearing in an unoccupied space within range, the familiar has the statistics of the chosen form, though it is a celestial, fey, or fiend (your choice) instead of a beast.
+  level: 1
+  materials:
+    - charcoal
+    - incense
+    - herbs
+  name: Find Familiar
+  range: 10
+  school: conjuration
+  type: summoning
 firebolt:
   base_damage: 1d10
   casting_time: 1:action
@@ -42,6 +60,32 @@ firebolt:
   school: evocation
   spell_class: Natural20::Firebolt
   type: ranged_attack
+mage_armor:
+  casting_time: 1:action
+  components:
+    - verbal
+    - somatic
+    - material
+  description: You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier. The spell ends if the target dons armor or if you dismiss the spell as an action.
+  duration: 8h
+  level: 1
+  materials:
+    - cured_leather
+  name: Mage Armor
+  school: abjuration
+  spell_class: Natural20::MageArmor
+  type: buff
+magic_missile:
+  casting_time: 1:action
+  damage_type: force
+  description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range.
+  higher_level: true
+  level: 1
+  name: Magic Missile
+  range: 120
+  school: evocation
+  spell_class: Natural20::MagicMissile
+  type: force
 ray_of_frost:
   base_damage: 1d8
   casting_time: 1:action
@@ -63,6 +107,18 @@ ray_of_frost:
   range: 60
   school: evocation
   type: ranged_attack
+shield:
+  casting_time: 1:reaction
+  components:
+    - verbal
+    - somatic
+  duration: 1R
+  level: 1
+  name: Shield
+  range: 0
+  school: abjuration
+  spell_class: Natural20::Shield
+  type: warding
 shocking_grasp:
   base_damage: 1d8
   casting_time: 1:action
@@ -89,52 +145,14 @@ shocking_grasp:
   type: melee_attack
 true_strike:
   casting_time: 1:action
-  concentration: true
-  range: 30
   components:
     - somatic
+  concentration: true
   description: |
     You point a finger at a target in range. Your magic grants you a brief insight into the target's defenses. On your next turn, you gain advantage on your first attack roll against the target, provided that this spell hasn't ended.
   duration: 1R
   level: 0
   name: True Strike
+  range: 30
   school: divination
   type: foreknowledge
-mage_armor:
-  casting_time: 1:action
-  components:
-    - verbal
-    - somatic
-    - material
-  description: You touch a willing creature who isn't wearing armor, and a protective magical force surrounds it until the spell ends. The target's base AC becomes 13 + its Dexterity modifier. The spell ends if the target dons armor or if you dismiss the spell as an action.
-  duration: 8h
-  level: 1
-  materials:
-    - cured_leather
-  name: Mage Armor
-  school: abjuration
-  spell_class: Natural20::MageArmor
-  type: buff
-magic_missile:
-  casting_time: 1:action
-  damage_type: force
-  level: 1
-  name: Magic Missile
-  range: 120
-  school: evocation
-  description: You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range.
-  spell_class: Natural20::MagicMissile
-  type: force
-  higher_level: true
-shield:
-  casting_time: 1:reaction
-  level: 1
-  name: Shield
-  range: 0
-  duration: 1R
-  school: abjuration
-  spell_class: Natural20::Shield
-  components:
-    - verbal
-    - somatic
-  type: warding

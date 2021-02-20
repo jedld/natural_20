@@ -114,6 +114,15 @@ module Natural20
       end
     end
 
+    def npc_info
+      files = Dir[File.join(@root_path, 'npcs', '*.yml')]
+      files.map do |fname|
+        npc_name = File.basename(fname, '.yml')
+        npc_details = YAML.load_file(File.join('npcs', "#{npc_name}.yml")).deep_symbolize_keys!
+        [npc_name, npc_details.merge(id: npc_name)]
+      end.to_h
+    end
+
     def load_races
       files = Dir[File.join(@root_path, 'races', '*.yml')]
       files.map do |fname|

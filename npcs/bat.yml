@@ -12,6 +12,7 @@ speed: 5
 speed_fly: 30
 passive_perception: 11
 blindsight: 60
+familiar: true
 token:
  - v
 color: green

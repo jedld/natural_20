@@ -42,7 +42,7 @@ class Natural20::Shield < Natural20::Spell
   def self.after_attack_roll(battle, entity, _attacker, attack_roll, effective_ac, _opts = {})
     spell = battle.session.load_spell('shield')
     if attack_roll.nil? || attack_roll.result.between?(effective_ac, effective_ac + 4)
-      shield_spell = Natural20::Shield.new(entity, 'shield', spell)
+      shield_spell = Natural20::Shield.new(battle.session, entity, 'shield', spell)
       action = SpellAction.new(battle.session, entity, :spell)
       action.target = entity
       shield_spell.action = action

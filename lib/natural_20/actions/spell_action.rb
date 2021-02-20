@@ -42,7 +42,7 @@ class SpellAction < Natural20::Action
                              self.spell = @spell
                              self.at_level = at_level
                              spell_class = @spell[:spell_class].blank? ? "Natural20::#{spell.to_s.classify}Spell" : @spell[:spell_class]
-                             @spell_action = spell_class.constantize.new(@source, spell, @spell)
+                             @spell_action = spell_class.constantize.new(session, @source, spell, @spell)
                              @spell_action.action = self
                              @spell_action.build_map(self)
                            }

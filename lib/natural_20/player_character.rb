@@ -445,6 +445,8 @@ module Natural20
 
         if resource == 'bonus_action' && battle.ongoing? && total_bonus_actions(battle).zero?
           disable_reason << :no_bonus_action
+        elsif resource == 'hour' && battle.ongoing?
+          disable_reason << :in_battle
         end
         disable_reason << :no_spell_slot if details[:level].positive? && spell_slots(details[:level]).zero?
 

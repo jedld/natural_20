@@ -1,11 +1,39 @@
 class Natural20::FindFamiliarSpell < Natural20::Spell
   def build_map(action)
     OpenStruct.new({
-                     param: nil,
-                     next: lambda {
-                             action
+                     param: [
+                       {
+                         type: :select_target,
+                         num: 1,
+                         range: @properties[:range],
+                         target_types: %i[square]
+                       },
+                       {
+                         type: :select,
+                         num: 1,
+                         choices: familiars
+                       }
+                     ],
+                     next: lambda { |target, familiar|
+                             action.target = target
+                             action.other_params = familiar
+                             OpenStruct.new({
+                                              param: nil,
+                                              next: lambda {
+                                                      action
+                                                    }
+                                            })
                            }
                    })
+  end
+
+  def familiars
+    @familiars ||= begin
+      session.npc_info.select do |_name, details|
+        details[:familiar]
+      end.map { |f, details|
+        [f, details[:kind]] }
+    end
   end
 
   def self.apply!(battle, item)
@@ -20,11 +48,11 @@ class Natural20::FindFamiliarSpell < Natural20::Spell
   # @param entity [Natural20::Entity]
   # @param battle [Natrual20::Battle]
   # @param spell_action [Natural20::SpellAction]
-  def resolve(entity, _battle, _spell_action)
+  def resolve(entity, _battle, spell_action)
     [{
       type: :find_familiar,
-      familiar: familiar,
-      target: entity,
+      familiar: spell_action.other_params,
+      position: target,
       source: entity,
       effect: self,
       spell: @properties
