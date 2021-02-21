@@ -602,6 +602,8 @@ module Natural20
     def token_size
       square_size = size.to_sym
       case square_size
+      when :tiny
+        1
       when :small
         1
       when :medium
@@ -618,6 +620,8 @@ module Natural20
     def size_identifier
       square_size = size.to_sym
       case square_size
+      when :tiny
+        0
       when :small
         1
       when :medium
