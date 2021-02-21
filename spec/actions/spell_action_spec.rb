@@ -190,7 +190,7 @@ RSpec.describe SpellAction do
   context 'find familiar' do
     specify do
       puts Natural20::MapRenderer.new(@battle_map).render
-      @action = SpellAction.build(session, entity).next.call('find_familiar').next.call([0, 1], 'bat').next.call
+      @action = SpellAction.build(session, entity).next.call('find_familiar').next.call([[0, 1]], 'bat').next.call
       expect(@action.spell_action.familiars).to eq([["bat", "Bat"]])
       @action.resolve(session, @battle_map, battle: @battle)
       expect(@action.result.map { |s| s[:type] }).to eq([:find_familiar])

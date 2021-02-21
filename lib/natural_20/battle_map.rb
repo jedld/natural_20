@@ -275,7 +275,7 @@ module Natural20
 
       entity_1_sq.map do |ent1_pos|
         pos1_x, pos1_y = ent1_pos
-        Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2).floor
+        Math.sqrt((pos1_x - pos2_x)**2 + (pos1_y - pos2_y)**2)
       end.flatten.min
     end
 

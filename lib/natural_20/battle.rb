@@ -68,7 +68,7 @@ module Natural20
     # @param controller [AiController::Standard] Ai controller to use
     # @param position [Array, Symbol] Starting location in the map can be a position or a spawn point
     # @param token [String, Symbol] The token to use
-    def add(entity, group, controller: nil, position: nil, token: nil)
+    def add(entity, group, controller: nil, position: nil, token: nil, add_to_initiative: false)
       return if @entities[entity]
 
       raise 'entity cannot be nil' if entity.nil?
@@ -105,7 +105,9 @@ module Natural20
       @groups[group].add(entity)
 
       # battle already ongoing...
-      if started
+      if add_to_initiative
+        @combat_order << entity
+      elsif started
         @late_comers << entity
         @entities[entity][:initiative] = entity.initiative!(self)
       end

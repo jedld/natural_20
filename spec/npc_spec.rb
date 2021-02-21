@@ -92,7 +92,7 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#apply_effect' do
-      expect(@npc.apply_effect('status:prone')).to eq({ battle: nil, source: @npc, type: :prone })
+      expect(@npc.apply_effect('status:prone')).to eq({ battle: nil, source: @npc, type: :prone, flavor: nil })
     end
   end
 

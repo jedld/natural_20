@@ -8,16 +8,17 @@ class Natural20::FindFamiliarSpell < Natural20::Spell
                          type: :select_target,
                          num: 1,
                          range: @properties[:range],
-                         target_types: %i[square]
+                         target_types: :square
                        },
                        {
                          type: :select,
                          num: 1,
+                         label: t('spell.find_familiar.famiiar_list'),
                          choices: familiars
                        }
                      ],
                      next: lambda { |target, familiar|
-                             action.target = target
+                             action.target = target.first
                              action.other_params = familiar
                              OpenStruct.new({
                                               param: nil,

@@ -51,7 +51,8 @@ module Natural20
         {
           source: self,
           type: value.to_sym,
-          battle: context[:battle]
+          battle: context[:battle],
+          flavor: context[:flavor]
         }
       end
     end

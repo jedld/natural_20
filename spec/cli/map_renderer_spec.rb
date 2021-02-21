@@ -36,4 +36,26 @@ RSpec.describe Natural20::MapRenderer do
       "······························\n"
     )
   end
+
+  specify 'able to render with range limit' do
+    result = @map_renderer.render(entity: @fighter, range: 3, range_cutoff: true)
+    expect(result).to eq(
+      "····                          \n" +
+      "G···                          \n" +
+      "····                          \n" +
+      "····                          \n" +
+      "---                           \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n" +
+      "                              \n"
+    )
+  end
 end

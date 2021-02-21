@@ -15,9 +15,10 @@ module Natural20
     # @param select_pos [Array] coordinate position to render selection cursor
     # @param update_on_drop [Boolean] If true, only render line of sight if movement has been confirmed
     # @return [String]
-    def render(entity: nil, line_of_sight: nil, path: [], acrobatics_checks: [], athletics_checks: [], select_pos: nil, update_on_drop: true, path_char: nil, highlight: {}, viewport_size: nil, top_position: [
-      0, 0
-    ])
+    def render(entity: nil, line_of_sight: nil, path: [], acrobatics_checks: [], athletics_checks: [], select_pos: nil,
+               update_on_drop: true, range: nil, range_cutoff: false, path_char: nil, highlight: {}, viewport_size: nil, top_position: [
+                 0, 0
+               ])
       highlight_positions = highlight.keys.map { |entity| @map.entity_squares(entity) }.flatten(1)
 
       viewport_size ||= map.size
@@ -38,6 +39,8 @@ module Natural20
 
           if select_pos && select_pos == [col_index, row_index]
             display.colorize(background: :white)
+          elsif range && entity && map.line_distance(entity, col_index, row_index).floor > range
+            range_cutoff ? ' ' : display.colorize(background: :light_red)
           else
             display
           end
@@ -46,6 +49,7 @@ module Natural20
     end
 
     private
+
 
     def render_light(pos_x, pos_y)
       intensity = @map.light_at(pos_x, pos_y)
@@ -132,10 +136,14 @@ module Natural20
     end
 
     def location_is_visible?(update_on_drop, pos_x, pos_y, path)
-      return @map.line_of_sight?(path.last[0], path.last[1], col_index, row_index, inclusive: false) unless update_on_drop
+      unless update_on_drop
+        return @map.line_of_sight?(path.last[0], path.last[1], col_index, row_index,
+                                   inclusive: false)
+      end
 
       @map.line_of_sight?(path.last[0], path.last[1], pos_x, pos_y,
-                          distance: 1, inclusive: false) || @map.line_of_sight?(path.first[0], path.first[1], pos_x, pos_y, inclusive: false)
+                          distance: 1, inclusive: false) || @map.line_of_sight?(path.first[0], path.first[1], pos_x,
+                                                                                pos_y, inclusive: false)
     end
 
     def any_line_of_sight?(line_of_sight, entity)

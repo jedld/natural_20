@@ -351,6 +351,7 @@ en:
   spell:
     chill_touch: Chill Touch
     expeditious_retreat: Expeditious Retreat
+    find_familiar: Find Familiar
     firebolt: Firebolt
     mage_armor: Mage Armor
     magic_missile: Magic Missile
@@ -363,6 +364,7 @@ en:
   spell_slots: Spell Slots
   spells:
     disabled:
+      in_battle: Cannot be used in combat
       no_action: '- No more actions'
       no_bonus_action: '- No more bonus actions'
       no_spell_slot: '- No more spell slots'

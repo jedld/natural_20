@@ -94,7 +94,7 @@ module Natural20::Navigation
         ranged_offence -= 0.5
       end
 
-      mobility -= 0.001 * map.line_distance(entity, *d)
+      mobility -= 0.001 * map.line_distance(entity, *d).floor
       [d, [melee_offence, ranged_offence, defense, mobility, support]]
     end.to_h
   end
