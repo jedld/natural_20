@@ -3,7 +3,7 @@ module Natural20
   module Entity
     include EntityStateEvaluator
 
-    attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :effects,
+    attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :effects, :flying,
                   :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks, :concentration
     attr_reader :casted_effects
 
@@ -22,8 +22,14 @@ module Natural20
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
     end
 
+    def level
+    end
+
     def race
       @properties[:race]
+    end
+
+    def subrace
     end
 
     def all_ability_scores
@@ -124,6 +130,20 @@ module Natural20
     def stand!
       Natural20::EventManager.received_event({ source: self, event: :stand })
       @statuses.delete(:prone)
+    end
+
+    def fly!
+      if @properties[:speed_fly]
+        @flying = true
+      end
+    end
+
+    def can_fly?
+      @properties[:speed_fly].presence
+    end
+
+    def flying?
+      !!@flying
     end
 
     def prone?
@@ -532,9 +552,11 @@ module Natural20
     end
 
     def speed
-      return eval_effect(:speed_override, stacked: true, value: @properties[:speed]) if has_effect?(:speed_override)
+      c_speed =  @flying ? @properties[:speed_fly] : @properties[:speed]
 
-      @properties[:speed]
+      return eval_effect(:speed_override, stacked: true, value: c_speed) if has_effect?(:speed_override)
+
+      c_speed
     end
 
     def has_reaction?(battle)

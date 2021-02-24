@@ -648,7 +648,7 @@ module Natural20
       entity_squares_at_pos(entity, pos_x, pos_y).each do |pos|
         r_x, r_y = pos
         next if @tokens[r_x][r_y] && @tokens[r_x][r_y][:entity] == entity
-        return true if object_at(r_x, r_y) && object_at(r_x, r_y)&.jump_required?
+        return true if object_at(r_x, r_y) && object_at(r_x, r_y)&.jump_required? && !entity.flying?
       end
 
       false

@@ -1,6 +1,6 @@
-require 'natural_20/cli/inventory_ui'
-require 'natural_20/cli/character_builder'
-require 'natural_20/cli/action_ui'
+require "natural_20/cli/inventory_ui"
+require "natural_20/cli/character_builder"
+require "natural_20/cli/action_ui"
 
 class CommandlineUI < Natural20::Controller
   include Natural20::InventoryUI
@@ -41,16 +41,14 @@ class CommandlineUI < Natural20::Controller
         reasons << "-#{t("attack_status.#{d}")}".colorize(:red)
       end
 
-      target_labels << reasons.join(',')
+      target_labels << reasons.join(",")
     end
-    target_labels.join(' ')
+    target_labels.join(" ")
   end
 
   def self.clear_screen
     puts "\e[H\e[2J"
   end
-
-
 
   # @param entity [Natural20::Entity]
   def move_ui(entity, _options = {})
@@ -73,45 +71,45 @@ class CommandlineUI < Natural20::Controller
       end
       describe_map(battle.map, line_of_sight: entity)
       puts Benchmark.measure {
-      puts @renderer.render(entity: entity, line_of_sight: entity, path: path, update_on_drop: true,
-                            acrobatics_checks: movement.acrobatics_check_locations, athletics_checks: movement.athletics_check_locations)
+        puts @renderer.render(entity: entity, line_of_sight: entity, path: path, update_on_drop: true,
+                              acrobatics_checks: movement.acrobatics_check_locations, athletics_checks: movement.athletics_check_locations)
       }
-      prompt.say('(warning) token cannot end its movement in this square') unless @map.placeable?(entity, *path.last,
-                                                                                                  battle)
-      prompt.say('(warning) need to perform a jump over this terrain') if @map.jump_required?(entity, *path.last)
+      prompt.say("(warning) token cannot end its movement in this square") unless @map.placeable?(entity, *path.last,
+      battle)
+      prompt.say("(warning) need to perform a jump over this terrain") if @map.jump_required?(entity, *path.last)
       directions = []
-      directions << '(wsadx) - movement, (qezc) diagonals'
-      directions << 'j - toggle jump' unless entity.prone?
-      directions << 'space/enter - confirm path'
-      directions << 'r - reset'
-      movement = prompt.keypress(directions.join(','))
+      directions << "(wsadx) - movement, (qezc) diagonals"
+      directions << "j - toggle jump" unless entity.prone?
+      directions << "space/enter - confirm path"
+      directions << "r - reset"
+      movement = prompt.keypress(directions.join(","))
 
-      if movement == 'w'
+      if movement == "w"
         new_path = [path.last[0], path.last[1] - 1]
-      elsif movement == 'a'
+      elsif movement == "a"
         new_path = [path.last[0] - 1, path.last[1]]
-      elsif movement == 'd'
+      elsif movement == "d"
         new_path = [path.last[0] + 1, path.last[1]]
       elsif %w[s x].include?(movement)
         new_path = [path.last[0], path.last[1] + 1]
-      elsif [' ', "\r"].include?(movement)
+      elsif [" ", "\r"].include?(movement)
         next unless valid_move_path?(entity, path, battle, @map, manual_jump: jump_index)
 
         return [path, jump_index]
-      elsif movement == 'q'
+      elsif movement == "q"
         new_path = [path.last[0] - 1, path.last[1] - 1]
-      elsif movement == 'e'
+      elsif movement == "e"
         new_path = [path.last[0] + 1, path.last[1] - 1]
-      elsif movement == 'z'
+      elsif movement == "z"
         new_path = [path.last[0] - 1, path.last[1] + 1]
-      elsif movement == 'c'
+      elsif movement == "c"
         new_path = [path.last[0] + 1, path.last[1] + 1]
-      elsif movement == 'r'
+      elsif movement == "r"
         path = [map.position_of(entity)]
         jump_index = []
         toggle_jump = false
         next
-      elsif movement == 'j' && !entity.prone?
+      elsif movement == "j" && !entity.prone?
         toggle_jump = !toggle_jump
         next
       elsif movement == "\e"
@@ -128,10 +126,10 @@ class CommandlineUI < Natural20::Controller
         jump_index.delete(path.size - 1)
         path.pop
         toggle_jump = if jump_index.include?(path.size - 1)
-                        true
-                      else
-                        false
-                      end
+            true
+          else
+            false
+          end
       elsif valid_move_path?(entity, path + [new_path], battle, @map, test_placement: false, manual_jump: test_jump)
         path << new_path
         jump_index = test_jump
@@ -145,17 +143,17 @@ class CommandlineUI < Natural20::Controller
   def roll_for(entity, die_type, number_of_times, description, advantage: false, disadvantage: false)
     return nil unless @session.setting(:manual_dice_roll)
 
-    prompt.say(t('dice_roll.prompt', description: description, name: entity.name.colorize(:green)))
+    prompt.say(t("dice_roll.prompt", description: description, name: entity.name.colorize(:green)))
     number_of_times.times.map do |index|
       if advantage || disadvantage
         2.times.map do |index|
-          prompt.ask(t("dice_roll.roll_attempt_#{advantage ? 'advantage' : 'disadvantage'}", total: number_of_times, die_type: die_type,
+          prompt.ask(t("dice_roll.roll_attempt_#{advantage ? "advantage" : "disadvantage"}", total: number_of_times, die_type: die_type,
                                                                                              number: index + 1)) do |q|
             q.in("1-#{die_type}")
           end
         end.map(&:to_i)
       else
-        prompt.ask(t('dice_roll.roll_attempt', die_type: die_type, number: index + 1, total: number_of_times)) do |q|
+        prompt.ask(t("dice_roll.roll_attempt", die_type: die_type, number: index + 1, total: number_of_times)) do |q|
           q.in("1-#{die_type}")
         end.to_i
       end
@@ -163,20 +161,20 @@ class CommandlineUI < Natural20::Controller
   end
 
   def prompt_hit_die_roll(entity, die_types)
-    prompt.select(t('dice_roll.hit_die_selection', name: entity.name, hp: entity.hp, max_hp: entity.max_hp)) do |menu|
+    prompt.select(t("dice_roll.hit_die_selection", name: entity.name, hp: entity.hp, max_hp: entity.max_hp)) do |menu|
       die_types.each do |t|
         menu.choice "d#{t}", t
       end
-      menu.choice t('skip_hit_die'), :skip
+      menu.choice t("skip_hit_die"), :skip
     end
   end
 
   def arcane_recovery_ui(entity, spell_levels)
-    choice = prompt.select(t('action.arcane_recovery', name: entity.name)) do |q|
+    choice = prompt.select(t("action.arcane_recovery", name: entity.name)) do |q|
       spell_levels.sort.each do |level|
         q.choice t(:spell_level, level: level), level
       end
-      q.choice t('action.waive_arcane_recovery'), :waive
+      q.choice t("action.waive_arcane_recovery"), :waive
     end
     return nil if choice == :waive
 
@@ -190,21 +188,21 @@ class CommandlineUI < Natural20::Controller
 
       used_slots = entity.max_spell_slots(level) - entity.spell_slots(level)
       used = used_slots.times.map do
-        '■'
+        "■"
       end
 
       avail = entity.spell_slots(level).times.map do
-        '°'
+        "°"
       end
 
-      puts t(:spell_level_slots, level: level, slots: (used + avail).join(' '))
+      puts t(:spell_level_slots, level: level, slots: (used + avail).join(" "))
     end
   end
 
   def describe_map(map, line_of_sight: [])
     line_of_sight = [line_of_sight] unless line_of_sight.is_a?(Array)
-    pov = line_of_sight.map(&:name).join(',')
-    puts t('map_description', width: map.size[0], length: map.size[1], feet_per_grid: map.feet_per_grid, pov: pov)
+    pov = line_of_sight.map(&:name).join(",")
+    puts t("map_description", width: map.size[0], length: map.size[1], feet_per_grid: map.feet_per_grid, pov: pov)
   end
 
   # Return moves by a player using the commandline UI
@@ -212,32 +210,31 @@ class CommandlineUI < Natural20::Controller
   # @param battle [Natural20::Battle] An instance of the current battle
   # @return [Array]
   def move_for(entity, battle)
-    puts ''
+    puts ""
     puts "#{entity.name}'s turn"
-    puts '==============================='
+    puts "==============================="
     loop do
       describe_map(battle.map, line_of_sight: entity)
       puts @renderer.render(line_of_sight: entity)
 
-
       puts t(:character_status_line, ac: entity.armor_class, hp: entity.hp, max_hp: entity.max_hp, total_actions: entity.total_actions(battle), bonus_action: entity.total_bonus_actions(battle),
-                                     available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(','))
+                                     available_movement: entity.available_movement(battle), statuses: entity.statuses.to_a.join(","))
       entity.active_effects.each do |effect|
         puts t(:effect_line, effect_name: effect[:effect].label, source: effect[:source].name)
       end
-      action = prompt.select(t('character_action_prompt', name: entity.name, token: entity.token&.first), per_page: TTY_PROMPT_PER_PAGE,
+      action = prompt.select(t("character_action_prompt", name: entity.name, token: entity.token&.first), per_page: TTY_PROMPT_PER_PAGE,
                                                                                                           filter: true) do |menu|
         entity.available_actions(@session, battle).each do |a|
           menu.choice a.label, a
         end
         # menu.choice 'Console (Developer Mode)', :console
-        menu.choice 'End'.colorize(:red), :end
+        menu.choice "End".colorize(:red), :end
       end
 
       if action == :console
-        prompt.say('battle - battle object')
-        prompt.say('entity - Current Player/NPC')
-        prompt.say('@map - Current map')
+        prompt.say("battle - battle object")
+        prompt.say("entity - Current Player/NPC")
+        prompt.say("@map - Current map")
         binding.pry
         next
       end
@@ -255,7 +252,6 @@ class CommandlineUI < Natural20::Controller
     Natural20::EventManager.set_context(battle, battle.current_party)
 
     result = battle.while_active do |entity|
-
       start_combat = false
       if battle.has_controller_for?(entity)
         cycles = 0
@@ -265,7 +261,6 @@ class CommandlineUI < Natural20::Controller
           session.save_game(battle)
           action = battle.move_for(entity)
           if action.nil?
-
             unless battle.current_party.include?(entity)
               describe_map(battle.map, line_of_sight: battle.available_party_members)
               puts @renderer.render(line_of_sight: battle.available_party_members, path: move_path)
@@ -284,14 +279,14 @@ class CommandlineUI < Natural20::Controller
             start_combat = true
             break
           end
-          break if action.nil?
+          break if action.nil? || entity.unconscious?
         end
       end
 
       start_combat
     end
     prompt.keypress(t(:tpk)) if result == :tpk
-    puts '------------'
+    puts "------------"
     puts t(:battle_end, num: battle.round + 1)
   end
 
@@ -310,7 +305,7 @@ class CommandlineUI < Natural20::Controller
     entity_x, entity_y = map.position_of(entity)
     target_x, target_y = event[:position]
 
-    distance = Math.sqrt((target_x - entity_x)**2 + (target_y - entity_y)**2).ceil
+    distance = Math.sqrt((target_x - entity_x) ** 2 + (target_y - entity_y) ** 2).ceil
 
     possible_actions = entity.available_actions(session, battle, opportunity_attack: true).select do |s|
       weapon_details = session.load_weapon(s.using)
@@ -319,7 +314,7 @@ class CommandlineUI < Natural20::Controller
 
     return nil if possible_actions.blank?
 
-    action = prompt.select(t('action.opportunity_attack', name: entity.name, target: event[:target].name)) do |menu|
+    action = prompt.select(t("action.opportunity_attack", name: entity.name, target: event[:target].name)) do |menu|
       possible_actions.each do |a|
         menu.choice a.label, a
       end
@@ -338,16 +333,16 @@ class CommandlineUI < Natural20::Controller
   end
 
   def show_message(message)
-    puts ''
+    puts ""
     prompt.keypress(message)
   end
 
   # @return [TTY::Prompt]
   def prompt
     @@prompt ||= if test_mode
-                   TTY::Prompt::Test.new
-                 else
-                   TTY::Prompt.new
-                 end
+        TTY::Prompt::Test.new
+      else
+        TTY::Prompt.new
+      end
   end
 end

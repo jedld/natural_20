@@ -9,7 +9,7 @@ module Natural20
     include Natural20::HealthFlavor
     include Multiattack
 
-    attr_accessor :hp, :resistances, :npc_actions, :battle_defaults, :npc_type
+    attr_accessor :hp, :resistances, :npc_actions, :battle_defaults, :npc_type, :familiar
 
     # @param session [Session]
     # @param type [String,Symbol]
@@ -21,6 +21,7 @@ module Natural20
       @color = @properties[:color]
       @session = session
       @npc_type = type
+      @familiar = opt.fetch(:familiar, false)
       @inventory = @properties[:default_inventory]&.map do |inventory|
         [inventory[:type].to_sym, OpenStruct.new({ qty: inventory[:qty] })]
       end.to_h || {}
@@ -83,36 +84,50 @@ module Natural20
 
       if opportunity_attack
         return generate_npc_attack_actions(battle, opportunity_attack: true).select do |s|
-          s.action_type == :attack && s.npc_action[:type] == 'melee_attack'
-        end
+                 s.action_type == :attack && s.npc_action[:type] == "melee_attack"
+               end
       end
-      
-      [ generate_npc_attack_actions(battle) +
 
-      %i[hide dodge look stand move dash grapple escape_grapple].map do |type|
-        next unless "#{type.to_s.camelize}Action".constantize.can?(self, battle)
-        case type
-        when :dodge
-          DodgeAction.new(session, self, :dodge)
-        when :hide
-          HideAction.new(session, self, :hide)
-        when :disengage
-          action = DisengageAction.new(session, self, :disengage)
-          action
-        when :move
-          MoveAction.new(session, self, type)
-        when :stand
-          StandAction.new(session, self, type)
-        when :dash
-          action = DashAction.new(session, self, type)
-          action
-        when :help
-          action = HelpAction.new(session, self, :help)
-          action
-        else
-          Natural20::Action.new(session, self, type)
-        end
-      end.compact].flatten
+      [generate_npc_attack_actions(battle) +
+
+       %i[first_aid hide dodge look stand move dash help dash grapple escape_grapple use_item interact ground_interact inventory].map do |type|
+         next unless "#{type.to_s.camelize}Action".constantize.can?(self, battle)
+         case type
+         when :dodge
+           DodgeAction.new(session, self, :dodge)
+         when :hide
+           HideAction.new(session, self, :hide)
+         when :disengage
+           action = DisengageAction.new(session, self, :disengage)
+           action
+         when :move
+           MoveAction.new(session, self, type)
+         when :stand
+           StandAction.new(session, self, type)
+         when :dash
+           action = DashAction.new(session, self, type)
+           action
+         when :help
+           action = HelpAction.new(session, self, :help)
+           action
+          when :grapple
+            GrappleAction.new(session, self, :grapple)
+          when :escape_grapple
+            EscapeGrappleAction.new(session, self, :escape_grapple)
+          when :use_item
+            UseItemAction.new(session, self, type)
+          when :interact
+            InteractAction.new(session, self, type)
+          when :ground_interact
+            GroundInteractAction.new(session, self, type)
+          when :inventory
+            InventoryAction.new(session, self, type)
+          when :first_aid
+            FirstAidAction.new(session, self, type)            
+         else
+           Natural20::Action.new(session, self, type)
+         end
+       end.compact].flatten
     end
 
     def melee_distance
@@ -138,6 +153,8 @@ module Natural20
     end
 
     def generate_npc_attack_actions(battle, opportunity_attack: false)
+      return [] if @familiar
+      
       actions = []
 
       actions += npc_actions.map do |npc_action|

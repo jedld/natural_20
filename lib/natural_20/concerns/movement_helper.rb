@@ -115,7 +115,7 @@ module Natural20::MovementHelper
       if fixed_movement
         movement_budget -= 1
       else
-        movement_budget -= if !manual_jump.include?(index) && map.difficult_terrain?(entity, *m, battle)
+        movement_budget -= if !manual_jump.include?(index) && map.difficult_terrain?(entity, *m, battle) && !entity.flying?
                              2
                            else
                              1

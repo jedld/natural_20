@@ -73,7 +73,7 @@ class MoveAction < Natural20::Action
 
     safe_moves = []
     actual_moves.each_with_index do |move, _index|
-      is_flying_or_jumping = movement.jump_locations.include?(move)
+      is_flying_or_jumping = @source.flying? || movement.jump_locations.include?(move)
       trigger_results = map.area_trigger!(@source, move, is_flying_or_jumping)
       if trigger_results.empty?
         safe_moves << move

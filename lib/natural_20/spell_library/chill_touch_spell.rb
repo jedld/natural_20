@@ -10,18 +10,18 @@ class Natural20::ChillTouchSpell < Natural20::Spell
                          type: :select_target,
                          num: 1,
                          range: @properties[:range],
-                         target_types: %i[enemies]
-                       }
+                         target_types: %i[enemies],
+                       },
                      ],
                      next: lambda { |target|
-                             action.target = target
-                             OpenStruct.new({
+                       action.target = target
+                       OpenStruct.new({
                                               param: nil,
                                               next: lambda {
-                                                      action
-                                                    }
+                                                action
+                                              },
                                             })
-                           }
+                     },
                    })
   end
 
@@ -40,11 +40,11 @@ class Natural20::ChillTouchSpell < Natural20::Spell
       level += 1 if entity.level >= 17
 
       damage_roll = Natural20::DieRoll.roll("#{level}d8", crit: attack_roll.nat_20?, battle: battle, entity: entity,
-                                                          description: t('dice_roll.spells.chill_touch'))
+                                                          description: t("dice_roll.spells.chill_touch"))
       [{
         source: entity,
         target: target,
-        attack_name: t('spell.chill_touch'),
+        attack_name: t("spell.chill_touch"),
         damage_type: @properties[:damage_type],
         attack_roll: attack_roll,
         damage_roll: damage_roll,
@@ -52,26 +52,26 @@ class Natural20::ChillTouchSpell < Natural20::Spell
         damage: damage_roll,
         cover_ac: cover_ac_adjustments,
         type: :spell_damage,
-        spell: @properties
+        spell: @properties,
       },
        {
-         source: entity,
-         target: target,
-         type: :chill_touch,
-         effect: self
-       }]
+        source: entity,
+        target: target,
+        type: :chill_touch,
+        effect: self,
+      }]
     else
       [{
         type: :spell_miss,
         source: entity,
         target: target,
-        attack_name: t('spell.firebolt'),
+        attack_name: t("spell.chill_touch"),
         damage_type: @properties[:damage_type],
         attack_roll: attack_roll,
         damage_roll: damage_roll,
         advantage_mod: advantage_mod,
         cover_ac: cover_ac_adjustments,
-        spell: @properties
+        spell: @properties,
       }]
     end
   end

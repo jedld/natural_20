@@ -16,6 +16,26 @@ RSpec.describe Natural20::Npc do
     end
   end
 
+  context 'bat npc' do
+    before do
+      @npc = session.npc(:bat, name: 'Screech')
+    end
+
+    specify '#speed' do
+      expect(@npc.speed).to eq 5
+    end
+
+    specify 'flying' do
+      @npc.fly!
+      expect(@npc.speed).to eq 30
+      expect(@npc.flying?).to be
+    end
+
+    specify '#can_fly?' do
+      expect(@npc.can_fly?).to be
+    end
+  end
+
   context 'goblin npc' do
     before do
       @npc = session.npc(:goblin, name: 'Spark')
@@ -59,8 +79,8 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#available_actions' do
-      expect(@npc.available_actions(session, nil).size).to eq 5
-      expect(@npc.available_actions(session, nil).map(&:name)).to eq %w[attack attack look move grapple]
+      expect(@npc.available_actions(session, nil).size).to eq 9
+      expect(@npc.available_actions(session, nil).map(&:name)).to eq ["attack", "attack", "look", "move", "grapple", "use_item", "interact", "ground_interact", "inventory"]
     end
 
     specify '#hit_die' do
@@ -113,15 +133,15 @@ RSpec.describe Natural20::Npc do
     end
 
     specify '#available actions' do
-      expect(@npc.available_actions(session, nil).size).to eq 5
-      expect(@npc.available_actions(session, nil).map(&:name)).to eq %w[attack attack look move grapple]
+      expect(@npc.available_actions(session, nil).size).to eq 9
+      expect(@npc.available_actions(session, nil).map(&:name)).to eq ["attack", "attack", "look", "move", "grapple", "use_item", "interact", "ground_interact", "inventory"]
       first_attack = @npc.available_actions(session, @battle).select { |a| a.name == 'attack' }.first
       first_attack.target = @fighter
       @battle.action!(first_attack)
       @battle.commit(first_attack)
 
       # multiattack should still allow for one more attack
-      expect(@npc.available_actions(session, @battle).map(&:name)).to eq %w[attack look move]
+      expect(@npc.available_actions(session, @battle).map(&:name)).to eq ["attack", "look", "move", "interact", "inventory"]
     end
   end
 end
