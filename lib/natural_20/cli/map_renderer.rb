@@ -19,7 +19,7 @@ module Natural20
                update_on_drop: true, range: nil, range_cutoff: false, path_char: nil, highlight: {}, viewport_size: nil, top_position: [
                  0, 0
                ])
-      highlight_positions = highlight.keys.map { |entity| @map.entity_squares(entity) }.flatten(1)
+      highlight_positions = highlight.keys.map { |e| @map.entity_squares(e) }.flatten(1)
 
       viewport_size ||= map.size
 
@@ -49,7 +49,6 @@ module Natural20
     end
 
     private
-
 
     def render_light(pos_x, pos_y)
       intensity = @map.light_at(pos_x, pos_y)

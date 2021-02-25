@@ -123,6 +123,14 @@ module Natural20
       end
     end
 
+    # remove an entity from the battle and from the map
+    def remove(entity)
+      @entities.delete(entity)
+      @late_comers.delete(entity)
+      @combat_order.delete(entity)
+      @map.remove(entity, battle: self) if @map
+    end
+
     def in_battle?(entity)
       @entities.key?(entity)
     end

@@ -7,8 +7,8 @@ class ShoveAction < Natural20::Action
   end
 
   def validate
-    @errors << 'target is a required option for :attack' if target.nil?
-    @errors << t('validation.shove.invalid_target_size') if (target.size_identifier - @source.size_identifier) > 1
+    @errors << "target is a required option for :attack" if target.nil?
+    @errors << t("validation.shove.invalid_target_size") if (target.size_identifier - @source.size_identifier) > 1
   end
 
   def to_s
@@ -23,16 +23,16 @@ class ShoveAction < Natural20::Action
                          type: :select_target,
                          range: 5,
                          target_types: %i[enemies],
-                         num: 1
-                       }
+                         num: 1,
+                       },
                      ],
                      next: lambda { |target|
                        self.target = target
                        OpenStruct.new({
                                         param: nil,
-                                        next: -> { self }
+                                        next: -> { self },
                                       })
-                     }
+                     },
                    })
   end
 
@@ -49,7 +49,7 @@ class ShoveAction < Natural20::Action
   def resolve(_session, map, opts = {})
     target = opts[:target] || @target
     battle = opts[:battle]
-    raise 'target is a required option for :attack' if target.nil?
+    raise "target is a required option for :attack" if target.nil?
 
     return if (target.size_identifier - @source.size_identifier) > 1
 
@@ -62,13 +62,13 @@ class ShoveAction < Natural20::Action
       shove_success = true
     else
       contested_roll = if athletics_stats > acrobatics_stats
-                         @target.athletics_check!(battle,
-                                                  description: t('die_roll.contest'))
-                       else
-                         @target.acrobatics_check!(
-                           opts[:battle], description: t('die_roll.contest')
-                         )
-                       end
+          @target.athletics_check!(battle,
+                                   description: t("die_roll.contest"))
+        else
+          @target.acrobatics_check!(
+            opts[:battle], description: t("die_roll.contest"),
+          )
+        end
       shove_success = strength_roll.result >= contested_roll.result
     end
 
@@ -82,29 +82,29 @@ class ShoveAction < Natural20::Action
       end
     end
     @result = if shove_success
-                [{
-                  source: @source,
-                  target: target,
-                  type: :shove,
-                  success: true,
-                  battle: battle,
-                  shove_loc: shove_loc,
-                  knock_prone: knock_prone,
-                  source_roll: strength_roll,
-                  target_roll: contested_roll
-                }] + additional_effects
-              else
-                [{
-                  source: @source,
-                  target: target,
-                  type: :shove,
-                  success: false,
-                  battle: battle,
-                  knock_prone: knock_prone,
-                  source_roll: strength_roll,
-                  target_roll: contested_roll
-                }]
-              end
+        [{
+          source: @source,
+          target: target,
+          type: :shove,
+          success: true,
+          battle: battle,
+          shove_loc: shove_loc,
+          knock_prone: knock_prone,
+          source_roll: strength_roll,
+          target_roll: contested_roll,
+        }] + additional_effects
+      else
+        [{
+          source: @source,
+          target: target,
+          type: :shove,
+          success: false,
+          battle: battle,
+          knock_prone: knock_prone,
+          source_roll: strength_roll,
+          target_roll: contested_roll,
+        }]
+      end
   end
 
   def self.apply!(battle, item)

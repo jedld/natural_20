@@ -47,6 +47,20 @@ RSpec.describe Natural20::BattleMap do
       end
     end
 
+    context '#remove' do
+      specify 'remove tokens in the battlefield' do
+        @battle_map.place(3, 3, @npc, 'g')
+        @battle_map.remove(@npc)
+        expect(@map_renderer.render).to eq "g···#·\n" +
+                                           "G··##·\n" +
+                                           "····#·\n" +
+                                           "······\n" +
+                                           "·##oo·\n" +
+                                           "·····Î\n" +
+                                           "······\n"
+      end
+    end
+
     # distance in squares
     specify '#distance' do
       @battle_map.place(3, 3, @npc, 'g')

@@ -115,7 +115,8 @@ module Natural20::MovementHelper
       if fixed_movement
         movement_budget -= 1
       else
-        movement_budget -= if !manual_jump.include?(index) && map.difficult_terrain?(entity, *m, battle) && !entity.flying?
+        movement_budget -= if !manual_jump.include?(index) && map.difficult_terrain?(entity, *m,
+                                                                                     battle) && !entity.flying?
                              2
                            else
                              1
@@ -216,10 +217,12 @@ module Natural20::MovementHelper
     current_moves.each_with_index do |path, index|
       opponents.each do |enemy|
         entered_melee_range.add(enemy) if enemy.entered_melee?(map, entity, *path)
-        if !left_melee_range.include?(enemy) && entered_melee_range.include?(enemy) && !enemy.entered_melee?(map,
-                                                                                                             entity, *path)
-          left_melee_range << { source: enemy, path: index }
-        end
+        next unless !left_melee_range.include?(enemy) &&
+                    entered_melee_range.include?(enemy) &&
+                    !enemy.entered_melee?(map, entity, *path) &&
+                    !(entity.class_feature?('flyby') && entity.flying?)
+
+        left_melee_range << { source: enemy, path: index }
       end
     end
     left_melee_range

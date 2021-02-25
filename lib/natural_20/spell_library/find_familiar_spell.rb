@@ -8,36 +8,36 @@ class Natural20::FindFamiliarSpell < Natural20::Spell
                          type: :select_target,
                          num: 1,
                          range: @properties[:range],
-                         target_types: :square,
+                         target_types: :square
                        },
                        {
                          type: :select,
                          num: 1,
-                         label: t("spell.find_familiar.famiiar_list"),
-                         choices: familiars,
-                       },
+                         label: t('spell.find_familiar.famiiar_list'),
+                         choices: familiars
+                       }
                      ],
                      next: lambda { |target, familiar|
                        action.target = target.first
                        action.other_params = familiar
                        OpenStruct.new({
-                         param: nil,
-                         next: lambda {
-                           action
-                         },
-                       })
-                     },
+                                        param: nil,
+                                        next: lambda {
+                                          action
+                                        }
+                                      })
+                     }
                    })
   end
 
   def familiars
     @familiars ||= begin
-        session.npc_info.select do |_name, details|
-          details[:familiar]
-        end.map do |f, details|
-          [f, details[:kind]]
-        end
+      session.npc_info.select do |_name, details|
+        details[:familiar]
+      end.map do |f, details|
+        [f, details[:kind]]
       end
+    end
   end
 
   # @param battle [Natural20::Battle]
@@ -60,9 +60,10 @@ class Natural20::FindFamiliarSpell < Natural20::Spell
   # @param spell_action [Natural20::SpellAction]
   def resolve(entity, battle, spell_action)
     npc = battle.session.npc(spell_action.other_params,
-                             { name: "#{entity.name}'s Familiar (#{spell_action.other_params.humanize})", familiar: true })
+                             { name: "#{entity.name}'s Familiar (#{spell_action.other_params.humanize})",
+                               familiar: true })
     npc.fly! if npc.can_fly?
-    
+
     @familiar = npc
     [{
       type: :find_familiar,
@@ -70,7 +71,7 @@ class Natural20::FindFamiliarSpell < Natural20::Spell
       position: spell_action.target,
       source: entity,
       effect: self,
-      spell: @properties,
+      spell: @properties
     }]
   end
 end

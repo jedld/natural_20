@@ -22,15 +22,13 @@ module Natural20
       I18n.exists?(name, :en) ? I18n.t(name) : name.humanize
     end
 
-    def level
-    end
+    def level; end
 
     def race
       @properties[:race]
     end
 
-    def subrace
-    end
+    def subrace; end
 
     def all_ability_scores
       %i[str dex con int wis cha].map do |att|
@@ -99,8 +97,11 @@ module Natural20
 
       if @hp.negative? && @hp.abs >= @properties[:max_hp]
         dead!
+
+        battle.remove(self) if battle && familiar
       elsif @hp <= 0
         npc? ? dead! : unconscious!
+        battle.remove(self) if battle && familiar
       end
 
       @hp = 0 if @hp <= 0
@@ -133,9 +134,7 @@ module Natural20
     end
 
     def fly!
-      if @properties[:speed_fly]
-        @flying = true
-      end
+      @flying = true if @properties[:speed_fly]
     end
 
     def can_fly?
@@ -552,7 +551,7 @@ module Natural20
     end
 
     def speed
-      c_speed =  @flying ? @properties[:speed_fly] : @properties[:speed]
+      c_speed = @flying ? @properties[:speed_fly] : @properties[:speed]
 
       return eval_effect(:speed_override, stacked: true, value: c_speed) if has_effect?(:speed_override)
 

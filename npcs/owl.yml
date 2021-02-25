@@ -1,0 +1,40 @@
+---
+kind: Owl
+description: It's an owl
+size: tiny
+race:
+- beast
+alignment: unaligned
+default_ac: 11
+max_hp: 1
+hp_die: 1d4-1
+speed: 5
+speed_fly: 60
+passive_perception: 11
+darkvision: 120
+familiar: true
+token:
+ - ^
+color: brown
+ability:
+  str: 3
+  dex: 13
+  con: 8
+  int: 2
+  wis: 12
+  cha: 7
+cr: 0
+xp: 10
+proficiency_bonus: 2
+attributes:
+- flyby
+- keen_hearing_and_sight
+actions:
+- name: Talons
+  type: melee_attack
+  range: 5
+  targets: 1
+  attack: 3
+  damage: 1
+  damage_die: 1
+  damage_type: slashing

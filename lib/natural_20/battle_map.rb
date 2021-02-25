@@ -841,6 +841,25 @@ module Natural20
       place(pos_x, pos_y, entity, nil)
     end
 
+    # @param entity [Natural20::Entity]
+
+    def remove(entity, battle: nil)
+      pos_x, pos_y = @entities.delete(entity)
+
+      source_token_size = if requires_squeeze?(entity, pos_x, pos_y, self, battle)
+                            entity.squeezed!
+                            [entity.token_size - 1, 1].max
+                          else
+                            entity.token_size
+                          end
+
+      (0...source_token_size).each do |ofs_x|
+        (0...source_token_size).each do |ofs_y|
+          @tokens[pos_x + ofs_x][pos_y + ofs_y] = nil
+        end
+      end
+    end
+
     protected
 
     def compute_lights
