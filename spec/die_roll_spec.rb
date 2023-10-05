@@ -36,7 +36,6 @@ RSpec.describe Natural20::DieRoll do
     end
 
     specify 'compute for the expected value (avg value)' do
-      
       expect(Natural20::DieRoll.roll('1d6+2').expected).to eq(5.5)
       expect(Natural20::DieRoll.roll('1d6').expected).to eq(3.5)
       expect(Natural20::DieRoll.roll('1d20').expected).to eq(10.5)
@@ -44,6 +43,11 @@ RSpec.describe Natural20::DieRoll do
       expect(Natural20::DieRoll.roll('1d20', advantage: true).expected.round(2)).to eq(13.83)
       expect(Natural20::DieRoll.roll('1d20', disadvantage: true).expected).to eq(7.175)
       expect(Natural20::DieRoll.roll('1d20 + 2').expected).to eq(12.5)
+    end
+
+    specify 'compute for the probability of roll being greater than or higher than x' do
+      expect(Natural20::DieRoll.roll('1d20+5').prob(10).round(2)).to eq(0.8)
+      expect(Natural20::DieRoll.roll('1d20+5', advantage: true).prob(10).round(2)).to eq(0.96)
     end
 
     specify 'no die rolls' do

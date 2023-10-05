@@ -197,19 +197,15 @@ module AiController
 
     # Sort actions based on success rate and damage
     def sort_actions(battle, available_actions)
-      available_actions.map do |action|
+      sorted_actions = available_actions.map do |action|
         if action.is_a?(AttackAction)
-          base_score = 0.0
-          damage_score = 0.0
-          base_score += [22 - action.target.armor_class, 0].max * 0.5
-          advantage_mod, _ = target_advantage_condition(battle, action.source, action.target, weapon)
-          base_score += advantage_mod * 5.0
-          base_score += Natural20::DieRoll.roll(action.npc_action[:die_roll]).expected
+          base_score = action.compute_hit_probability(battle) * action.avg_damage(battle)
           [action, base_score]
         else
           [action, 0]
         end
-      end.sort_by { |a| a[1] }.reverse!.map(&:first)
+      end.sort_by { |a| a[1] }.reverse!
+      sorted_actions.map(&:first)
     end
 
     # @param battle [Natural20::Battle]

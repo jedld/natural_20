@@ -77,6 +77,20 @@ RSpec.describe AttackAction do
         end.to change(@npc, :hp).from(59).to(57)
       end
 
+      specify '#compute_hit_probability' do
+        @battle_map.move_to!(@character, 0, 5, @battle)
+        puts Natural20::MapRenderer.new(@battle_map).render
+        action = AttackAction.build(session, @character).next.call(@npc).next.call('unarmed_attack').next.call
+        expect(action.compute_hit_probability(@battle).round(2)).to eq(0.55)
+      end
+
+      specify '#avg_damage' do
+      @battle_map.move_to!(@character, 0, 5, @battle)
+      puts Natural20::MapRenderer.new(@battle_map).render
+      action = AttackAction.build(session, @character).next.call(@npc).next.call('unarmed_attack').next.call
+      expect(action.avg_damage(@battle).round(2)).to eq(2)
+    end
+
       context 'versatile weapon' do
         it 'one handed attack' do
           @character.unequip(:longbow)

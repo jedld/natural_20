@@ -157,6 +157,18 @@ class AttackAction < Natural20::Action
     @advantage_mod.negative?
   end
 
+  def compute_hit_probability(battle, opts = {})
+    weapon, _, attack_mod, _, _ = get_weapon_info(opts)
+    advantage_mod, adv_info = target_advantage_condition(battle, @source, target, weapon)
+    target_ac, _cover_ac = effective_ac(battle, target)
+    Natural20::DieRoll.roll("1d20+#{attack_mod}", advantage: advantage_mod > 0, disadvantage: advantage_mod < 0).prob(target_ac)
+  end
+
+  def avg_damage(battle, opts = {})
+    _, _, _, damage_roll, _ = get_weapon_info(opts)
+    Natural20::DieRoll.roll(damage_roll).expected
+  end
+
   # Build the attack roll information
   # @param session [Natural20::Session]
   # @param map [Natural20::BattleMap]
@@ -164,39 +176,12 @@ class AttackAction < Natural20::Action
   # @option opts target [Natural20::Entity]
   def resolve(_session, map, opts = {})
     @result.clear
+    battle = opts[:battle]
     target = opts[:target] || @target
     raise 'target is a required option for :attack' if target.nil?
-
-    npc_action = opts[:npc_action] || @npc_action
-    battle = opts[:battle]
-    using = opts[:using] || @using
-    raise 'using or npc_action is a required option for :attack' if using.nil? && npc_action.nil?
-
-    attack_name = nil
-    damage_roll = nil
     sneak_attack_roll = nil
-    ammo_type = nil
 
-    npc_action = @source.npc_actions.detect { |a| a[:name].downcase == using.downcase } if @source.npc? && using
-
-    if @source.npc?
-      if npc_action.nil?
-        npc_action = @source.properties[actions].detect do |action|
-          action[:name].downcase == using.to_s.downcase
-        end
-      end
-      weapon = npc_action
-      attack_name = npc_action[:name]
-      attack_mod = npc_action[:attack]
-      damage_roll = npc_action[:damage_die]
-      ammo_type = npc_action[:ammo]
-    else
-      weapon = session.load_weapon(using.to_sym)
-      attack_name = weapon[:name]
-      ammo_type = weapon[:ammo]
-      attack_mod = @source.attack_roll_mod(weapon)
-      damage_roll = damage_modifier(@source, weapon, second_hand: second_hand)
-    end
+    weapon, attack_name, attack_mod, damage_roll, ammo_type = get_weapon_info(opts)
 
     # DnD 5e advantage/disadvantage checks
     @advantage_mod, adv_info = target_advantage_condition(battle, @source, target, weapon)
@@ -323,6 +308,44 @@ class AttackAction < Natural20::Action
     end
 
     self
+  end
+
+
+  def get_weapon_info(opts)
+    target = opts[:target] || @target
+    raise 'target is a required option for :attack' if target.nil?
+
+    npc_action = opts[:npc_action] || @npc_action
+
+    using = opts[:using] || @using
+    raise 'using or npc_action is a required option for :attack' if using.nil? && npc_action.nil?
+
+    attack_name = nil
+    damage_roll = nil
+    ammo_type = nil
+
+    npc_action = @source.npc_actions.detect { |a| a[:name].downcase == using.downcase } if @source.npc? && using
+
+    if @source.npc?
+      if npc_action.nil?
+        npc_action = @source.properties[actions].detect do |action|
+          action[:name].downcase == using.to_s.downcase
+        end
+      end
+      weapon = npc_action
+      attack_name = npc_action[:name]
+      attack_mod = npc_action[:attack]
+      damage_roll = npc_action[:damage_die]
+      ammo_type = npc_action[:ammo]
+    else
+      weapon = session.load_weapon(using.to_sym)
+      attack_name = weapon[:name]
+      ammo_type = weapon[:ammo]
+      attack_mod = @source.attack_roll_mod(weapon)
+      damage_roll = damage_modifier(@source, weapon, second_hand: second_hand)
+    end
+
+    [weapon, attack_name, attack_mod, damage_roll, ammo_type]
   end
 
   protected

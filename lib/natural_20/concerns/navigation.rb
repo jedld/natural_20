@@ -97,7 +97,7 @@ module Natural20::Navigation
       end
 
       mobility -= 0.001 * map.line_distance(entity, *d).floor
-      [d, [melee_offence, ranged_offence, defense, mobility, support]]
+      [d, [melee_offence.round(2), ranged_offence, defense, mobility, support]]
     end.to_h
   end
 end

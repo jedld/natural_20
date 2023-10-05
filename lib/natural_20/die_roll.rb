@@ -182,8 +182,10 @@ module Natural20
     end
 
     def expected
-      sum = 0.0
+      return @rolls.sum + @modifier if @die_sides == 0
 
+      sum = 0.0
+      
       if @advantage
         for i in 1..@die_sides
           prob =  (1.0 / @die_sides)
@@ -206,6 +208,36 @@ module Natural20
       end
 
       @rolls.size * sum + @modifier
+    end
+
+    def prob(x)
+      return 0.0 if x > @die_sides + @modifier
+      return 1.0 if x < 1 + @modifier
+
+      x = x - @modifier
+      sum = 0.0
+      if @advantage
+        for i in x..@die_sides
+          prob =  (1.0 / @die_sides)
+          prob2 = i * (1.0 / @die_sides)
+          prob3 = (i-1) * (1.0 / @die_sides)
+          sum += (prob * prob2 + prob3 * prob)
+        end
+      elsif @disadvantage
+        for i in x..@die_sides
+          prob =  (1.0 / @die_sides)
+
+          prob2 = (@die_sides - i + 1) * (1.0 / @die_sides)
+          prob3 = (@die_sides - i) * (1.0 / @die_sides)
+          sum += (prob * prob2 + prob3 * prob)
+        end
+      else
+        for i in x..@die_sides
+          sum += (1.0 / @die_sides)
+        end
+      end
+
+      sum
     end
 
     # adds color flair to the roll depending on value
