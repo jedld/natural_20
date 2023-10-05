@@ -15,7 +15,11 @@ module Natural20
     # @param type [String,Symbol]
     # @option opt rand_life [Boolean] Determines if will use die for npc HP instead of fixed value
     def initialize(session, type, opt = {})
-      @properties = YAML.load_file(File.join("npcs", "#{type}.yml")).deep_symbolize_keys!
+      if File.exist?(File.join(session.root_path, "npcs", "#{type}.yml"))
+        @properties = YAML.load_file(File.join(session.root_path, "npcs", "#{type}.yml")).deep_symbolize_keys!
+      else
+        @properties = YAML.load_file(File.join("npcs", "#{type}.yml")).deep_symbolize_keys!
+      end
       @properties.merge!(opt[:overrides].presence || {})
       @ability_scores = @properties[:ability]
       @color = @properties[:color]

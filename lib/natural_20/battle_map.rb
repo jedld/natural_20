@@ -634,6 +634,8 @@ module Natural20
     # @param battle [Natural20::Battle]
     # @return [Boolean] Returns if difficult terrain or not
     def difficult_terrain?(entity, pos_x, pos_y, _battle = nil)
+      return false if entity.nil?
+      
       entity_squares_at_pos(entity, pos_x, pos_y).each do |pos|
         r_x, r_y = pos
         next if @tokens[r_x][r_y] && @tokens[r_x][r_y][:entity] == entity

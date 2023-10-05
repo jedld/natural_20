@@ -28,6 +28,10 @@ module Natural20
       @properties[:race]
     end
 
+    def token_image
+      @properties[:token_image] || "token_#{(@properties[:kind] || @properties[:sub_type]).downcase}.png"
+    end
+
     def subrace; end
 
     def all_ability_scores
@@ -543,6 +547,8 @@ module Natural20
     # @param battle [Natural::20]
     # @return [Integer]
     def available_movement(battle)
+      return speed if battle.nil?
+
       grappled? ? 0 : battle.entity_state_for(self)[:movement]
     end
 
