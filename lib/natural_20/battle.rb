@@ -2,7 +2,7 @@
 module Natural20
   class Battle
     attr_accessor :combat_order, :round, :current_party
-    attr_reader :map, :entities, :session, :battle_log, :started, :in_combat
+    attr_reader :map, :entities, :session, :battle_log, :started, :in_combat, :current_turn_index
 
     # Create an instance of a battle
     # @param session [Natural20::Session]
@@ -391,11 +391,49 @@ module Natural20
       false
     end
 
+    def start_turn
+      Natural20::EventManager.received_event(source: self, event: :start_of_round, in_battle: ongoing?)
+
+      current_turn.death_saving_throw!(self) if current_turn.unconscious? && !current_turn.stable?
+    end
+
+    def end_turn
+      trigger_event!(:end_of_round, self, target: current_turn)
+    end
+  
+    def next_turn(max_rounds = nil)
+      return :tpk if tpk?
+
+      trigger_event!(:end_of_round, self, target: current_turn)
+
+      if @started && battle_ends?
+        Natural20::EventManager.received_event(source: self, event: :end_of_combat)
+        @started = false
+      end
+
+      @current_turn_index += 1
+      return false unless @current_turn_index >= @combat_order.length
+
+      @current_turn_index = 0
+      @round += 1
+
+      # top of the round
+      unless @late_comers.empty?
+        @combat_order += @late_comers
+        @late_comers.clear
+        @combat_order = @combat_order.sort_by { |a| @entities[a][:initiative] || a.name }.reverse
+      end
+      session.increment_game_time!
+
+      Natural20::EventManager.received_event({ source: self, event: :top_of_the_round, round: @round,
+                                               target: current_turn })
+
+      return true if !max_rounds.nil? && @round > max_rounds
+    end
+
     def while_active(max_rounds = nil, &block)
       loop do
-        Natural20::EventManager.received_event(source: self, event: :start_of_round, in_battle: ongoing?)
-
-        current_turn.death_saving_throw!(self) if current_turn.unconscious? && !current_turn.stable?
+        start_turn
 
         if current_turn.conscious?
           current_turn.reset_turn!(self)
@@ -403,33 +441,9 @@ module Natural20
         end
         current_turn.send(:resolve_trigger, :end_of_turn)
 
-        return :tpk if tpk?
-
-        trigger_event!(:end_of_round, self, target: current_turn)
-
-        if @started && battle_ends?
-          Natural20::EventManager.received_event(source: self, event: :end_of_combat)
-          @started = false
-        end
-
-        @current_turn_index += 1
-        next unless @current_turn_index >= @combat_order.length
-
-        @current_turn_index = 0
-        @round += 1
-
-        # top of the round
-        unless @late_comers.empty?
-          @combat_order += @late_comers
-          @late_comers.clear
-          @combat_order = @combat_order.sort_by { |a| @entities[a][:initiative] || a.name }.reverse
-        end
-        session.increment_game_time!
-
-        Natural20::EventManager.received_event({ source: self, event: :top_of_the_round, round: @round,
-                                                 target: current_turn })
-
-        return if !max_rounds.nil? && @round > max_rounds
+        result =  next_turn(max_rounds)
+        return :tpk if result == :tpk
+        return result if result
       end
     end
 

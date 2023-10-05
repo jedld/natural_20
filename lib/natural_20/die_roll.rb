@@ -105,6 +105,12 @@ module Natural20
         end
       end
 
+      def expected
+        @rolls.inject(0) do |sum, roll|
+          sum + roll.expected
+        end
+      end
+
       def ==(other)
         return false if other.rolls.size != @rolls.size
 
@@ -173,6 +179,33 @@ module Natural20
             end
 
       sum + @modifier
+    end
+
+    def expected
+      sum = 0.0
+
+      if @advantage
+        for i in 1..@die_sides
+          prob =  (1.0 / @die_sides)
+          prob2 = i * (1.0 / @die_sides)
+          prob3 = (i-1) * (1.0 / @die_sides)
+          sum += i * (prob * prob2 + prob3 * prob)
+        end
+      elsif @disadvantage
+        for i in 1..@die_sides
+          prob =  (1.0 / @die_sides)
+
+          prob2 = (@die_sides - i + 1) * (1.0 / @die_sides)
+          prob3 = (@die_sides - i) * (1.0 / @die_sides)
+          sum += i * (prob * prob2 + prob3 * prob)
+        end
+      else
+        for i in 1..@die_sides
+          sum += i * (1.0 / @die_sides)
+        end
+      end
+
+      @rolls.size * sum + @modifier
     end
 
     # adds color flair to the roll depending on value

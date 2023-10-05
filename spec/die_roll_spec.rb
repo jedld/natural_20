@@ -35,6 +35,17 @@ RSpec.describe Natural20::DieRoll do
       expect(sum_of_rolls.to_s).to eq('(4 + 8) + (1)')
     end
 
+    specify 'compute for the expected value (avg value)' do
+      
+      expect(Natural20::DieRoll.roll('1d6+2').expected).to eq(5.5)
+      expect(Natural20::DieRoll.roll('1d6').expected).to eq(3.5)
+      expect(Natural20::DieRoll.roll('1d20').expected).to eq(10.5)
+      expect(Natural20::DieRoll.roll('2d20').expected).to eq(21.0)
+      expect(Natural20::DieRoll.roll('1d20', advantage: true).expected.round(2)).to eq(13.83)
+      expect(Natural20::DieRoll.roll('1d20', disadvantage: true).expected).to eq(7.175)
+      expect(Natural20::DieRoll.roll('1d20 + 2').expected).to eq(12.5)
+    end
+
     specify 'no die rolls' do
       expect(Natural20::DieRoll.roll('1+1').result).to eq(2)
     end

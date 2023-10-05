@@ -180,7 +180,6 @@ class AttackAction < Natural20::Action
     npc_action = @source.npc_actions.detect { |a| a[:name].downcase == using.downcase } if @source.npc? && using
 
     if @source.npc?
-
       if npc_action.nil?
         npc_action = @source.properties[actions].detect do |action|
           action[:name].downcase == using.to_s.downcase

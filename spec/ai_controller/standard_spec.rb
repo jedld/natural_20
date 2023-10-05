@@ -139,7 +139,7 @@ RSpec.describe AiController::Standard do
         it 'gives a weight to a destination square' do
           puts Natural20::MapRenderer.new(@map).render(line_of_sight: @npc3)
           expect(controller.evaluate_square(@map, @battle, @npc3, [@fighter])).to eq(
-            { [0, 2] => [1.2, 0.0, -0.05, -0.006, 0.0],
+            { [0, 2] => [0.3, 0.0, -0.05, -0.006, 0.0],
               [2, 1] => [0.0, 0.1, 0.0, -0.004, 0.0],
               [3, 1] => [0.0, 0.1, 0.0, -0.003, 0.0],
               [3, 2] => [0.0, 0.1, 2.0, -0.003, 0.0],

@@ -75,10 +75,12 @@ module Natural20::Navigation
       if entity_melee_squares.detect { |p| melee_attack_squares.key?(p) }
         melee_offence += 0.2
         if attack_options
-          opponents.each do |opp|
+          adv = opponents.map do |opp|
             adv, _adv_info = target_advantage_condition(battle, entity, opp, attack_options, source_pos: d)
-            melee_offence += adv
-          end
+            adv
+          end.max
+
+          melee_offence += (adv * 0.1)
         end
       else
         ranged_offence += 0.1

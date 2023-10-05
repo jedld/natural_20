@@ -4,13 +4,11 @@ module Natural20::Weapons
   def target_advantage_condition(battle, source, target, weapon, source_pos: nil, overrides: {})
     advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon,
                                                                      source_pos: source_pos, overrides: overrides)
+    advantage_ctr = 0
+    advantage_ctr += 1 if !advantages.empty?
+    advantage_ctr -= 1 if !disadvantages.empty?
 
-    return [0, [advantages, disadvantages]] if advantages.empty? && disadvantages.empty?
-    return [0, [advantages, disadvantages]] if !advantages.empty? && !disadvantages.empty?
-
-    return [1, [advantages, disadvantages]] unless advantages.empty?
-
-    [-1, [advantages, disadvantages]]
+    [advantage_ctr, [advantages, disadvantages]]
   end
 
   # Compute all advantages and disadvantages
@@ -35,12 +33,13 @@ module Natural20::Weapons
     disadvantage << :armor_proficiency unless source.proficient_with_equipped_armor?
     advantage << :squeezed if target.squeezed?
     advantage << :being_helped if battle.help_with?(target)
-    disadvantage << :target_long_range if battle.map && weapon && weapon[:range] && battle.map.distance(source, target,
-                                                                                      entity_1_pos: source_pos) > weapon[:range]
-
+   
     if weapon && weapon[:type] == 'ranged_attack' && battle.map
       disadvantage << :ranged_with_enemy_in_melee if battle.enemy_in_melee_range?(source, source_pos: source_pos)
       disadvantage << :target_is_prone_range if target.prone?
+      disadvantage << :target_long_range if battle.map && weapon && weapon[:range] && battle.map.distance(source, target,
+      entity_1_pos: source_pos) > weapon[:range]
+
     end
 
     if source.class_feature?('pack_tactics') && battle.ally_within_enemey_melee_range?(source, target,

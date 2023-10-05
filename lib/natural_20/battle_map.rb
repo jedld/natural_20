@@ -458,6 +458,13 @@ module Natural20
       things.compact
     end
 
+    # Get entity by its uid
+    # @param uid [String]
+    # @return [Natural20::Entity]
+    def entity_by_uid(uid)
+      @entities.keys.find { |entity| entity.entity_uid == uid }
+    end
+
     # Moves an entity to a specified location on the board
     # @param entity [Natural20::Entity]
     # @param pos_x [Integer]

@@ -4,6 +4,7 @@ module AiController
   class Standard < Natural20::Controller
     include Natural20::MovementHelper
     include Natural20::Navigation
+    include Natural20::Weapons
 
     attr_reader :battle_data
 
@@ -146,10 +147,14 @@ module AiController
         end
       end
 
+      valid_actions = sort_actions(battle, valid_actions)
+
       # movement planner if no more attack options and enemies are in sight
       if valid_actions.empty? && !enemy_positions.empty?
-
         valid_actions += generate_moves_for_positions(battle, entity, enemy_positions)
+        puts "empty movement" if valid_actions.empty?
+      else
+        puts "No enemies in sight for #{entity.name} and no actions are available"
       end
 
       # attempt to investigate last seen positions
@@ -180,10 +185,32 @@ module AiController
 
       valid_actions << DodgeAction.new(battle.session, entity, :dodge) if entity.action?(battle)
 
+      puts "Actions for #{entity.name}:}"
+      valid_actions.each do |action|
+        puts "-> #{action.to_s}"
+      end
+
       return valid_actions.first unless valid_actions.empty?
     end
 
     protected
+
+    # Sort actions based on success rate and damage
+    def sort_actions(battle, available_actions)
+      available_actions.map do |action|
+        if action.is_a?(AttackAction)
+          base_score = 0.0
+          damage_score = 0.0
+          base_score += [22 - action.target.armor_class, 0].max * 0.5
+          advantage_mod, _ = target_advantage_condition(battle, action.source, action.target, weapon)
+          base_score += advantage_mod * 5.0
+          base_score += Natural20::DieRoll.roll(action.npc_action[:die_roll]).expected
+          [action, base_score]
+        else
+          [action, 0]
+        end
+      end.sort_by { |a| a[1] }.reverse!.map(&:first)
+    end
 
     # @param battle [Natural20::Battle]
     # @param entity [Natural20::Entity]
@@ -197,6 +224,13 @@ module AiController
 
       target_squares = evaluate_square(battle.map, battle, entity, enemy_positions.keys)
 
+      agression = if entity.ability_mod(:int) <= 0
+                    agression = 2.0
+                  else
+                    aggression = 1.0
+                  end
+      range_weapon_avail = has_ranged_weapon?(entity)
+
       squares_priority = target_squares.map do |square, static_eval|
         range_weight = 1.0
         melee_weight = 1.0
@@ -204,7 +238,7 @@ module AiController
         mobolity_weight = 1.0
         melee, ranged, defense, mobility, _support = static_eval
 
-        if has_ranged_weapon?(entity)
+        if range_weapon_avail
           range_weight = 2.0
         else
           melee_weight = 2.1
@@ -212,7 +246,7 @@ module AiController
 
         # defense_weight = 2.0 if (entity.hp / entity.max_hp) < 0.25
 
-        [square, melee_weight * melee + range_weight * ranged + defense_weight * defense + mobility * mobolity_weight]
+        [square, agression * melee_weight * melee + agression * range_weight * ranged + defense_weight * defense + mobility * mobolity_weight]
       end
 
       chosen_path = nil
@@ -245,6 +279,8 @@ module AiController
 
         move_action.move_path = shortest_path
         valid_actions << move_action
+      else
+        puts "No movement available for #{entity.name}"
       end
 
       valid_actions
