@@ -112,7 +112,7 @@ RSpec.describe AttackAction do
         expect do
           @battle.action!(action)
           @battle.commit(action)
-        end.to change(@npc, :hp).from(59).to(52)
+        end.to change(@npc, :hp).from(59).to(49)
       end
     end
 

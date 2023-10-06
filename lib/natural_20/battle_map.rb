@@ -216,7 +216,7 @@ module Natural20
     def place(pos_x, pos_y, entity, token = nil, battle = nil)
       raise 'entity param is required' if entity.nil?
 
-      entity_data = { entity: entity, token: token || entity.name&.first }
+      entity_data = { entity: entity, token: token || entity.name }
       @tokens[pos_x][pos_y] = entity_data
       @entities[entity] = [pos_x, pos_y]
 
@@ -904,6 +904,23 @@ module Natural20
     end
 
     def setup_npcs
+      @properties.fetch(:player, []).each do |player|
+        column_index, row_index = player[:position]
+        player = Natural20::PlayerCharacter.load(session, player[:sheet])
+        add(player, column_index, row_index, group: :a)
+      end
+
+      @properties.fetch(:npc, []).each do |npc|
+        npc_meta = npc
+        column_index,  row_index = npc[:position]
+        raise 'npc type requires sub_type as well' unless npc_meta[:sub_type]
+
+        entity = session.npc(npc_meta[:sub_type].to_sym, name: npc_meta[:name], overrides: npc_meta[:overrides],
+                                                         rand_life: true)
+
+        add(entity, column_index, row_index, group: npc_meta[:group])
+      end
+
       @meta_map&.each_with_index do |meta_row, column_index|
         meta_row.each_with_index do |token, row_index|
           token_type = @legend.dig(token.to_sym, :type)

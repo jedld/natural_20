@@ -55,7 +55,7 @@ RSpec.describe AiController::Standard do
         end
         false
       end
-      expect(@fighter.hp).to eq 48
+      expect(@fighter.hp).to eq 50
       expect(@npc1.hp).to eq 0
       expect(@npc2.hp).to eq 0
     end
@@ -189,8 +189,8 @@ RSpec.describe AiController::Standard do
     it 'allows for opportunity attacks' do
       Natural20::EventManager.standard_cli
       expect(Natural20::MapRenderer.new(@map).render).to eq(
-        "······\n" +
-        "······\n" +
+        "g·····\n" +
+        "R·····\n" +
         "······\n" +
         "··Gg··\n" +
         "······\n" +

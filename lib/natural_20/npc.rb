@@ -44,15 +44,20 @@ module Natural20
         @statuses.add(stat.to_sym)
       end
 
-      name = case type
+      auto_name = case type.to_s
         when "goblin"
-          RandomNameGenerator.new(RandomNameGenerator::GOBLIN).compose(1)
+          RandomNameGenerator.new(RandomNameGenerator::GOBLIN).compose(2)
         when "ogre"
           %w[Guzar Irth Grukurg Zoduk].sample(1).first
         else
           type.to_s.humanize
         end
-      @name = opt.fetch(:name, name)
+      @name = if opt[:name] == '_auto_'
+                auto_name
+              else
+                opt[:name].presence || auto_name
+              end
+
       @entity_uid = SecureRandom.uuid
       setup_attributes
     end

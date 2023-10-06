@@ -28,3 +28,15 @@ legend:
   D:
     name: spawn_point_4
     type: spawn_point
+player:
+  - position: [0, 1]
+    sheet: characters/halfling_rogue.yml
+npc:
+  - position: [0, 0]
+    type: npc
+    sub_type: goblin
+    overrides:
+      battle_defaults:
+        statuses:
+          - hiding
+        stealth: 1d20+6
