@@ -29,7 +29,7 @@ module Natural20
     end
 
     def token_image
-      @properties[:token_image] || "token_#{(@properties[:kind] || @properties[:sub_type]).downcase}.png"
+      @properties[:token_image] || "token_#{(@properties[:kind] || @properties[:sub_type])&.downcase}.png"
     end
 
     def subrace; end

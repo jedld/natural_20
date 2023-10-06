@@ -385,7 +385,7 @@ module Natural20
     # @apram override [Hash] override attributes
     # @return [Natural20::PlayerCharacter] An instance of PlayerCharacter
     def self.load(session, path, override = {})
-      Natural20::PlayerCharacter.new(session, YAML.load_file(path).deep_symbolize_keys!.merge(override))
+      Natural20::PlayerCharacter.new(session, YAML.load_file(File.join(session.root_path, path)).deep_symbolize_keys!.merge(override))
     end
 
     # returns if an npc or a player character
