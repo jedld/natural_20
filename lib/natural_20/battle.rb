@@ -24,7 +24,8 @@ module Natural20
 
       @opposing_groups = {
         a: [:b],
-        b: [:a]
+        b: [:a],
+        c: [:c]
       }
 
       standard_controller&.register_battle_listeners(self)

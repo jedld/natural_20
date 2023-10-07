@@ -23,6 +23,18 @@ class AttackAction < Natural20::Action
     @action_type.to_s.humanize
   end
 
+  def to_h
+    {
+      action_type: @action_type,
+      target: @target&.entity_uid,
+      using: @using,
+      npc_action: @npc_action,
+      as_reaction: @as_reaction,
+      thrown: @thrown,
+      second_hand: @second_hand
+    }
+  end
+
   def label
     if @npc_action
       t('action.npc_action', name: @action_type.to_s.humanize, action_name: npc_action[:name])
@@ -86,6 +98,7 @@ class AttackAction < Natural20::Action
       consume_resource(battle, item)
       Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
                                                attack_name: item[:attack_name],
+                                               attack_thrown: item[:thrown],
                                                advantage_mod: item[:advantage_mod],
                                                as_reaction: !!item[:as_reaction],
                                                adv_info: item[:adv_info],

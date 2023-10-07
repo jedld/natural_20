@@ -19,7 +19,7 @@ module Natural20
               m_x, m_y = @map.entities[entity]
               attributes = shared_attributes.merge({id: entity.entity_uid,  hp: entity.hp, max_hp: entity.max_hp, entity_size: entity.size  })
               if (m_x == col_index) && (m_y == row_index)
-                attributes = attributes.merge(entity: entity.token_image, name: entity.label, dead: entity.dead?)
+                attributes = attributes.merge(entity: entity.token_image, name: entity.label, dead: entity.dead?, unconscious: entity.unconscious? )
               end
               attributes
             else

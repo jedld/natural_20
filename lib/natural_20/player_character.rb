@@ -31,7 +31,7 @@ module Natural20
       end
       @statuses = Set.new
       @resistances = []
-      entity_uid = SecureRandom.uuid
+      @entity_uid = SecureRandom.uuid
 
       @max_hit_die = {}
       @current_hit_die = {}

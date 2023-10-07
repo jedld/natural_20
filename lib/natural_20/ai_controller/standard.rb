@@ -138,7 +138,7 @@ module AiController
       valid_actions << StandAction.new(@session, entity, :stand) if entity.prone? && StandAction.can?(entity, battle)
 
       available_actions.select { |a| a.action_type == :attack }.each do |action|
-        next unless action.npc_action
+        # next unless action.npc_action
 
         valid_targets = battle.valid_targets_for(entity, action)
         unless valid_targets.first.nil?
@@ -170,7 +170,7 @@ module AiController
         valid_actions += generate_moves_for_positions(battle, entity, investigate_location)
       end
 
-      if HideBonusAction.can?(entity, battle) # bonus action hide if able
+      if HideBonusAction.can?(entity, battle) && makes_sense_to_hide?(entity, battle) # bonus action hide if able
         hide_action = HideBonusAction.new(battle.session, entity, :hide_bonus)
         hide_action.as_bonus_action = true
         valid_actions << hide_action
@@ -194,6 +194,12 @@ module AiController
     end
 
     protected
+
+    def makes_sense_to_hide?(entity, battle)
+      battle.map.entity_squares(entity).detect do |entity_pos|
+        battle.map.light_at(entity_pos[0], entity_pos[1]) < 0.5
+      end
+    end
 
     # Sort actions based on success rate and damage
     def sort_actions(battle, available_actions)

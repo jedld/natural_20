@@ -28,8 +28,12 @@ module Natural20
       @properties[:race]
     end
 
+    def familiar?
+      @properties[:familiar]
+    end
+
     def token_image
-      @properties[:token_image] || "token_#{(@properties[:kind] || @properties[:sub_type])&.downcase}.png"
+      @properties[:token_image] || "token_#{(@properties[:kind] || @properties[:sub_type] || @properties[:name])&.downcase}.png"
     end
 
     def subrace; end
@@ -102,10 +106,10 @@ module Natural20
       if @hp.negative? && @hp.abs >= @properties[:max_hp]
         dead!
 
-        battle.remove(self) if battle && familiar
+        battle.remove(self) if battle && familiar?
       elsif @hp <= 0
         npc? ? dead! : unconscious!
-        battle.remove(self) if battle && familiar
+        battle.remove(self) if battle && familiar?
       end
 
       @hp = 0 if @hp <= 0
@@ -549,7 +553,7 @@ module Natural20
     def available_movement(battle)
       return speed if battle.nil?
 
-      grappled? ? 0 : battle.entity_state_for(self)[:movement]
+      (grappled? || unconscious?) ? 0 : battle.entity_state_for(self)[:movement]
     end
 
     def available_spells

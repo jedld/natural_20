@@ -1,7 +1,7 @@
 # typed: true
 module Natural20
   class Action
-    attr_reader :action_type, :result, :source, :session, :errors
+    attr_reader :action_type, :result, :source, :session, :errors, :opts
 
     def initialize(session, source, action_type, opts = {})
       @source = source
@@ -18,6 +18,13 @@ module Natural20
 
     def to_s
       @action_type.to_s.humanize
+    end
+
+    def to_h
+      {
+        action_type: @action_type,
+        source: @source.entity_uid
+      }
     end
 
     def label
