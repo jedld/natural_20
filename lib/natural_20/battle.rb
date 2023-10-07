@@ -1,6 +1,8 @@
 # typed: false
 module Natural20
   class Battle
+    include Natural20::Weapons
+    
     attr_accessor :combat_order, :round, :current_party
     attr_reader :map, :entities, :session, :battle_log, :started, :in_combat, :current_turn_index
 
@@ -208,26 +210,6 @@ module Natural20
       action.resolve(@session, @map, opts)
     end
 
-    def compute_max_weapon_range(action, range = nil)
-      case action.action_type
-      when :help
-        5
-      when :attack
-        if action.npc_action
-          action.npc_action[:range_max].presence || action.npc_action[:range]
-        elsif action.using
-          weapon = session.load_weapon(action.using)
-          if action.thrown
-            weapon.dig(:thrown, :range_max) || weapon.dig(:thrown, :range) || weapon[:range]
-          else
-            weapon[:range_max].presence || weapon[:range]
-          end
-        end
-      else
-        range
-      end
-    end
-
     def active_perception_for(entity)
       @entities[entity][:active_perception] || 0
     end
@@ -244,7 +226,7 @@ module Natural20
       active_perception = active_perception.nil? ? active_perception_for(entity) : 0
       target_types = target_types&.map(&:to_sym) || [:enemies]
       entity_group = @entities[entity][:group]
-      attack_range = compute_max_weapon_range(action, range)
+      attack_range = compute_max_weapon_range(session, action, range)
 
       raise 'attack range cannot be nil' if attack_range.nil?
 

@@ -1,5 +1,27 @@
 # reusable utility methods for weapon calculations
 module Natural20::Weapons
+
+  # Compute for the max weapons range
+  def compute_max_weapon_range(session, action, range = nil)
+    case action.action_type
+    when :help
+      5
+    when :attack
+      if action.npc_action
+        action.npc_action[:range_max].presence || action.npc_action[:range]
+      elsif action.using
+        weapon = session.load_weapon(action.using)
+        if action.thrown
+          weapon.dig(:thrown, :range_max) || weapon.dig(:thrown, :range) || weapon[:range]
+        else
+          weapon[:range_max].presence || weapon[:range]
+        end
+      end
+    else
+      range
+    end
+  end
+
   # Check all the factors that affect advantage/disadvantage in attack rolls
   def target_advantage_condition(battle, source, target, weapon, source_pos: nil, overrides: {})
     advantages, disadvantages = compute_advantages_and_disadvantages(battle, source, target, weapon,

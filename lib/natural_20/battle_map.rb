@@ -3,6 +3,7 @@ module Natural20
   class BattleMap
     include Natural20::Cover
     include Natural20::MovementHelper
+    include Natural20::Weapons
 
     attr_reader :properties, :base_map, :spawn_points, :tokens, :entities, :size, :interactable_objects, :session,
                 :unaware_npcs, :size, :area_triggers, :feet_per_grid
@@ -511,6 +512,42 @@ module Natural20
       return false unless @tokens[pos_x][pos_y].nil?
 
       true
+    end
+
+    # Valid targets - Out of combat version
+    def valid_targets_for(entity, action, target_types: [:enemies], range: nil, active_perception: nil, include_objects: false, filter: nil)
+      raise 'not an action' unless action.is_a?(Natural20::Action)
+
+      attack_range = compute_max_weapon_range(session, action, range)
+
+      raise 'attack range cannot be nil' if attack_range.nil?
+
+      targets = @entities.map do |k, pos|
+        next if k.dead?
+        next if k.hp.nil?
+        # next if !target_types.include?(:ignore_los) && !can_see?(entity, k, active_perception: k.passive_perception)
+        next if distance(k, entity) * feet_per_grid > attack_range
+        next if filter && !k.eval_if(filter)
+
+        action.target = k
+        action.validate
+        next unless action.errors.empty?
+
+        k
+      end.compact
+
+      if include_objects
+        targets += interactable_objects.map do |object, _position|
+          next if object.dead?
+          next if !target_types.include?(:ignore_los) && !can_see?(entity, object, active_perception: active_perception)
+          next if distance(object, entity) * feet_per_grid > attack_range
+          next if filter && !k.eval_if(filter)
+
+          object
+        end.compact
+      end
+
+      targets
     end
 
     # @param entity [Natural20::Entity]
