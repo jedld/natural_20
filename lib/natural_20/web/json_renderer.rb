@@ -13,7 +13,7 @@ module Natural20
           row.each_with_index.collect do |c, col_index|
             entity = @map.entity_at(col_index, row_index)
             shared_attributes = {
-              difficult: @map.difficult_terrain?(entity, col_index, row_index)
+              x: col_index, y: row_index, difficult: @map.difficult_terrain?(entity, col_index, row_index)
             }
             if entity
               shared_attributes[:in_battle] = @battle && @battle.combat_order.include?(entity)
