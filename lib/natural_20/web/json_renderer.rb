@@ -16,6 +16,7 @@ module Natural20
               difficult: @map.difficult_terrain?(entity, col_index, row_index)
             }
             if entity
+              shared_attributes[:in_battle] = @battle && @battle.combat_order.include?(entity)
               m_x, m_y = @map.entities[entity]
               attributes = shared_attributes.merge({id: entity.entity_uid,  hp: entity.hp, max_hp: entity.max_hp, entity_size: entity.size  })
               if (m_x == col_index) && (m_y == row_index)

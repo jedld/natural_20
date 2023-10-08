@@ -89,8 +89,9 @@ module Natural20
     end
 
     # @param battle [Natural20::BattleMap]
-    def save_game(battle)
-      File.write(File.join(@root_path, 'savegame.yml'), battle.to_yaml)
+    def save_game(battle, map)
+      state = { session: self, map: battle ? battle.map : map, battle: battle }
+      File.write(File.join(@root_path, 'savegame.yml'), state.to_yaml)
     end
 
     def save_character(name, data)
@@ -99,6 +100,8 @@ module Natural20
 
     # @return [Natural20::Battle]
     def load_save
+      return nil unless File.exist?(File.join(@root_path, 'savegame.yml'))
+      
       YAML.load_file(File.join(@root_path, 'savegame.yml'))
     end
 

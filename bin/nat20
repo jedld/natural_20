@@ -77,9 +77,12 @@ def new_game
 end
 
 def continue_game
-  battle = @session.load_save
-  Natural20::Session.set_session(battle.session)
-  command_line = CommandlineUI.new(battle, battle.map)
+  state = @session.load_save
+  session = state[:session]
+  battle = state[:battle]
+  map = state[:map]
+  Natural20::Session.set_session(session)
+  command_line = CommandlineUI.new(battle, map)
   command_line.game_loop
 end
 
