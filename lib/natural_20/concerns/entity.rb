@@ -474,6 +474,8 @@ module Natural20
     end
 
     def dodge?(battle)
+      return false unless battle
+      
       entity_state = battle.entity_state_for(self)
       return false unless entity_state
 

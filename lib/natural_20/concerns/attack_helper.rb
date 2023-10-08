@@ -34,7 +34,7 @@ module Natural20::AttackHelper
 
   def effective_ac(battle, target)
     cover_ac_adjustments = 0
-    ac = if battle.map
+    ac = if battle && battle.map
            cover_ac_adjustments = calculate_cover_ac(battle.map, target)
            target.armor_class + cover_ac_adjustments # calculate AC with cover
          else

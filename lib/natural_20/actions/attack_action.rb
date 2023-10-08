@@ -214,9 +214,9 @@ class AttackAction < Natural20::Action
     target_ac, _cover_ac = effective_ac(battle, target)
     after_attack_roll_hook(battle, target, source, attack_roll, target_ac)
 
-    if @source.class_feature?('sneak_attack') && (weapon[:properties]&.include?('finesse') || weapon[:type] == 'ranged_attack') && (with_advantage? || battle.enemy_in_melee_range?(
+    if @source.class_feature?('sneak_attack') && (weapon[:properties]&.include?('finesse') || weapon[:type] == 'ranged_attack') && (with_advantage? || (battle && battle.enemy_in_melee_range?(
       target, [@source]
-    ))
+    )))
       sneak_attack_roll = Natural20::DieRoll.roll(@source.sneak_attack_level, crit: attack_roll.nat_20?,
                                                                               description: t('dice_roll.sneak_attack'), entity: @source, battle: battle)
     end

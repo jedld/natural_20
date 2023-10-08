@@ -54,7 +54,7 @@ module Natural20::Weapons
     disadvantage << :target_dodge if target.dodge?(battle)
     disadvantage << :armor_proficiency unless source.proficient_with_equipped_armor?
     advantage << :squeezed if target.squeezed?
-    advantage << :being_helped if battle.help_with?(target)
+    advantage << :being_helped if battle && battle.help_with?(target)
    
     if weapon && weapon[:type] == 'ranged_attack' && battle.map
       disadvantage << :ranged_with_enemy_in_melee if battle.enemy_in_melee_range?(source, source_pos: source_pos)
@@ -74,8 +74,8 @@ module Natural20::Weapons
     end
     advantage << :target_is_prone if weapon && weapon[:type] == 'melee_attack' && target.prone?
 
-    advantage << :unseen_attacker if battle.map && !battle.can_see?(target, source, entity_2_pos: source_pos)
-    disadvantage << :invisible_attacker if battle.map && !battle.can_see?(source, target, entity_1_pos: source_pos)
+    advantage << :unseen_attacker if battle && battle.map && !battle.can_see?(target, source, entity_2_pos: source_pos)
+    disadvantage << :invisible_attacker if battle && battle.map && !battle.can_see?(source, target, entity_1_pos: source_pos)
     [advantage, disadvantage]
   end
 
