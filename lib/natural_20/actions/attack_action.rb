@@ -49,6 +49,16 @@ class AttackAction < Natural20::Action
     end
   end
 
+  def ranged_attack?
+    weapon = session.load_weapon(@opts[:using] || @using)
+    weapon[:type] == 'ranged_attack'
+  end
+
+  def unarmed?
+    weapon = session.load_weapon(@opts[:using] || @using)
+    weapon[:properties]&.include?('unarmed')
+  end
+
   def build_map
     OpenStruct.new({
                      action: self,
