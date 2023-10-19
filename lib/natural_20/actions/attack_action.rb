@@ -50,12 +50,12 @@ class AttackAction < Natural20::Action
   end
 
   def ranged_attack?
-    weapon = session.load_weapon(@opts[:using] || @using)
+    weapon = get_attack_info(@opts)
     weapon[:type] == 'ranged_attack'
   end
 
   def unarmed?
-    weapon = session.load_weapon(@opts[:using] || @using)
+    weapon = get_attack_info(@opts)
     weapon[:properties]&.include?('unarmed')
   end
 
@@ -333,11 +333,27 @@ class AttackAction < Natural20::Action
     self
   end
 
+  def get_attack_info(opts = {})
+    npc_action = opts[:npc_action] || @npc_action
+
+    using = opts[:using] || @using
+    raise 'using or npc_action is a required option for :attack' if using.nil? && npc_action.nil?
+
+    npc_action = @source.npc_actions.detect { |a| a[:name].downcase == using.downcase } if @source.npc? && using
+
+    if @source.npc?
+      if npc_action.nil?
+        npc_action = @source.properties[actions].detect do |action|
+          action[:name].downcase == using.to_s.downcase
+        end
+      end
+      weapon = npc_action
+    else
+      weapon = session.load_weapon(using.to_sym)
+    end
+  end
 
   def get_weapon_info(opts)
-    target = opts[:target] || @target
-    raise 'target is a required option for :attack' if target.nil?
-
     npc_action = opts[:npc_action] || @npc_action
 
     using = opts[:using] || @using

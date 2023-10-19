@@ -12,6 +12,13 @@ module Natural20
       @opts = opts
     end
 
+    # @param entity [Natural20::Entity]
+    # @param battle [Natural20::Battle]
+    # @return [Boolean]
+    def self.can?(entity, battle, options = {})
+      false
+    end
+
     def name
       @action_type.to_s
     end
