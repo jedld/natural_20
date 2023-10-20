@@ -19,6 +19,10 @@ module Natural20
       false
     end
 
+    def self.to_type(klass_name)
+      klass_name.downcase.sub("action","").to_sym
+    end
+
     def name
       @action_type.to_s
     end

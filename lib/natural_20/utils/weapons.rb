@@ -4,6 +4,8 @@ module Natural20::Weapons
   # Compute for the max weapons range
   def compute_max_weapon_range(session, action, range = nil)
     case action.action_type
+    when :grapple
+      5
     when :help
       5
     when :attack
