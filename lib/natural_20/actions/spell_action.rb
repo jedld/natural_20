@@ -56,21 +56,23 @@ class SpellAction < Natural20::Action
   end
 
   def self.apply!(battle, item)
-    Natural20::Spell.descendants.each do |klass|
-      klass.apply!(battle, item)
-    end
-    case item[:type]
-    when :spell_damage
-      damage_event(item, battle)
-      consume_resource(battle, item)
-    when :spell_miss
-      consume_resource(battle, item)
-      Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
-                                               attack_name: item[:attack_name],
-                                               advantage_mod: item[:advantage_mod],
-                                               as_reaction: !!item[:as_reaction],
-                                               adv_info: item[:adv_info],
-                                               source: item[:source], target: item[:target], event: :miss })
+    transaction do
+      Natural20::Spell.descendants.each do |klass|
+        klass.apply!(battle, item)
+      end
+      case item[:type]
+      when :spell_damage
+        damage_event(item, battle)
+        consume_resource(battle, item)
+      when :spell_miss
+        consume_resource(battle, item)
+        Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
+                                                attack_name: item[:attack_name],
+                                                advantage_mod: item[:advantage_mod],
+                                                as_reaction: !!item[:as_reaction],
+                                                adv_info: item[:adv_info],
+                                                source: item[:source], target: item[:target], event: :miss })
+      end
     end
   end
 
@@ -85,7 +87,6 @@ class SpellAction < Natural20::Action
     when 'reaction'
       battle.consume(item[:source], :reaction)
     end
-
-    item[:source].consume_spell_slot!(spell_level) if spell_level.positive?
+    txn(item[:source], :consume_spell_slot!, [spell_level]) if spell_level.positive?
   end
 end

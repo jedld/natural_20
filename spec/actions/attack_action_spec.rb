@@ -8,6 +8,7 @@ RSpec.describe AttackAction do
       @battle_map = Natural20::BattleMap.new(session, 'fixtures/battle_sim')
       @battle = Natural20::Battle.new(session, @battle_map)
       @character = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'high_elf_fighter.yml'))
+      @character2 = Natural20::PlayerCharacter.load(session, File.join('fixtures', 'halfling_rogue.yml'))
       @npc = session.npc(:ogre)
       @npc2 = session.npc(:goblin)
     end
@@ -63,6 +64,20 @@ RSpec.describe AttackAction do
           @battle.commit(action)
           expect(@character.available_actions(session, @battle).map(&:action_type)).to include(:attack)
         end
+      end
+
+      specify 'thrown weapons' do
+        Natural20::EventManager.standard_cli
+        @battle.add(@character2, :a, position: :spawn_point_1, token: 'R')
+        @battle_map.move_to!(@character2, 0, 5, @battle)
+        srand(1000)
+        puts Natural20::MapRenderer.new(@battle_map).render
+        action = AttackAction.build(session, @character2).next.call(@npc).next.call('dagger').next.call
+        action.thrown = true
+        expect do
+          @battle.action!(action)
+          @battle.commit(action)
+        end.to change(@npc, :hp).from(59).to(46)
       end
 
       specify 'unarmed attack' do

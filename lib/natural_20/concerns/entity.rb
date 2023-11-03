@@ -2,9 +2,11 @@
 module Natural20
   module Entity
     include EntityStateEvaluator
+    include Natural20::States
 
     attr_accessor :entity_uid, :statuses, :color, :session, :death_saves, :effects, :flying,
-                  :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks, :concentration
+                  :death_fails, :current_hit_die, :max_hit_die, :entity_event_hooks, :concentration,
+                  :grappling
     attr_reader :casted_effects
 
     ATTRIBUTE_TYPES = %w[strength dexterity constitution intelligence wisdom charisma].freeze
@@ -82,9 +84,15 @@ module Natural20
     # @param battle [Natural20::Battle]
     # @param critical [Boolean]
     def take_damage!(dmg, battle: nil, critical: false)
+      before_state = new_state(self)
+      before_state.states[:hp] = @hp
       @hp -= dmg
 
       if unconscious?
+        before_state.states[:statuses] = @statuses.clone
+        before_state.states[:death_fails] = @death_fails
+        before_state.states[:death_saves] = @death_saves
+
         @statuses.delete(:stable)
         @death_fails += if critical
                           2
@@ -104,17 +112,19 @@ module Natural20
       end
 
       if @hp.negative? && @hp.abs >= @properties[:max_hp]
-        dead!
+        before_state.children << dead!
 
-        battle.remove(self) if battle && familiar?
+        before_state.children << battle.remove(self) if battle && familiar?
       elsif @hp <= 0
-        npc? ? dead! : unconscious!
-        battle.remove(self) if battle && familiar?
+        before_state.children <<  (npc? ? dead! : unconscious!)
+        before_state.children << battle.remove(self) if battle && familiar?
       end
 
       @hp = 0 if @hp <= 0
 
       Natural20::EventManager.received_event({ source: self, event: :damage, value: dmg })
+
+      before_state
     end
 
     def resistant_to?(damage_type)
@@ -122,13 +132,18 @@ module Natural20
     end
 
     def dead!
+      before_state = new_state(self)
+      before_state.states[:statuses] = @statuses.dup
+
       unless dead?
         Natural20::EventManager.received_event({ source: self, event: :died })
-        drop_grapple!
+        before_state.children << drop_grapple!
         @statuses.add(:dead)
         @statuses.delete(:stable)
         @statuses.delete(:unconscious)
       end
+
+      before_state
     end
 
     def prone!
@@ -772,17 +787,33 @@ module Natural20
 
     # @param target [Natural20::Entity]
     def ungrapple(target)
+      before_state = new_state(self)
+      before_state[:grappling] = @grappling.dup
+
       @grappling ||= []
       @grappling.delete(target)
+
+      before_state_target = new_state(target)
+      before_state_target[:grapples] = target.grapples.dup
+      before_state_target[:statuses] = target.statuses.dup
+
       target.grapples.delete(self)
       target.statuses.delete(:grappled) if target.grapples.empty?
+
+      before_state.children << before_state_target
+      before_state
     end
 
     def drop_grapple!
+      before_state = new_state(self)
+      before_state.states[:grappling] = @grappling.dup
+
       @grappling ||= []
       @grappling.each do |target|
-        ungrapple(target)
+        before_state.children << ungrapple(target)
       end
+
+      before_state
     end
 
     # Removes Item from inventory
@@ -803,6 +834,9 @@ module Natural20
     # @param amount [Integer]
     # @param source_item [Object]
     def add_item(ammo_type, amount = 1, source_item = nil)
+      before_state = new_state(self)
+      before_state.states[:inventory] = @inventory.dup
+
       if @inventory[ammo_type.to_sym].nil?
         @inventory[ammo_type.to_sym] =
           OpenStruct.new(qty: 0, type: source_item&.type || ammo_type.to_sym)
@@ -810,6 +844,8 @@ module Natural20
 
       qty = @inventory[ammo_type.to_sym].qty
       @inventory[ammo_type.to_sym].qty = qty + amount
+
+      before_state
     end
 
     # Retrieves the item count of an item in the entities inventory
@@ -878,7 +914,12 @@ module Natural20
     # @param item_name [String,Symbol]
     # @param transfer_inventory [Boolean] Add this item to the inventory?
     def unequip(item_name, transfer_inventory: true)
-      add_item(item_name.to_sym) if @properties[:equipped].delete(item_name.to_s) && transfer_inventory
+      before_state = new_state(self)
+      before_state.states[:equipped] = @properties[:equipped].dup
+
+      before_state.children << add_item(item_name.to_sym) if @properties[:equipped].delete(item_name.to_s) && transfer_inventory
+
+      before_state
     end
 
     # removes all equiped. Used for tests

@@ -94,25 +94,28 @@ class AttackAction < Natural20::Action
 
   # @param battle [Natural20::Battle]
   def self.apply!(battle, item)
-    if item[:flavor]
-      Natural20::EventManager.received_event({ event: :flavor, source: item[:source], target: item[:target],
-                                               text: item[:flavor] })
-    end
-    case (item[:type])
-    when :prone
-      item[:source].prone!
-    when :damage
-      damage_event(item, battle)
-      consume_resource(battle, item)
-    when :miss
-      consume_resource(battle, item)
-      Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
-                                               attack_name: item[:attack_name],
-                                               attack_thrown: item[:thrown],
-                                               advantage_mod: item[:advantage_mod],
-                                               as_reaction: !!item[:as_reaction],
-                                               adv_info: item[:adv_info],
-                                               source: item[:source], target: item[:target], event: :miss })
+    transaction do
+
+      if item[:flavor]
+        Natural20::EventManager.received_event({ event: :flavor, source: item[:source], target: item[:target],
+                                                text: item[:flavor] })
+      end
+      case (item[:type])
+      when :prone
+        txn(item[:source], :prone!)
+      when :damage
+        damage_event(item, battle)
+        consume_resource(battle, item)
+      when :miss
+        consume_resource(battle, item)
+        Natural20::EventManager.received_event({ attack_roll: item[:attack_roll],
+                                                attack_name: item[:attack_name],
+                                                attack_thrown: item[:thrown],
+                                                advantage_mod: item[:advantage_mod],
+                                                as_reaction: !!item[:as_reaction],
+                                                adv_info: item[:adv_info],
+                                                source: item[:source], target: item[:target], event: :miss })
+      end
     end
   end
 
@@ -120,18 +123,18 @@ class AttackAction < Natural20::Action
   # @param item [Hash]
   def self.consume_resource(battle, item)
     # handle ammo
-    item[:source].deduct_item(item[:ammo], 1) if item[:ammo]
+    txn(item[:source], :deduct_item, [item[:ammo], 1]) if item[:ammo]
 
     # hanle thrown items
     if item[:thrown]
       if item[:source].item_count(item[:weapon]).positive?
-        item[:source].deduct_item(item[:weapon], 1)
+        txn(item[:source], :deduct_item, [item[:weapon], 1])
       else
-        item[:source].unequip(item[:weapon], transfer_inventory: false)
+        txn(item[:source], :unequip, [item[:weapon], {transfer_inventory: false}])
       end
 
       if item[:type] == :damage
-        item[:target].add_item(item[:weapon])
+        txn(item[:target], :add_item, [item[:weapon]])
       else
         ground_pos = item[:battle].map.entity_or_object_pos(item[:target])
         ground_object = item[:battle].map.objects_at(*ground_pos).detect { |o| o.is_a?(ItemLibrary::Ground) }

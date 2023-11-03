@@ -415,10 +415,14 @@ module Natural20
 
     # Consumes a characters spell slot
     def consume_spell_slot!(level, character_class = nil, qty = 1)
+      before_state = new_state(self)
+      before_state.states[:spell_slots] = @spell_slots.deep_dup
+
       character_class = @spell_slots.keys.first if character_class.nil?
       if @spell_slots[character_class][level]
         @spell_slots[character_class][level] = [@spell_slots[character_class][level] - qty, 0].max
       end
+      before_state
     end
 
     def pc?

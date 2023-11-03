@@ -4,9 +4,11 @@ module Natural20
     include Natural20::Cover
     include Natural20::MovementHelper
     include Natural20::Weapons
+    include Natural20::States
 
     attr_reader :properties, :base_map, :spawn_points, :tokens, :entities, :size, :interactable_objects, :session,
                 :unaware_npcs, :size, :area_triggers, :feet_per_grid
+    attr_accessor :entities
 
     # @param session [Natural20::Session] The current game session
     # @param map_file [String] Path to map file
@@ -472,6 +474,10 @@ module Natural20
     # @param pos_y [Integer]
     # @param battle [Natural20::Battle]
     def move_to!(entity, pos_x, pos_y, battle)
+      before_state = new_state(self)
+      before_state.states[:entities] = @entities.dup
+
+
       cur_x, cur_y = @entities[entity]
 
       entity_data = @tokens[cur_x][cur_y]
@@ -503,6 +509,22 @@ module Natural20
       end
 
       @entities[entity] = [pos_x, pos_y]
+
+      before_state.callback = lambda {
+        (0...destination_token_size).each do |ofs_x|
+          (0...destination_token_size).each do |ofs_y|
+            @tokens[pos_x + ofs_x][pos_y + ofs_y] = nil
+          end
+        end
+
+        (0...source_token_size).each do |ofs_x|
+          (0...source_token_size).each do |ofs_y|
+            @tokens[cur_x + ofs_x][cur_y + ofs_y] = entity_data
+          end
+        end
+      }
+
+      before_state
     end
 
     def valid_position?(pos_x, pos_y)

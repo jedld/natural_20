@@ -39,6 +39,16 @@ RSpec.describe MoveAction do
       expect(@action.send(:opportunity_attack_list, @action.source, @action.move_path, @battle, map)).to eq [{ source: @npc, path: 1 }]
     end
 
+    specify "supports rollback" do
+      expect(map.position_of(@fighter)).to eq([2, 3])
+      @battle.action!(@action)
+      transactions = @battle.commit(@action)
+      expect(map.position_of(@fighter)).to eq([1, 2])
+      expect(transactions.size).to eq(1)
+      transactions.first.rollback
+      expect(map.position_of(@fighter)).to eq([2, 3])
+    end
+
     context 'opportunity attack large creature' do
       let(:map) { Natural20::BattleMap.new(session, 'fixtures/battle_sim_2') }
 

@@ -1,6 +1,8 @@
 # typed: true
 module Natural20
   class Action
+    include Natural20::States
+    
     attr_reader :action_type, :result, :source, :session, :errors, :opts
 
     def initialize(session, source, action_type, opts = {})

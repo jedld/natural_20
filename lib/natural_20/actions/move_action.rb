@@ -145,6 +145,7 @@ class MoveAction < Natural20::Action
   end
 
   def self.apply!(battle, item)
+    transaction do
       case (item[:type])
       when :state
         item[:params].each do |k, v|
@@ -157,17 +158,18 @@ class MoveAction < Natural20::Action
         else
           Natural20::EventManager.received_event(source: item[:source], event: item[:type], success: false,
                                                  roll: item[:roll])
-          item[:source].prone!
+          txn(item[:source], :prone!)
         end
       when :drop_grapple
-        item[:target].escape_grapple_from!(@source)
+        txn(item[:target],:escape_grapple_from!, [@source])
         Natural20::EventManager.received_event(event: :drop_grapple,
                                                target: item[:target], source: @source,
                                                source_roll: item[:source_roll],
                                                target_roll: item[:target_roll])
 
       when :move
-        item[:map].move_to!(item[:source], *item[:position], battle)
+        txn(item[:map], :move_to!, [item[:source], *item[:position], battle])
+
         if item[:as_dash] && item[:as_bonus_action]
           battle.entity_state_for(item[:source])[:bonus_action] -= 1
         elsif item[:as_dash]
@@ -180,6 +182,7 @@ class MoveAction < Natural20::Action
                                                  feet_per_grid: battle.map&.feet_per_grid,
                                                  as_dash: item[:as_dash], as_bonus: item[:as_bonus_action] })
       end
+    end
   end
 
   private

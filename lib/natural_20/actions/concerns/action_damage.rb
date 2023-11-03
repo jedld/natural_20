@@ -1,4 +1,6 @@
 module Natural20::ActionDamage
+  include Natural20::States
+
   def damage_event(item, battle)
     target = item[:target]
     dmg = item[:damage].is_a?(Natural20::DieRoll) ? item[:damage].result : item[:damage]
@@ -26,8 +28,7 @@ module Natural20::ActionDamage
                                              vulnerable: target.vulnerable_to?(item[:damage_type]),
                                              value: dmg,
                                              total_damage: total_damage })
-    item[:target].take_damage!(total_damage, battle: battle, critical: item[:attack_roll]&.nat_20?)
-
+    txn(item[:target], :take_damage!, [total_damage, { battle: battle, critical: item[:attack_roll]&.nat_20?}])
     item[:target].send(:on_take_damage, battle, item) if battle && total_damage.positive?
   end
 end

@@ -514,12 +514,13 @@ module Natural20
     end
 
     def commit(action)
+      transactions = []
       return if action.nil?
 
       # check_action_serialization(action)
       action.result.each do |item|
         Natural20::Action.descendants.each do |klass|
-          klass.apply!(self, item)
+          transactions << klass.apply!(self, item)
         end
       end
 
@@ -530,6 +531,8 @@ module Natural20
         trigger_event!(:interact, action)
       end
       @battle_log << action
+
+      transactions.flatten.compact
     end
 
     def trigger_event!(event, source, opt = {})
